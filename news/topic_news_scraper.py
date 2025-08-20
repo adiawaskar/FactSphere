@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 
-NEWS_API_URL = "https://gnews.io/api/v4/search?lang=en&max=10&q={topic}&token=c2701ccb205a11e310b6846dfa45ce0f"
+NEWS_API_URL = "https://gnews.io/api/v4/search?lang=en&max=10&q={topic}&token=API_KEY"
 
 
 OUTPUT_FILE = "topic_news.json"
