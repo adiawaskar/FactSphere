@@ -26,13 +26,11 @@ def extract_article_from_url(url):
 
     # 2. Extract the main text from the downloaded HTML.
     # The extract function intelligently finds and cleans the main article body.
-    # The 'include_comments=False' argument ensures we don't get the comments section.
-    # The 'target_language' can help with accuracy if you know the language beforehand.
     text = trafilatura.extract(
         downloaded,
         include_comments=False,
-        include_tables=False, # Set to True if you need tables
-        no_fallback=True # Use this for cleaner, but potentially less, output
+        include_tables=False,
+        no_fallback=True
     )
 
     # 3. Return the result
@@ -42,25 +40,40 @@ def extract_article_from_url(url):
         return "Error: Could not extract any main content from the provided URL."
 
 if __name__ == "__main__":
-    # This block runs when the script is executed directly from the terminal.
-    
     # Check if a command-line argument (the URL) was provided.
-    # sys.argv is a list containing the script name and its arguments.
-    # len(sys.argv) should be 2: [script_name, url]
     if len(sys.argv) != 2:
         print("Usage: python extract_content.py <URL>")
         print("Example: python extract_content.py https://www.example.com/news-article")
-        sys.exit(1) # Exit the script with an error code
+        sys.exit(1)
 
     # The URL is the second element in the sys.argv list
     input_url = sys.argv[1]
 
-    print(f"--> Fetching and extracting content from: {input_url}\n")
+    print(f"--> Fetching and extracting content from: {input_url}")
     
     # Call the main function to get the article content
     content = extract_article_from_url(input_url)
     
-    # Print the final extracted content to the terminal
-    print("--- EXTRACTED CONTENT ---")
-    print(content)
-    print("-------------------------\n")
+    # --- NEW: Code to save the content to a file ---
+
+    # Check if the content contains an error message before writing
+    if content.startswith("Error:"):
+        print(content) # Print the error to the console
+        sys.exit(1) # Exit without creating the file
+
+    file_name = "content.txt"
+    try:
+        # 'with open' handles opening and automatically closing the file.
+        # 'w' mode means write (it will overwrite the file if it already exists).
+        # 'encoding="utf-8"' is important to handle special characters from any language.
+        with open(file_name, "w", encoding="utf-8") as f:
+            f.write(content)
+        
+        # Let the user know the process was successful.
+        print(f"--> Successfully extracted content and saved it to '{file_name}'")
+
+    except IOError as e:
+        # Handle potential file writing errors (e.g., permissions issues)
+        print(f"Error: Could not write to file '{file_name}'.")
+        print(f"Details: {e}")
+        sys.exit(1)
