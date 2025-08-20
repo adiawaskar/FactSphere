@@ -5,3 +5,4 @@ lxml_html_clean
 groq
 python-dotenv
 rich
+requests
