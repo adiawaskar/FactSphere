@@ -5,3 +5,7 @@ lxml_html_clean
 groq
 python-dotenv
 rich
+requests
+langchain 
+sentence-transformers 
+chromadb
