@@ -2,3 +2,5 @@ venv/
 content.txt
 .env
 topic_news.json
+neutral_knowledge_base
+__pycache__/
