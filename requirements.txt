@@ -5,3 +5,14 @@ lxml_html_clean
 groq
 python-dotenv
 rich
+
+
+# --------------Adi-----------
+transformers
+torch
+requests
+beautifulsoup4
+sentence-transformers
+scikit-learn
+python-dotenv
+newsapi-python

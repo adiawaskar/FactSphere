@@ -1,0 +1,65 @@
+[
+    {
+        "title": "Tourist Denied US Entry Over JD Vance Meme",
+        "source": "https://www.dhs.gov/news/2025/06/30/dhs-debunks-fake-news-media-narratives-june",
+        "label": "FAKE",
+        "confidence": 0.0,
+        "explanation": "Claim compared against 0 sources. Label: FAKE, Confidence: 0.00"
+    },
+    {
+        "title": "NASA's James Webb Space Telescope Captures Stunning Images of Distant Galaxy",
+        "source": "https://www.nasa.gov/feature/goddard/2022/nasa-s-webb-captures-deepest-infrared-images-yet",
+        "label": "FAKE",
+        "confidence": 0.21986981034278869,
+        "explanation": "Claim compared against 1 sources. Label: FAKE, Confidence: 0.22"
+    },
+    {
+        "title": "WHO Confirms Vaccine Effectiveness Against New COVID-19 Variant",
+        "source": "https://www.who.int/news/item/2025-05-15-covid-19-vaccine-update",
+        "label": "FAKE",
+        "confidence": 0.0,
+        "explanation": "Claim compared against 0 sources. Label: FAKE, Confidence: 0.00"
+    },
+    {
+        "title": "NASA Confirms Earth Will Be Destroyed by Asteroid on May 15, 2025",
+        "source": "https://www.fake-news-site.com/asteroid-destruction",
+        "label": "FAKE",
+        "confidence": 0.0,
+        "explanation": "Claim compared against 0 sources. Label: FAKE, Confidence: 0.00"
+    },
+    {
+        "title": "Celebrity Cures Cancer With Homemade Juice",
+        "source": "https://www.fakenewshealth.com/celebrity-juice-cure",
+        "label": "FAKE",
+        "confidence": 0.0,
+        "explanation": "Claim compared against 0 sources. Label: FAKE, Confidence: 0.00"
+    },
+    {
+        "title": "Bill Gates Buying All the Farmland to Control the World Food Supply",
+        "source": "https://www.fakenewsconspiracy.com/gates-farmland",
+        "label": "FAKE",
+        "confidence": 0.0,
+        "explanation": "Claim compared against 0 sources. Label: FAKE, Confidence: 0.00"
+    },
+    {
+        "title": "Eiffel Tower to Reopen Fully After Renovation",
+        "source": "https://www.toureiffel.paris/en/news/2025/renovation-complete",
+        "label": "FAKE",
+        "confidence": 0.0,
+        "explanation": "Claim compared against 0 sources. Label: FAKE, Confidence: 0.00"
+    },
+    {
+        "title": "UN Reports Global Poverty Rate Drops to 9% in 2025",
+        "source": "https://www.un.org/en/news/global-poverty-2025",
+        "label": "FAKE",
+        "confidence": 0.0,
+        "explanation": "Claim compared against 0 sources. Label: FAKE, Confidence: 0.00"
+    },
+    {
+        "title": "Eating Chocolate Every Day Lets You Live to 150",
+        "source": "https://www.satirical-news.com/chocolate-lifespan",
+        "label": "FAKE",
+        "confidence": 0.0,
+        "explanation": "Claim compared against 0 sources. Label: FAKE, Confidence: 0.00"
+    }
+]
