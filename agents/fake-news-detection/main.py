@@ -93,56 +93,137 @@
 # print("Detection complete! Check output_result.json")
 
 
-# --------------------main.py--------------------
+# -------------------- main.py --------------------
+# -------------------- main.py --------------------
 import json
+import os
+import sys
+from urllib.parse import urlparse
+
 from news_fetcher import fetch_news_for_claim
 from text_utils import preprocess_text, extract_keywords
-from similarity_checker import compute_similarity, check_entailment
-from scorer import calculate_confidence
+from similarity_checker import best_evidence_for_claim
+
+# ensure nltk punkt download if missing (silent)
+try:
+    import nltk
+    nltk.download("punkt", quiet=True)
+except Exception:
+    pass
 
 INPUT_FILE = "input_news.json"
 OUTPUT_FILE = "output_result.json"
 
+ALLOWLISTED_DOMAINS = [
+    "nasa.gov", "who.int", "un.org", "dhs.gov", "reuters.com", "bbc.co.uk",
+    "theguardian.com", "nytimes.com", "apnews.com", "timesofindia.indiatimes.com",
+    "thehindu.com"
+]
+
+def _domain_of(url: str) -> str:
+    try:
+        net = urlparse(url).netloc or ""
+        net = net.lower()
+        if net.startswith("www."):
+            net = net[4:]
+        return net
+    except Exception:
+        return ""
+
+def _is_allowlisted(url: str) -> bool:
+    dom = _domain_of(url)
+    for a in ALLOWLISTED_DOMAINS:
+        if a in dom:
+            return True
+    return False
+
+def decide_label_from_evidence(evidences):
+    """
+    evidences: list of tuples
+      (combined_norm, bi_sim, cross_score, entail_score, sentence, url, source)
+    combined_norm in [0,1]
+    """
+    if not evidences:
+        return "UNVERIFIED", 0.0, "No evidence.", None
+
+    combined, bi_sim, cross_score, entail_score, sent, url, source = evidences[0]
+    # small allowlist boost
+    boost = 0.08 if _is_allowlisted(url) else 0.0
+    final = combined + boost
+    # thresholds (tunable)
+    if final >= 0.55:
+        label = "REAL"
+    elif final <= 0.25 and entail_score < -0.15:
+        label = "FAKE"
+    else:
+        label = "UNVERIFIED"
+
+    explanation = (
+        f"Top evidence from {source} ({url}). Combined: {combined:.3f}, boost: {boost:.3f}, final: {final:.3f}. "
+        f"(entail {entail_score:.3f}, bi_sim {bi_sim:.3f}, cross_raw {cross_score:.3f})"
+    )
+
+    evidence_details = {
+        "evidence_sentence": sent,
+        "evidence_url": url,
+        "evidence_source": source,
+        "combined": round(float(combined), 4),
+        "bi_sim": round(float(bi_sim), 4),
+        "cross_score": round(float(cross_score), 4),
+        "entail_score": round(float(entail_score), 4),
+        "final_with_boost": round(float(final), 4)
+    }
+    return label, float(final), explanation, evidence_details
+
 def main():
-    # Load input claims
+    if not os.path.exists(INPUT_FILE):
+        print(f"[ERROR] {INPUT_FILE} missing.")
+        sys.exit(1)
+
     with open(INPUT_FILE, "r", encoding="utf-8") as f:
         claims = json.load(f)
 
     results = []
-
     for claim in claims:
-        title = claim.get("title", "")
-        source = claim.get("source", "")
-        content = claim.get("content", "")
+        title = (claim.get("title") or "").strip()
+        source = (claim.get("source") or "").strip()
+        content = (claim.get("content") or "").strip()
+        raw_claim = (title + " " + content).strip()
+        if not raw_claim:
+            continue
 
-        preprocessed_claim = preprocess_text(title + " " + content)
-        keywords = extract_keywords(preprocessed_claim)
+        print(f"\n[CLAIM] {title}")
+        keywords = extract_keywords(preprocess_text(raw_claim))
+        print(f"[DEBUG] keywords: {keywords}")
 
-        # Fetch relevant news
-        news_articles = fetch_news_for_claim(keywords)
+        articles = fetch_news_for_claim(keywords, title=title, max_results=25)
+        print(f"[DEBUG] fetched {len(articles)} articles")
 
-        # Compute similarity and entailment
-        similarity_scores = [compute_similarity(preprocessed_claim, a["content"]) for a in news_articles]
-        entailment_scores = [check_entailment(preprocessed_claim, a["content"]) for a in news_articles]
+        if not articles:
+            label, confidence, explanation, evidence = "UNVERIFIED", 0.0, "No articles found.", None
+        else:
+            evidences = best_evidence_for_claim(raw_claim, articles, per_article_topk=2, global_topk=6)
+            print(f"[DEBUG] evidences: {len(evidences)}")
+            label, confidence, explanation, evidence = decide_label_from_evidence(evidences)
 
-        # Calculate final label and confidence
-        label, confidence = calculate_confidence(similarity_scores, entailment_scores)
-
-        explanation = f"Claim compared against {len(news_articles)} sources. Label: {label}, Confidence: {confidence:.2f}"
-
-        results.append({
+        out = {
             "title": title,
             "source": source,
             "label": label,
-            "confidence": confidence,
+            "confidence": round(float(confidence), 4),
             "explanation": explanation
-        })
+        }
+        if evidence:
+            out["evidence"] = evidence
 
-    # Save results
+        results.append(out)
+        print(f"[RESULT] {label} (conf {confidence:.3f})")
+        if evidence:
+            print(f"[EVID] {evidence['evidence_source']} - {evidence['evidence_sentence'][:160]}...")
+
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=4)
-
-    print(f"Detection complete! Check {OUTPUT_FILE}")
+        json.dump(results, f, indent=4, ensure_ascii=False)
+    print("\nDone. Output ->", OUTPUT_FILE)
 
 if __name__ == "__main__":
     main()

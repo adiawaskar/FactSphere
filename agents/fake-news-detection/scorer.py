@@ -1,11 +1,17 @@
+# -------------------- scorer.py --------------------
 def calculate_confidence(similarity_scores, entailment_scores):
     if not similarity_scores:
-        return "FAKE", 0.0
-    avg_similarity = sum(similarity_scores) / len(similarity_scores)
-    avg_entailment = sum(entailment_scores) / len(entailment_scores)
+        return "UNVERIFIED", 0.0
 
-    # Weighted scoring
-    final_score = 0.6 * avg_similarity + 0.4 * max(0.0, avg_entailment)
+    # Weighted average
+    sim = sum(similarity_scores) / len(similarity_scores)
+    ent = sum(entailment_scores) / len(entailment_scores) if entailment_scores else 0.0
+    final_score = (0.6 * sim) + (0.4 * ent)
 
-    label = "REAL" if final_score > 0.5 else "FAKE"
-    return label, final_score
+    # Threshold tuning
+    if final_score > 0.45:  # lowered threshold
+        return "VERIFIED", final_score
+    elif final_score < -0.2:  # strong contradiction
+        return "FAKE", abs(final_score)
+    else:
+        return "UNVERIFIED", abs(final_score)

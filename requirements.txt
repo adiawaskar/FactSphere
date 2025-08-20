@@ -16,3 +16,6 @@ sentence-transformers
 scikit-learn
 python-dotenv
 newsapi-python
+newspaper3k
+lxml
+cross-encoder
