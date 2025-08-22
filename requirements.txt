@@ -19,3 +19,11 @@ newsapi-python
 newspaper3k
 lxml
 cross-encoder
+
+
+# source checker
+python-whois
+tldextract
+dnspython
+validators
+feedparser
