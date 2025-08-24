@@ -1,0 +1,22 @@
+[
+  {"domain": "bbc.com", "note": "BBC News – UK public broadcaster, widely trusted"},
+  {"domain": "reuters.com", "note": "Reuters – International wire service"},
+  {"domain": "apnews.com", "note": "Associated Press"},
+  {"domain": "npr.org", "note": "NPR – US public media"},
+  {"domain": "nytimes.com", "note": "New York Times"},
+  {"domain": "washingtonpost.com", "note": "Washington Post"},
+  {"domain": "theguardian.com", "note": "The Guardian"},
+  {"domain": "aljazeera.com", "note": "Al Jazeera"},
+  {"domain": "indiatoday.in", "note": "India Today – IFCN fact-checker"},
+  {"domain": "boomlive.in", "note": "BOOM FactCheck – IFCN verified"},
+  {"domain": "afp.com", "note": "Agence France-Presse"},
+  {"domain": "factcheck.org", "note": "FactCheck.org – IFCN verified"},
+  {"domain": "politifact.com", "note": "PolitiFact – IFCN verified"},
+  {"domain": "snopes.com", "note": "Snopes – Longstanding fact-checker"},
+  {"domain": "thehindu.com", "note": "The Hindu – Indian newspaper"},
+  {"domain": "indianexpress.com", "note": "The Indian Express"},
+  {"domain": "economist.com", "note": "The Economist"},
+  {"domain": "dw.com", "note": "Deutsche Welle – German public broadcaster"},
+  {"domain": "lemonde.fr", "note": "Le Monde – French newspaper"},
+  {"domain": "timesofindia.indiatimes.com", "note": "Times of India"}
+]

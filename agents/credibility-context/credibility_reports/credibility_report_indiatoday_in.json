@@ -1,0 +1,84 @@
+{
+  "input": "https://indiatoday.in",
+  "parsed_domain_or_name": "indiatoday.in",
+  "timestamp": "2025-08-22T11:37:21.276436+00:00",
+  "checks": {
+    "known_unreliable": false,
+    "unreliable_list_size": 7,
+    "unreliable_sample": [
+      "newspunch.com",
+      "infowars.com",
+      "thegatewaypundit.com",
+      "rt.com",
+      "sputniknews.com",
+      "naturalnews.com",
+      "zerohedge.com"
+    ],
+    "domain_age_days": null,
+    "domain_age_note": "whois error: [Errno 11002] getaddrinfo failed",
+    "registrant_privacy": null,
+    "registrant_privacy_note": "whois error: [Errno 11002] getaddrinfo failed",
+    "https": true,
+    "https_note": "HTTPS reachable (HEAD 200)",
+    "dns_resolves": true,
+    "dns_info": "23.199.67.104",
+    "email_auth": {
+      "has_mx": false,
+      "has_spf": true,
+      "has_dmarc": true,
+      "notes": []
+    },
+    "wayback": {
+      "available": true,
+      "timestamp": "20250822000232",
+      "url": "http://web.archive.org/web/20250822000232/https://www.indiatoday.in/",
+      "source": "availability"
+    },
+    "local_factcheck_debunk_count": 0,
+    "local_factcheck_sources": []
+  },
+  "credibility_label": "Mixed / Needs Review",
+  "credibility_score": 2,
+  "credibility_reasons": [
+    "email_auth: no MX"
+  ],
+  "explain": {
+    "age": {
+      "value": null,
+      "delta": 0,
+      "note": "unknown age"
+    },
+    "https": {
+      "value": true,
+      "delta": 5,
+      "note": "HTTPS reachable"
+    },
+    "wayback": {
+      "value": true,
+      "delta": 5,
+      "note": "Wayback archival evidence"
+    },
+    "known_unreliable": {
+      "value": false,
+      "delta": 0,
+      "note": "Not flagged locally"
+    },
+    "email_auth": {
+      "value": {
+        "mx": false,
+        "spf": true,
+        "dmarc": true
+      },
+      "delta": -8,
+      "note": "no MX"
+    },
+    "local_debunks": {
+      "value": 0,
+      "delta": 0,
+      "note": "no local fact-checks"
+    }
+  },
+  "credibility_tier": "Mixed / Needs Review",
+  "credibility_confidence": 0.02,
+  "recommended_action": "queue_for_review"
+}

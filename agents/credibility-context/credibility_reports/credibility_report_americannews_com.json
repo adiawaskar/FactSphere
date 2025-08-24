@@ -1,0 +1,84 @@
+{
+  "input": "https://americannews.com/",
+  "parsed_domain_or_name": "americannews.com",
+  "timestamp": "2025-08-22T11:33:54.087128+00:00",
+  "checks": {
+    "known_unreliable": false,
+    "unreliable_list_size": 7,
+    "unreliable_sample": [
+      "zerohedge.com",
+      "thegatewaypundit.com",
+      "naturalnews.com",
+      "sputniknews.com",
+      "infowars.com",
+      "rt.com",
+      "newspunch.com"
+    ],
+    "domain_age_days": null,
+    "domain_age_note": "creation_date not found",
+    "registrant_privacy": false,
+    "https": false,
+    "https_note": "HTTPS GET error: HTTPSConnectionPool(host='americannews.com', port=443): Read timed out. (read timeout=10)",
+    "dns_resolves": true,
+    "dns_info": "104.21.32.1",
+    "email_auth": {
+      "has_mx": true,
+      "has_spf": true,
+      "has_dmarc": false,
+      "notes": []
+    },
+    "wayback": {
+      "available": true,
+      "timestamp": "20250410124949",
+      "url": "http://web.archive.org/web/20250410124949/http://americannews.com/",
+      "source": "availability"
+    },
+    "local_factcheck_debunk_count": 0,
+    "local_factcheck_sources": []
+  },
+  "credibility_label": "Low Trust",
+  "credibility_score": -7,
+  "credibility_reasons": [
+    "https: HTTPS unreachable (TLS/connection error)",
+    "email_auth: no DMARC"
+  ],
+  "explain": {
+    "age": {
+      "value": null,
+      "delta": 0,
+      "note": "unknown age"
+    },
+    "https": {
+      "value": false,
+      "delta": -10,
+      "note": "HTTPS unreachable (TLS/connection error)"
+    },
+    "wayback": {
+      "value": true,
+      "delta": 5,
+      "note": "Wayback archival evidence"
+    },
+    "known_unreliable": {
+      "value": false,
+      "delta": 0,
+      "note": "Not flagged locally"
+    },
+    "email_auth": {
+      "value": {
+        "mx": true,
+        "spf": true,
+        "dmarc": false
+      },
+      "delta": -2,
+      "note": "no DMARC"
+    },
+    "local_debunks": {
+      "value": 0,
+      "delta": 0,
+      "note": "no local fact-checks"
+    }
+  },
+  "credibility_tier": "Low Trust",
+  "credibility_confidence": 0.07,
+  "recommended_action": "show_with_warning"
+}
