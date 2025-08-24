@@ -5,3 +5,14 @@ lxml_html_clean
 groq
 python-dotenv
 rich
+trafilatura 
+requests
+lxml[html_clean]
+lxml_html_clean
+groq
+python-dotenv
+rich
+requests
+langchain 
+sentence-transformers 
+chromadb
