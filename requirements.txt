@@ -27,3 +27,6 @@ tldextract
 dnspython
 validators
 feedparser
+
+# language detection
+langdetect
