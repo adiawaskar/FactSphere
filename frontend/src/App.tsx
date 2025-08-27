@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import DeepfakeDetection from "./pages/DeepfakeDetection";
 import SocialTrends from "./pages/SocialTrends";
 import AIAnalyzer from "./pages/AIAnalyzer";
+import AskAI from "./pages/AskAI";
 import KnowledgeBase from "./pages/KnowledgeBase";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/deepfake-detection" element={<DeepfakeDetection />} />
           <Route path="/social-trends" element={<SocialTrends />} />
           <Route path="/ai-analyzer" element={<AIAnalyzer />} />
+          <Route path="/ask-ai" element={<AskAI />} />
           <Route path="/knowledge-base" element={<KnowledgeBase />} />
           <Route path="/about" element={<About />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -38,7 +38,7 @@ export const Header = () => {
         <Navigation />
 
         {/* Search Bar - Hidden on small screens, shown on large */}
-        <div className="hidden xl:flex flex-1 max-w-md ">
+        {/* <div className="hidden xl:flex flex-1 max-w-md ">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -46,7 +46,7 @@ export const Header = () => {
               className="pl-10 bg-muted/50 border-0 focus-visible:ring-1"
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Action Buttons */}
         <div className="hidden md:flex items-center gap-1 lg:gap-2">
