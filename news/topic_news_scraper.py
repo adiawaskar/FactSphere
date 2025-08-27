@@ -10,7 +10,6 @@ NEWS_API_URL = "https://gnews.io/api/v4/search?lang=en&max=10&q={topic}&token=AP
 OUTPUT_FILE = "topic_news.json"
 
 def fetch_topic_news(topic):
-    api_key = "demo" 
     url = NEWS_API_URL.replace("API_KEY", api_key).replace("{topic}", topic)
     response = requests.get(url)
     if response.status_code == 200:
