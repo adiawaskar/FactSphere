@@ -7,6 +7,7 @@ load_dotenv()
 
 # --- API Keys ---
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GNEWS_API_KEY = os.getenv("GNEWS_API_KEY")
 
 # --- LLM Models ---
 # Used for enhancing search queries and generating misconceptions.

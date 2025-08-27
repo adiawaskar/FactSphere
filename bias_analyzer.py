@@ -1,4 +1,5 @@
 # bias_analyzer.py
+
 import sys
 import json
 import logging
@@ -7,90 +8,120 @@ from typing import Dict, List, Any, Tuple
 from groq import Groq, APIError
 from rich.table import Table
 
+# Use the central configuration from the project
 from config import CONSOLE, GROQ_API_KEY, LLM_FAST_MODEL
 
+# Configure logging for the module
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 class BiasAnalysisAgent:
-    """Analyzes news articles for bias using an LLM and displays a detailed report."""
+    """
+    An AI agent that analyzes news articles for bias using an LLM
+    based on a predefined 13-point framework.
+    """
     def __init__(self, content: str, source_url: str = "Unknown Source"):
+        """
+        Initializes the agent with the article content and its source URL.
+        """
         if not GROQ_API_KEY:
-            CONSOLE.print("[bold red]Error: GROQ_API_KEY environment variable not set.[/bold red]")
-            sys.exit(1)
+            raise ValueError("GROQ_API_KEY is not configured in your environment.")
+        
         self.content = content
-        self.source_url = source_url # For display in the report title
+        self.source_url = source_url
         self.client = Groq(api_key=GROQ_API_KEY)
+        
+        # --- SINGLE SOURCE OF TRUTH ---
+        # This dictionary now defines the exact category names and their weights.
+        # The prompt will be generated directly from these keys.
         self.weights = {
-            'Title Analysis': 5, 'Authorship': 5, 'Word Choice & Tone': 15,
-            'Framing & Context': 10, 'Sources & Attribution': 15,
-            'Omission & Agenda': 10, 'Placement & Visuals': 5, 'Labeling': 5,
-            'Moral & Value Appeals': 10, 'Sentiment Toward Political Actors': 10,
-            'Narrative Construction': 5, 'Fact vs Opinion': 10, 'Confirmation Bias': 5
+            'Title Analysis': 5,
+            'Authorship': 5,
+            'Word Choice & Tone': 15,
+            'Framing & Context': 10,
+            'Sources & Attribution': 15,
+            'Omission & Agenda': 10,
+            'Placement & Visuals': 5,
+            'Labeling': 5,
+            'Moral & Value Appeals': 10,
+            'Sentiment Toward Political Actors': 10,
+            'Narrative Construction': 5,
+            'Fact vs Opinion': 10,
+            'Confirmation Bias': 5
         }
 
     def _generate_prompt(self) -> str:
-        # This method is unchanged
-        framework_details = """
-        1.  **Title Analysis**: Is it neutral or judgmental?
-        2.  **Authorship**: Is the author named and credible?
-        3.  **Word Choice & Tone**: Are words loaded/emotive or neutral?
-        4.  **Framing & Context**: How is the event framed (e.g., riot vs. protest)? Is context selective?
-        5.  **Sources & Attribution**: Are sources balanced and credible? Are quotes attributed?
-        6.  **Omission & Agenda Setting**: Are important facts or perspectives missing?
-        7.  **Placement & Visuals**: Is story placement prominent or buried? (Analyze based on text structure).
-        8.  **Labeling**: Are ideological labels used (e.g., "far-right," "radical left")?
-        9.  **Moral & Value Appeals**: Does it appeal to left-leaning (fairness, equality) or right-leaning (tradition, patriotism) values?
-        10. **Sentiment Toward Political Actors**: Is sentiment positive, negative, or neutral toward parties/leaders?
-        11. **Narrative Construction**: Is it a one-sided "heroes vs. villains" story?
-        12. **Fact vs. Opinion**: Is the article based on verifiable facts or speculation/commentary?
-        13. **Confirmation Bias Check**: Does it only reinforce one worldview without acknowledging complexities?
         """
+        Generates a highly specific prompt, instructing the LLM to use the exact
+        category names defined in the self.weights dictionary.
+        """
+        # Dynamically create the list of categories from our single source of truth.
+        category_list_str = "\n".join([f"- `{name}`" for name in self.weights.keys()])
+
         return f"""
         You are a meticulous and impartial media bias analyst. Your task is to analyze the provided news article based on a strict 13-point framework.
+
         **Instructions:**
-        For each of the 13 categories, provide a `score` from -5 (strong left) to +5 (strong right) and a concise `justification`.
-        Your entire output **MUST** be a single, valid JSON object with a list named "analysis_results".
-        **Article to Analyze:**
+        Your entire output **MUST** be a single, valid JSON object. This object must contain one key, "analysis_results", which is a list of 13 JSON objects.
+        
+        Each object in the list must have exactly three keys:
+        1. `category_name`: A string that **MUST** be one of the exact names from the list below.
+        2. `score`: An integer from -5 (strong left bias) to +5 (strong right bias).
+        3. `justification`: A concise 1-2 sentence explanation for the score.
+
+        **You MUST use these exact category names:**
+        {category_list_str}
+
+        **Article to Analyze (first 8000 characters):**
         ---
         {self.content[:8000]}
         ---
         """
 
     def _call_llm(self, prompt: str) -> str | None:
-        # This method is unchanged
+        """Calls the Groq API and handles potential errors gracefully."""
         try:
             completion = self.client.chat.completions.create(
-                model=LLM_FAST_MODEL, messages=[{"role": "user", "content": prompt}],
-                temperature=0.1, response_format={"type": "json_object"},
+                model=LLM_FAST_MODEL,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1,
+                response_format={"type": "json_object"},
             )
             return completion.choices[0].message.content
         except APIError as e:
-            CONSOLE.print(f"[bold red]An error occurred with the Groq API: {e}[/bold red]")
+            logging.error(f"Groq API Error for {self.source_url}: {e}")
+            CONSOLE.print(f"[bold red]    API Error during analysis. Skipping article.[/bold red]")
             return None
 
     def _parse_llm_response(self, response_text: str) -> List[Dict[str, Any]] | None:
-        # This method is unchanged
+        """Parses and validates the JSON string from the LLM."""
         try:
             data = json.loads(response_text)
             if "analysis_results" in data and isinstance(data["analysis_results"], list):
                 return data["analysis_results"]
-            logging.error("LLM response did not contain 'analysis_results' list.")
+            logging.error(f"LLM response for {self.source_url} had invalid structure.")
             return None
         except json.JSONDecodeError:
-            logging.error(f"Failed to decode LLM response into JSON. Response:\n{response_text}")
+            logging.error(f"Failed to decode LLM JSON for {self.source_url}.")
+            CONSOLE.print("[bold red]    Error: LLM returned invalid JSON. Skipping article.[/bold red]")
             return None
 
     def _calculate_bias_score(self, analysis_data: List[Dict[str, Any]]) -> float:
-        # This method is unchanged
+        """Calculates the final weighted bias index from the analysis data."""
         total_weighted_score = 0.0
         for item in analysis_data:
-            category, score = item.get("category_name"), item.get("score")
+            category = item.get("category_name")
+            score = item.get("score")
+            # This check will now work correctly for all categories.
             if category in self.weights and isinstance(score, (int, float)):
                 normalized_score = score / 5.0
                 weight_percentage = self.weights[category] / 100.0
                 total_weighted_score += normalized_score * weight_percentage
+            else:
+                logging.warning(f"Skipping invalid category/score for {self.source_url}: {item}")
         return total_weighted_score
 
     def _interpret_final_score(self, score: float) -> str:
-        # This method is unchanged
+        """Interprets the final score into a human-readable judgment."""
         if -1.0 <= score < -0.6: return "Strong Left Bias"
         if -0.6 <= score < -0.3: return "Moderate Left Bias"
         if -0.3 <= score < -0.1: return "Slight Left Bias"
@@ -100,13 +131,11 @@ class BiasAnalysisAgent:
         if 0.6 < score <= 1.0:  return "Strong Right Bias"
         return "Indeterminate Score"
 
-    # --- NEWLY ADDED METHOD ---
     def _display_results(self, analysis_data: List[Dict[str, Any]], final_score: float, judgment: str):
         """Displays the full analysis in a formatted table."""
         table = Table(
             title=f"[bold cyan]Bias Analysis Report for:[/] [dim]{self.source_url}[/dim]",
-            show_header=True,
-            header_style="bold magenta"
+            show_header=True, header_style="bold magenta"
         )
         table.add_column("Category", style="dim", width=30)
         table.add_column("Weight", justify="center")
@@ -114,14 +143,16 @@ class BiasAnalysisAgent:
         table.add_column("Justification", style="italic")
 
         for item in analysis_data:
-            score = item.get('score', 'N/A')
-            score_color = "white"
-            if isinstance(score, (int, float)):
-                score_color = "red" if score < 0 else "blue" if score > 0 else "white"
+            score = item.get('score', 0)
+            category_name = item.get('category_name', 'N/A')
+            score_color = "red" if score < 0 else "blue" if score > 0 else "white"
+            
+            # This lookup will now work correctly.
+            weight = self.weights.get(category_name, 0)
 
             table.add_row(
-                item.get('category_name', 'N/A'),
-                f"{self.weights.get(item.get('category_name'), 0)}%",
+                category_name,
+                f"{weight}%",
                 f"[{score_color}]{score}[/{score_color}]",
                 item.get('justification', 'No justification provided.')
             )
@@ -131,13 +162,13 @@ class BiasAnalysisAgent:
         CONSOLE.print(f"Final Bias Index: [bold]{final_score:.3f}[/bold]")
         CONSOLE.print(f"Overall Assessment: [bold]{judgment}[/bold]\n")
 
-    # --- UPDATED METHOD ---
     def run(self) -> Tuple[float, str] | None:
-        """Orchestrates the analysis, displays the report, and returns the final score."""
-        if not self.content:
+        """Orchestrates the analysis and returns the results for main.py."""
+        if not self.content or not self.content.strip():
+            logging.warning(f"Content for {self.source_url} is empty. Skipping.")
             return None
 
-        CONSOLE.print("[yellow]    Analyzing for bias...[/yellow]")
+        CONSOLE.print(f"[yellow]    Analyzing for bias: {self.source_url}...[/yellow]")
         prompt = self._generate_prompt()
         llm_response_str = self._call_llm(prompt)
         if not llm_response_str:
@@ -149,9 +180,7 @@ class BiasAnalysisAgent:
 
         final_score = self._calculate_bias_score(analysis_data)
         judgment = self._interpret_final_score(final_score)
-
-        # Call the display method before returning the values
+        
         self._display_results(analysis_data, final_score, judgment)
 
-        # Still return the values so main.py can use them for logic
         return final_score, judgment
