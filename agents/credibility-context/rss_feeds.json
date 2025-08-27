@@ -1,0 +1,7 @@
+[
+  { "url": "https://www.politifact.com/rss/all/", "publisher": "PolitiFact" },
+  { "url": "https://fullfact.org/feed/", "publisher": "Full Fact" },
+  { "url": "https://www.factcheck.org/feed/", "publisher": "FactCheck.org" },
+  { "url": "https://www.reuters.com/tools/rss", "publisher": "Reuters (check feed list)" },
+  { "url": "https://www.snopes.com/rss/", "publisher": "Snopes" }
+]

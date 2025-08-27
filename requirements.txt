@@ -1,13 +1,26 @@
-trafilatura 
+
+
+# --------------Adi-----------
+transformers
+torch
 requests
-lxml[html_clean]
-lxml_html_clean
-groq
+beautifulsoup4
+sentence-transformers
+scikit-learn
 python-dotenv
-rich
-requests
-langchain 
-sentence-transformers 
-chromadb
-googlesearch-python
-numpy
+newsapi-python
+newspaper3k
+lxml
+cross-encoder
+
+
+# source checker
+python-whois
+tldextract
+dnspython
+validators
+feedparser
+
+# language detection
+langdetect
+>>>>>>> 6b30a5f8bd08de13378bbdf7dd0976572a3c7b32

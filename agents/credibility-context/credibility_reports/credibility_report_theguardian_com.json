@@ -1,0 +1,81 @@
+{
+  "input": "https://theguardian.com",
+  "parsed_domain_or_name": "theguardian.com",
+  "timestamp": "2025-08-22T11:37:41.215378+00:00",
+  "checks": {
+    "known_unreliable": false,
+    "unreliable_list_size": 7,
+    "unreliable_sample": [
+      "zerohedge.com",
+      "rt.com",
+      "sputniknews.com",
+      "naturalnews.com",
+      "newspunch.com",
+      "thegatewaypundit.com",
+      "infowars.com"
+    ],
+    "domain_age_days": 11370,
+    "registrant_privacy": true,
+    "registrant_privacy_note": "found 'domains by proxy' in whois",
+    "https": true,
+    "https_note": "HTTPS reachable (HEAD 200)",
+    "dns_resolves": true,
+    "dns_info": "151.101.65.111",
+    "email_auth": {
+      "has_mx": true,
+      "has_spf": true,
+      "has_dmarc": true,
+      "notes": []
+    },
+    "wayback": {
+      "available": false,
+      "source": "availability"
+    },
+    "local_factcheck_debunk_count": 0,
+    "local_factcheck_sources": []
+  },
+  "credibility_label": "Moderate Trust",
+  "credibility_score": 12,
+  "credibility_reasons": [
+    "wayback: No Wayback evidence"
+  ],
+  "explain": {
+    "age": {
+      "value": 11370,
+      "delta": 10,
+      "note": "older (>2y)"
+    },
+    "https": {
+      "value": true,
+      "delta": 5,
+      "note": "HTTPS reachable"
+    },
+    "wayback": {
+      "value": false,
+      "delta": -3,
+      "note": "No Wayback evidence"
+    },
+    "known_unreliable": {
+      "value": false,
+      "delta": 0,
+      "note": "Not flagged locally"
+    },
+    "email_auth": {
+      "value": {
+        "mx": true,
+        "spf": true,
+        "dmarc": true
+      },
+      "delta": 0,
+      "note": "email auth present"
+    },
+    "local_debunks": {
+      "value": 0,
+      "delta": 0,
+      "note": "no local fact-checks"
+    }
+  },
+  "credibility_tier": "Moderate Trust",
+  "credibility_confidence": 0.12,
+  "recommended_action": "show_with_warning"
+}
