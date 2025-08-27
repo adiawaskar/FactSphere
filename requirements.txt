@@ -1,4 +1,17 @@
 
+trafilatura 
+requests
+lxml[html_clean]
+lxml_html_clean
+groq
+python-dotenv
+rich
+requests
+langchain 
+sentence-transformers 
+chromadb
+googlesearch-python
+numpy
 
 # --------------Adi-----------
 transformers
@@ -23,4 +36,3 @@ feedparser
 
 # language detection
 langdetect
->>>>>>> 6b30a5f8bd08de13378bbdf7dd0976572a3c7b32
