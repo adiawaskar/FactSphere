@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,7 @@ interface TrendItem {
   timestamp: string;
 }
 
+// Fallback data in case API fails
 const mockTrends: TrendItem[] = [
   {
     id: '1',
@@ -66,16 +67,57 @@ export default function SocialTrends() {
   const [trends, setTrends] = useState<TrendItem[]>(mockTrends);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
+  const [error, setError] = useState<string | null>(null);
   
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  const handleRefresh = async () => {
+  const fetchTrends = async () => {
     setIsRefreshing(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsRefreshing(false);
+    setError(null);
+    
+    try {
+      const response = await axios.get('/api/trends');
+      
+      if (response.data.success) {
+        // Map API response to match TrendItem interface
+        const mappedTrends: TrendItem[] = response.data.trends.map((trend: any, index: number) => ({
+          id: String(index + 1),
+          topic: trend.topic || 'Unknown Topic',
+          platform: trend.platform || 'twitter',
+          mentions: trend.frequency || trend.mentions || 0,
+          sentiment: trend.sentiment || 'neutral',
+          misinformationRisk: trend.severity || 'medium',
+          description: trend.description || 'No description available',
+          timestamp: trend.timestamp || 'Recently'
+        }));
+        
+        setTrends(mappedTrends);
+      } else {
+        setError('Failed to fetch trends data');
+        // Keep using mock data if API fails
+      }
+    } catch (error) {
+      console.error('Error fetching trends:', error);
+      setError('Error connecting to the server');
+      // Keep using mock data if API fails
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchTrends();
+    // Auto-refresh every 5 minutes
+    const intervalId = setInterval(fetchTrends, 5 * 60 * 1000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const handleRefresh = () => {
+    fetchTrends();
   };
 
   const getPlatformIcon = (platform: string) => {
@@ -174,6 +216,17 @@ export default function SocialTrends() {
             Refresh
           </Button>
         </motion.div>
+
+        {/* Error message */}
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="p-4 bg-danger/10 text-danger rounded-md"
+          >
+            {error}
+          </motion.div>
+        )}
 
         {/* Trends Grid */}
         <div className="grid gap-6">
