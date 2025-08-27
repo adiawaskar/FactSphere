@@ -1,0 +1,77 @@
+{
+  "image_count": 4,
+  "results": [
+    {
+      "local_path": "/Users/keshavdhanuka01/Desktop/MisinfoVerify/FactSphere/Images/russell_img.jpeg",
+      "ela_path": "media_audit/ela_results/ela_russell_img.jpeg.png",
+      "exif_summary": {
+        "camera_model": "N/A",
+        "make": "N/A",
+        "datetime_original_raw": "N/A",
+        "software": "N/A",
+        "gps_coordinates": null
+      },
+      "issues": [
+        "no_exif_metadata"
+      ],
+      "parsed_dates": {
+        "exif_datetime_utc": null
+      }
+    },
+    {
+      "local_path": "/Users/keshavdhanuka01/Desktop/MisinfoVerify/FactSphere/Images/WhatsApp Image 2025-07-31 at 20.18.02.jpeg",
+      "ela_path": "media_audit/ela_results/ela_WhatsApp Image 2025-07-31 at 20.18.02.jpeg.png",
+      "exif_summary": {
+        "camera_model": "N/A",
+        "make": "N/A",
+        "datetime_original_raw": "N/A",
+        "software": "N/A",
+        "gps_coordinates": null
+      },
+      "issues": [
+        "no_exif_metadata"
+      ],
+      "parsed_dates": {
+        "exif_datetime_utc": null
+      }
+    },
+    {
+      "local_path": "/Users/keshavdhanuka01/Desktop/MisinfoVerify/FactSphere/Images/original-image-lab2.jpg",
+      "ela_path": "media_audit/ela_results/ela_original-image-lab2.jpg.png",
+      "exif_summary": {
+        "camera_model": "N/A",
+        "make": "N/A",
+        "datetime_original_raw": "N/A",
+        "software": "N/A",
+        "gps_coordinates": null
+      },
+      "issues": [
+        "no_exif_metadata"
+      ],
+      "parsed_dates": {
+        "exif_datetime_utc": null
+      }
+    },
+    {
+      "local_path": "/Users/keshavdhanuka01/Desktop/MisinfoVerify/FactSphere/Images/DSC_7645.jpg",
+      "ela_path": "media_audit/ela_results/ela_DSC_7645.jpg.png",
+      "exif_summary": {
+        "camera_model": "NIKON Z 6_2",
+        "make": "NIKON CORPORATION",
+        "datetime_original_raw": "2023:01:31 18:16:40",
+        "software": "Adobe Photoshop Lightroom Classic 7.1 (Windows)",
+        "gps_coordinates": null
+      },
+      "issues": [
+        "edited_software_detected"
+      ],
+      "parsed_dates": {
+        "exif_datetime_utc": "2023-01-31T18:16:40+00:00"
+      }
+    }
+  ],
+  "output_dirs": {
+    "analysis_report_dir": "media_audit",
+    "ela_images_dir": "media_audit/ela_results"
+  }
+}
