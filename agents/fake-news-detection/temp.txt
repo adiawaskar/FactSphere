@@ -1,0 +1,5 @@
+{
+  "title": "NASA Confirms Earth Will Be Destroyed by Asteroid on May 15, 2025",
+  "content": "NASA has confirmed that a massive asteroid is on a collision course with Earth and will destroy the planet on May 15, 2025. The space agency urges all citizens to prepare for the impending disaster.",
+  "source": "https://www.fake-news-site.com/asteroid-destruction"
+}

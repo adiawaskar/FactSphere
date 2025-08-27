@@ -1,17 +1,8 @@
 # content_extractor.py
-from typing import List
 import trafilatura
-from googlesearch import search
 from config import CONSOLE
 
-def get_google_urls(query: str, num_results: int = 10) -> List[str]:
-    """Fetches Google search URLs for a given query."""
-    CONSOLE.print(f"\n[yellow]🔍 Searching Google for:[/yellow] '{query}'")
-    try:
-        return list(search(query, num_results=num_results, lang="en"))
-    except Exception as e:
-        CONSOLE.print(f"[bold red]Error during Google search: {e}[/bold red]")
-        return []
+# The get_google_urls function has been removed from this file.
 
 def extract_content_from_url(url: str) -> str | None:
     """Extracts the main text content from a URL using trafilatura."""

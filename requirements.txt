@@ -1,3 +1,4 @@
+
 trafilatura 
 requests
 lxml[html_clean]
@@ -11,3 +12,27 @@ sentence-transformers
 chromadb
 googlesearch-python
 numpy
+
+# --------------Adi-----------
+transformers
+torch
+requests
+beautifulsoup4
+sentence-transformers
+scikit-learn
+python-dotenv
+newsapi-python
+newspaper3k
+lxml
+cross-encoder
+
+
+# source checker
+python-whois
+tldextract
+dnspython
+validators
+feedparser
+
+# language detection
+langdetect

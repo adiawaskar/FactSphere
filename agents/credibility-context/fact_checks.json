@@ -1,0 +1,18 @@
+[
+  {
+    "url": "https://www.snopes.com/fact-check/vaccines-autism-infowars/",
+    "claim": "Infowars claimed vaccines cause autism",
+    "reviewed_domain": "infowars.com",
+    "rating": "False",
+    "publisher": "Snopes",
+    "datePublished": "2019-07-10"
+  },
+  {
+    "url": "https://www.politifact.com/factchecks/2020/apr/15/blog-posting/naturalnews-article-claims-5g-causes-covid-19-fals/",
+    "claim": "NaturalNews claims 5G causes COVID-19",
+    "reviewed_domain": "naturalnews.com",
+    "rating": "False",
+    "publisher": "PolitiFact",
+    "datePublished": "2020-04-15"
+  }
+]
