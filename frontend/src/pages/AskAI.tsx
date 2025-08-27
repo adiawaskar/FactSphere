@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -124,8 +123,11 @@ export default function AskAI() {
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    // Only scroll to bottom if there are messages and not showing welcome screen
+    if (messages.length > 0 && !showWelcome) {
+      scrollToBottom();
+    }
+  }, [messages, showWelcome]);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
