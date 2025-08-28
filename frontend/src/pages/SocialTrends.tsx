@@ -79,7 +79,11 @@ export default function SocialTrends() {
     setError(null);
     
     try {
-      const response = await axios.get('/api/trends');
+      console.log("Fetching trends from backend API...");
+      // Update the URL to point to the backend API
+      const response = await axios.get('http://localhost:8000/api/trends');
+      
+      console.log("API response received:", response.data);
       
       if (response.data.success) {
         // Map API response to match TrendItem interface
@@ -89,19 +93,31 @@ export default function SocialTrends() {
           platform: trend.platform || 'twitter',
           mentions: trend.frequency || trend.mentions || 0,
           sentiment: trend.sentiment || 'neutral',
-          misinformationRisk: trend.severity || 'medium',
+          misinformationRisk: trend.severity || trend.misinformationRisk || 'medium',
           description: trend.description || 'No description available',
           timestamp: trend.timestamp || 'Recently'
         }));
         
+        console.log(`Mapped ${mappedTrends.length} trends from API response`);
         setTrends(mappedTrends);
       } else {
+        console.error("API returned success: false");
         setError('Failed to fetch trends data');
         // Keep using mock data if API fails
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching trends:', error);
-      setError('Error connecting to the server');
+      // Add more detailed error logging
+      if (error.response) {
+        console.error('Response error data:', error.response.data);
+        console.error('Response error status:', error.response.status);
+      } else if (error.request) {
+        console.error('No response received:', error.request);
+      } else {
+        console.error('Error message:', error.message);
+      }
+      
+      setError(`Error connecting to the server: ${error.message || 'Unknown error'}`);
       // Keep using mock data if API fails
     } finally {
       setIsRefreshing(false);
