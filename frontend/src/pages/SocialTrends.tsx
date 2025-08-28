@@ -4,9 +4,11 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, AlertTriangle, Twitter, Globe, RefreshCw, Activity } from 'lucide-react';
+import { TrendingUp, AlertTriangle, Twitter, Globe, RefreshCw, Activity, Brain, BarChart2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 
 interface TrendItem {
   id: string;
@@ -63,11 +65,32 @@ const mockTrends: TrendItem[] = [
   }
 ];
 
+interface AgentStatus {
+  available: boolean;
+  running: boolean;
+  last_run: string | null;
+}
+
+interface AgentAnalysis {
+  success: boolean;
+  timestamp: string;
+  analysis?: string;
+  trends?: any[];
+  error?: string;
+}
+
 export default function SocialTrends() {
   const [trends, setTrends] = useState<TrendItem[]>(mockTrends);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('trends');
+  
+  // Agent-related state
+  const [agentStatus, setAgentStatus] = useState<AgentStatus | null>(null);
+  const [agentResults, setAgentResults] = useState<AgentAnalysis | null>(null);
+  const [isAgentRefreshing, setIsAgentRefreshing] = useState(false);
+  const [agentError, setAgentError] = useState<string | null>(null);
   
   const [ref, inView] = useInView({
     triggerOnce: true,
@@ -124,9 +147,69 @@ export default function SocialTrends() {
     }
   };
 
+  const fetchAgentStatus = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/agent/status');
+      setAgentStatus(response.data);
+    } catch (error: any) {
+      console.error('Error fetching agent status:', error);
+      setAgentStatus({
+        available: false,
+        running: false,
+        last_run: null
+      });
+    }
+  };
+
+  const fetchAgentResults = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/agent/results');
+      setAgentResults(response.data);
+      setAgentError(null);
+    } catch (error: any) {
+      console.error('Error fetching agent results:', error);
+      setAgentError('Could not load agent analysis results');
+    }
+  };
+
+  const triggerAgentAnalysis = async () => {
+    setIsAgentRefreshing(true);
+    setAgentError(null);
+    
+    try {
+      await axios.post('http://localhost:8000/api/agent/analyze');
+      
+      // Poll for status
+      const checkStatus = async () => {
+        const status = await axios.get('http://localhost:8000/api/agent/status');
+        setAgentStatus(status.data);
+        
+        if (status.data.running) {
+          // Still running, check again in 3 seconds
+          setTimeout(checkStatus, 3000);
+        } else {
+          // Finished, get results
+          fetchAgentResults();
+          setIsAgentRefreshing(false);
+        }
+      };
+      
+      // Start polling
+      setTimeout(checkStatus, 3000);
+      
+    } catch (error: any) {
+      console.error('Error triggering agent analysis:', error);
+      setAgentError('Failed to start agent analysis');
+      setIsAgentRefreshing(false);
+    }
+  };
+
   // Initial data fetch
   useEffect(() => {
     fetchTrends();
+    fetchAgentStatus();
+    fetchAgentResults();
+    
     // Auto-refresh every 5 minutes
     const intervalId = setInterval(fetchTrends, 5 * 60 * 1000);
     return () => clearInterval(intervalId);
@@ -155,6 +238,186 @@ export default function SocialTrends() {
   const filteredTrends = selectedPlatform === 'all' 
     ? trends 
     : trends.filter(trend => trend.platform === selectedPlatform);
+
+  const renderAgentAnalysis = () => {
+    // If agent status shows it's not available, show a special message
+    if (agentStatus && agentStatus.available === false) {
+      return (
+        <Card className="bg-muted/30">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Brain className="h-5 w-5 mr-2 text-muted-foreground" />
+              AI Analysis Unavailable
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              The AI analysis service is currently unavailable. This could be due to missing dependencies on the server.
+            </p>
+            <div className="bg-primary/5 p-4 rounded-md border border-primary/20">
+              <h4 className="font-medium mb-2">Server Message:</h4>
+              <p className="text-sm">
+                {agentResults?.message || agentResults?.analysis || "No message available from the server."}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (agentError) {
+      return (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="p-4 bg-danger/10 text-danger rounded-md"
+        >
+          {agentError}
+        </motion.div>
+      );
+    }
+    
+    if (!agentResults) {
+      return (
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">No agent analysis available</p>
+          <Button 
+            variant="default" 
+            onClick={triggerAgentAnalysis} 
+            disabled={isAgentRefreshing || (agentStatus && agentStatus.running)}
+            className="mt-4"
+          >
+            {isAgentRefreshing ? (
+              <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Analyzing...</>
+            ) : (
+              <><Brain className="h-4 w-4 mr-2" /> Run AI Analysis</>
+            )}
+          </Button>
+        </div>
+      );
+    }
+    
+    // Render the agent analysis results
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-sm text-muted-foreground">
+              Last analyzed: {new Date(agentResults.timestamp).toLocaleString()}
+            </p>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={triggerAgentAnalysis} 
+            disabled={isAgentRefreshing || (agentStatus && agentStatus.running)}
+          >
+            {isAgentRefreshing ? (
+              <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Analyzing...</>
+            ) : (
+              <><RefreshCw className="h-4 w-4 mr-2" /> Refresh Analysis</>
+            )}
+          </Button>
+        </div>
+        
+        {agentResults.error ? (
+          <Card className="bg-danger/5 border-danger/20">
+            <CardHeader>
+              <CardTitle className="text-danger flex items-center">
+                <AlertTriangle className="h-5 w-5 mr-2" />
+                Analysis Error
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>{agentResults.error}</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            {agentResults.analysis && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Brain className="h-5 w-5 mr-2 text-primary" />
+                    AI Analysis Summary
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="whitespace-pre-line">{agentResults.analysis}</p>
+                </CardContent>
+              </Card>
+            )}
+            
+            {agentResults.trends && agentResults.trends.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Analyzed Trends</h3>
+                
+                {agentResults.trends.map((trend, index) => (
+                  <Card key={index} className="overflow-hidden">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="flex items-center gap-2 text-base">
+                        <TrendingUp className="h-5 w-5 text-primary" />
+                        {trend.topic}
+                        {trend.misinformation_risk && (
+                          <Badge className={getRiskColor(trend.misinformation_risk.level)}>
+                            {trend.misinformation_risk.level} risk
+                          </Badge>
+                        )}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pb-4">
+                      {trend.misinformation_risk && trend.misinformation_risk.score !== undefined && (
+                        <div className="mb-4">
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>Misinformation Risk Score</span>
+                            <span className="font-medium">{Math.round(trend.misinformation_risk.score * 100)}%</span>
+                          </div>
+                          <Progress value={trend.misinformation_risk.score * 100} 
+                            className={
+                              trend.misinformation_risk.level === 'high' ? 'bg-danger/20' :
+                              trend.misinformation_risk.level === 'medium' ? 'bg-warning/20' : 'bg-success/20'
+                            }
+                          />
+                        </div>
+                      )}
+                      
+                      {trend.articles_analyzed > 0 && (
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Based on analysis of {trend.articles_analyzed} articles
+                        </p>
+                      )}
+                      
+                      {trend.article_analyses && trend.article_analyses.length > 0 && (
+                        <div className="mt-3 space-y-3">
+                          <h4 className="text-sm font-medium">Key Sources:</h4>
+                          {trend.article_analyses.slice(0, 2).map((article, idx) => (
+                            <div key={idx} className="text-sm bg-muted/30 p-3 rounded-md">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="font-normal">
+                                  {article.article_source || 'Unknown Source'}
+                                </Badge>
+                                {article.misinformation_risk && (
+                                  <Badge className={getRiskColor(article.misinformation_risk.level)}>
+                                    {article.misinformation_risk.level}
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="font-medium mt-1">{article.article_title}</p>
+                              <p className="text-muted-foreground mt-1 text-xs">{article.text_snippet}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
 
   return (
     <PageLayout className="py-8">
@@ -196,67 +459,81 @@ export default function SocialTrends() {
           </motion.p>
         </div>
 
-        {/* Controls */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="flex flex-wrap justify-between items-center gap-4"
-        >
-          <div className="flex gap-2">
-            {['all', 'twitter', 'facebook', 'instagram', 'tiktok'].map((platform) => (
-              <Button
-                key={platform}
-                variant={selectedPlatform === platform ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedPlatform(platform)}
-                className="capitalize"
-              >
-                {platform}
-              </Button>
-            ))}
-          </div>
+        {/* Tabs */}
+        <Tabs defaultValue="trends" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
+            <TabsTrigger value="trends">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Trends
+            </TabsTrigger>
+            <TabsTrigger value="analysis">
+              <Brain className="h-4 w-4 mr-2" />
+              AI Analysis
+            </TabsTrigger>
+          </TabsList>
           
-          <Button
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            variant="outline"
-            size="sm"
-          >
+          <TabsContent value="trends" className="mt-6">
+            {/* Controls */}
             <motion.div
-              animate={{ rotate: isRefreshing ? 360 : 0 }}
-              transition={{ duration: 1, repeat: isRefreshing ? Infinity : 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="flex flex-wrap justify-between items-center gap-4 mb-6"
             >
-              <RefreshCw className="h-4 w-4 mr-2" />
-            </motion.div>
-            Refresh
-          </Button>
-        </motion.div>
-
-        {/* Error message */}
-        {error && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="p-4 bg-danger/10 text-danger rounded-md"
-          >
-            {error}
-          </motion.div>
-        )}
-
-        {/* Trends Grid */}
-        <div className="grid gap-6">
-          <AnimatePresence mode="wait">
-            {filteredTrends.map((trend, index) => (
-              <motion.div
-                key={trend.id}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -50 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.02 }}
+              <div className="flex gap-2">
+                {['all', 'twitter', 'facebook', 'instagram', 'tiktok'].map((platform) => (
+                  <Button
+                    key={platform}
+                    variant={selectedPlatform === platform ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setSelectedPlatform(platform)}
+                    className="capitalize"
+                  >
+                    {platform}
+                  </Button>
+                ))}
+              </div>
+              
+              <Button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                variant="outline"
+                size="sm"
               >
-                <Card className="glass-card hover:shadow-lg transition-shadow">
+                <motion.div
+                  animate={{ rotate: isRefreshing ? 360 : 0 }}
+                  transition={{ duration: 1, repeat: isRefreshing ? Infinity : 0 }}
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                </motion.div>
+                Refresh
+              </Button>
+            </motion.div>
+
+            {/* Error message */}
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="p-4 bg-danger/10 text-danger rounded-md mb-6"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            {/* Trends Grid */}
+            <div className="grid gap-6">
+              <AnimatePresence mode="wait">
+                {filteredTrends.map((trend, index) => (
+                  <motion.div
+                    key={trend.id}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -50 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <Card className="glass-card hover:shadow-lg transition-shadow">
                   <CardHeader className="pb-4">
                     <div className="flex items-start justify-between">
                       <div className="space-y-2">
@@ -319,6 +596,12 @@ export default function SocialTrends() {
             ))}
           </AnimatePresence>
         </div>
+          </TabsContent>
+          
+          <TabsContent value="analysis" className="mt-6">
+            {renderAgentAnalysis()}
+          </TabsContent>
+        </Tabs>
       </motion.div>
     </PageLayout>
   );
