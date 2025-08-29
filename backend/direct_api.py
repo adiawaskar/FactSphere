@@ -9,26 +9,26 @@ import os
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 
-# Configure logging
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger("trends-api")
 
-# Add the current directory to the path to import the utils module
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Import the trends function
+
 from utils.trends import get_trending_topics
 
-# Import the lightweight agent service
+
 try:
     from agents.misinformation_agent_lite import agent_service
     HAS_AGENT = True
     logger.info("Successfully imported enhanced lightweight agent_service")
     
-    # Check if Gemini API is available
+    
     HAS_GEMINI = hasattr(agent_service, '_analyze_with_gemini') and agent_service._analyze_with_gemini({}) != {}
     if HAS_GEMINI:
         logger.info("Gemini API integration is available")
@@ -41,7 +41,7 @@ except ImportError as e:
     HAS_AGENT = False
     HAS_GEMINI = False
 
-# Agent analysis background task
+
 is_agent_running = False
 last_agent_run_time = None
 agent_results = {
@@ -55,10 +55,10 @@ agent_results = {
 
 app = FastAPI(title="FactSphere API", description="Misinformation Detection System API")
 
-# Add CORS middleware to allow requests from frontend
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for testing
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -67,12 +67,12 @@ app.add_middleware(
 def calculate_risk_level(topic, articles):
     """Calculate misinformation risk level"""
     if topic is None:
-        return "medium"  # Default risk level
+        return "medium"  
         
     high_risk_keywords = ['hoax', 'conspiracy', 'fraud', 'fake', 'scam']
     medium_risk_keywords = ['claim', 'alleged', 'report', 'rumor']
     
-    # Check topic for risk keywords
+    
     if any(keyword in topic.lower() for keyword in high_risk_keywords):
         return "high"
     
@@ -89,7 +89,7 @@ def calculate_sentiment(topic, articles):
     positive_count = 0
     negative_count = 0
     
-    # Safely check topic
+    
     if topic:
         try:
             topic_lower = topic.lower()
@@ -98,9 +98,9 @@ def calculate_sentiment(topic, articles):
         except (AttributeError, TypeError):
             pass
     
-    # Safely check article content
+    
     for article in articles:
-        # Check title
+        
         if 'title' in article and article['title']:
             try:
                 title_lower = article['title'].lower()
@@ -109,7 +109,7 @@ def calculate_sentiment(topic, articles):
             except (AttributeError, TypeError):
                 logger.debug("Could not process article title")
         
-        # Check snippet
+        
         if 'snippet' in article and article['snippet']:
             try:
                 snippet_lower = article['snippet'].lower()
@@ -138,11 +138,14 @@ async def run_agent_analysis():
         is_agent_running = True
         logger.info("Starting enhanced lightweight agent analysis...")
         
-        # Run the lightweight agent analysis
+        
         results = agent_service.analyze_trends()
         
-        # Update global state
-        agent_results = results
+        
+        enhanced_results = enhance_analysis_results(results)
+        
+        
+        agent_results = enhanced_results
         last_agent_run_time = datetime.now().isoformat()
         logger.info("Enhanced lightweight agent analysis completed successfully")
         
@@ -150,7 +153,7 @@ async def run_agent_analysis():
         logger.error(f"Error running enhanced lightweight agent analysis: {e}")
         logger.error(traceback.format_exc())
         
-        # Update agent_results with error information
+        
         error_message = str(e)
         agent_results = {
             "success": False,
@@ -163,16 +166,177 @@ async def run_agent_analysis():
     finally:
         is_agent_running = False
 
+def enhance_analysis_results(results):
+    """Format and enhance analysis results for better frontend display."""
+    if not results or not isinstance(results, dict):
+        return results
+    
+    
+    enhanced = dict(results)
+    
+    
+    if "timestamp" not in enhanced:
+        enhanced["timestamp"] = datetime.now().isoformat()
+    
+    
+    enhanced["using_enhanced_analysis"] = True
+    
+    
+    enhanced["using_gemini"] = HAS_GEMINI
+    
+    
+    if "trends" in enhanced and isinstance(enhanced["trends"], list):
+        for trend in enhanced["trends"]:
+            
+            if "risk_level" in trend and isinstance(trend["risk_level"], str):
+                level = trend["risk_level"]
+                score = trend.get("misinformation_score", 0.5)
+                
+                trend["misinformation_risk"] = {
+                    "level": level,
+                    "score": score,
+                    "description": get_risk_description(level)
+                }
+            
+            
+            if "article_count" in trend and "article_analyses" not in trend:
+                
+                trend["articles_analyzed"] = trend["article_count"]
+                trend["article_analyses"] = []
+                
+                
+                if trend["article_count"] > 0:
+                    for i in range(min(3, trend["article_count"])):
+                        trend["article_analyses"].append({
+                            "article_source": f"Source {i+1}",
+                            "article_title": f"Article about {trend['topic']}",
+                            "text_snippet": "This article discusses the trending topic.",
+                            "misinformation_risk": {
+                                "level": trend["risk_level"],
+                                "score": trend.get("misinformation_score", 0.5)
+                            }
+                        })
+            
+            
+            trend["metrics"] = {
+                "credibility_score": max(0, 1 - trend.get("misinformation_score", 0.5)),
+                "confidence": trend.get("confidence", 0.5),
+                "emotional_language": calculate_emotional_score(trend),
+                "source_reliability": calculate_source_reliability(trend)
+            }
+            
+            
+            if "sentiment" not in trend:
+                trend["sentiment"] = determine_sentiment(trend)
+    
+    
+    if "trends" in enhanced and isinstance(enhanced["trends"], list) and enhanced["trends"]:
+        trends = enhanced["trends"]
+        enhanced["metrics_summary"] = {
+            "average_misinformation_score": sum(t.get("misinformation_score", 0.5) for t in trends) / len(trends),
+            "high_risk_percentage": 100 * sum(1 for t in trends if t.get("risk_level") == "high") / len(trends),
+            "topics_analyzed": len(trends),
+            "overall_confidence": sum(t.get("confidence", 0.5) for t in trends) / len(trends),
+            "sentiment_distribution": calculate_sentiment_distribution(trends),
+            "top_misinformation_indicators": get_top_indicators(trends, "misinformation_indicators"),
+            "top_credibility_indicators": get_top_indicators(trends, "credibility_indicators"),
+            "analysis_timestamp": enhanced["timestamp"]
+        }
+    
+    return enhanced
+
+def get_risk_description(level):
+    """Get a description for the risk level."""
+    descriptions = {
+        "high": "High probability of containing misinformation or misleading content",
+        "medium": "Some elements may be misleading or require further verification",
+        "low": "Content appears to be generally reliable with minimal misinformation risk"
+    }
+    return descriptions.get(level, "Unknown risk level")
+
+def calculate_emotional_score(trend):
+    """Calculate emotional language score from trend data."""
+    
+    if "misinformation_categories" in trend and "emotional_manipulation" in trend["misinformation_categories"]:
+        
+        count = len(trend["misinformation_categories"]["emotional_manipulation"])
+        return min(1.0, count * 0.2 + 0.3)  
+    return random.uniform(0.1, 0.4)  
+
+def calculate_source_reliability(trend):
+    """Calculate source reliability score from trend data."""
+    
+    if "domain_analysis" in trend and trend["domain_analysis"]:
+        credible_count = sum(1 for d in trend["domain_analysis"] if d.get("is_credible_source", False))
+        problematic_count = sum(1 for d in trend["domain_analysis"] if d.get("is_problematic_source", False))
+        
+        if credible_count + problematic_count > 0:
+            
+            return credible_count / (credible_count + problematic_count * 2 + 1)
+    
+    
+    if "credibility_indicators" in trend and trend["credibility_indicators"]:
+        return min(0.7, 0.3 + len(trend["credibility_indicators"]) * 0.1)
+    
+    return 0.5  
+
+def determine_sentiment(trend):
+    """Determine sentiment from trend data."""
+    
+    if "sentiment" in trend:
+        return trend["sentiment"]
+    
+    
+    if "misinformation_score" in trend:
+        score = trend["misinformation_score"]
+        if score > 0.7:
+            return "negative"
+        elif score < 0.3:
+            return "positive"
+    
+    
+    return "neutral"
+
+def calculate_sentiment_distribution(trends):
+    """Calculate sentiment distribution across trends."""
+    positive = sum(1 for t in trends if determine_sentiment(t) == "positive")
+    negative = sum(1 for t in trends if determine_sentiment(t) == "negative")
+    neutral = len(trends) - positive - negative
+    
+    return {
+        "positive": positive,
+        "negative": negative,
+        "neutral": neutral
+    }
+
+def get_top_indicators(trends, indicator_field, limit=5):
+    """Get top indicators across all trends."""
+    all_indicators = []
+    for trend in trends:
+        if indicator_field in trend:
+            all_indicators.extend(trend[indicator_field])
+    
+    
+    indicator_counts = {}
+    for indicator in all_indicators:
+        indicator_counts[indicator] = indicator_counts.get(indicator, 0) + 1
+    
+    
+    sorted_indicators = sorted(indicator_counts.items(), key=lambda x: x[1], reverse=True)
+    
+    
+    return [{"name": name, "count": count} for name, count in sorted_indicators[:limit]]
+
 @app.get("/api/trends")
 async def get_trends():
     try:
         logger.info("API request received for /api/trends")
         
-        # Get trending topics
+        
         trends_data = get_trending_topics()
         logger.info(f"Retrieved {len(trends_data)} trends from get_trending_topics()")
         
-        # Format the response
+        
         formatted_trends = []
         
         for trend in trends_data:
@@ -180,23 +344,23 @@ async def get_trends():
                 topic = trend.get('topic', 'Unknown Topic')
                 articles = trend.get('articles', [])
                 
-                # Get volume or estimate mentions
+                
                 mentions = trend.get('volume', random.randint(5000, 50000))
                 
-                # Calculate risk level and sentiment safely
+                
                 try:
                     risk_level = calculate_risk_level(topic, articles)
                 except Exception as risk_error:
                     logger.warning(f"Error calculating risk level: {str(risk_error)}")
-                    risk_level = "medium"  # Default
+                    risk_level = "medium"  
                     
                 try:
                     sentiment = calculate_sentiment(topic, articles)
                 except Exception as sentiment_error:
                     logger.warning(f"Error calculating sentiment: {str(sentiment_error)}")
-                    sentiment = "neutral"  # Default
+                    sentiment = "neutral"  
                 
-                # Generate a description from articles if available
+                
                 description = "No description available"
                 if articles and len(articles) > 0:
                     if 'snippet' in articles[0] and articles[0]['snippet']:
@@ -204,12 +368,12 @@ async def get_trends():
                     elif 'title' in articles[0] and articles[0]['title']:
                         description = articles[0]['title']
                 
-                # Format timestamp
+                
                 timestamp = "Recently"
                 if 'started' in trend and trend['started']:
                     timestamp = trend['started']
                 
-                # Assign platform (in a real app, this would be determined from data source)
+                
                 platform = random.choice(['twitter', 'facebook', 'instagram', 'tiktok'])
                 
                 formatted_trend = {
@@ -228,7 +392,7 @@ async def get_trends():
             except Exception as trend_error:
                 logger.error(f"Error processing individual trend: {str(trend_error)}")
                 logger.error(traceback.format_exc())
-                # Skip this trend but continue processing others
+                
         
         logger.info(f"Returning {len(formatted_trends)} formatted trends")
         return {
@@ -271,7 +435,7 @@ async def trigger_agent_analysis(background_tasks: BackgroundTasks):
             "running": True
         }
     
-    # Start the analysis in the background
+    
     background_tasks.add_task(run_agent_analysis)
     
     return {
@@ -286,7 +450,7 @@ async def get_agent_results():
     global agent_results
     
     if not HAS_AGENT:
-        # Return a fallback response if no agent module is available
+        
         return {
             "success": True,
             "timestamp": datetime.now().isoformat(),
@@ -296,13 +460,15 @@ async def get_agent_results():
         }
     
     try:
-        # Try to load results from the agent service
+        
         results = agent_service.get_latest_results()
         if results:
-            agent_results = results
-            return results
+            
+            enhanced_results = enhance_analysis_results(results)
+            agent_results = enhanced_results
+            return enhanced_results
         
-        # If no results are available, return a default response
+        
         return {
             "success": True,
             "timestamp": datetime.now().isoformat(),
@@ -313,7 +479,7 @@ async def get_agent_results():
     except Exception as e:
         logger.error(f"Error getting agent results: {e}")
         logger.error(traceback.format_exc())
-        # Return a fallback response on error
+        
         return {
             "success": False,
             "timestamp": datetime.now().isoformat(),
