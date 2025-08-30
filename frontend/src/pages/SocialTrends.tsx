@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,7 @@ interface TrendItem {
   timestamp: string;
 }
 
+// Fallback data in case API fails
 const mockTrends: TrendItem[] = [
   {
     id: '1',
@@ -66,16 +67,73 @@ export default function SocialTrends() {
   const [trends, setTrends] = useState<TrendItem[]>(mockTrends);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
+  const [error, setError] = useState<string | null>(null);
   
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  const handleRefresh = async () => {
+  const fetchTrends = async () => {
     setIsRefreshing(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsRefreshing(false);
+    setError(null);
+    
+    try {
+      console.log("Fetching trends from backend API...");
+      // Update the URL to point to the backend API
+      const response = await axios.get('http://localhost:8000/api/trends');
+      
+      console.log("API response received:", response.data);
+      
+      if (response.data.success) {
+        // Map API response to match TrendItem interface
+        const mappedTrends: TrendItem[] = response.data.trends.map((trend: any, index: number) => ({
+          id: String(index + 1),
+          topic: trend.topic || 'Unknown Topic',
+          platform: trend.platform || 'twitter',
+          mentions: trend.frequency || trend.mentions || 0,
+          sentiment: trend.sentiment || 'neutral',
+          misinformationRisk: trend.severity || trend.misinformationRisk || 'medium',
+          description: trend.description || 'No description available',
+          timestamp: trend.timestamp || 'Recently'
+        }));
+        
+        console.log(`Mapped ${mappedTrends.length} trends from API response`);
+        setTrends(mappedTrends);
+      } else {
+        console.error("API returned success: false");
+        setError('Failed to fetch trends data');
+        // Keep using mock data if API fails
+      }
+    } catch (error: any) {
+      console.error('Error fetching trends:', error);
+      // Add more detailed error logging
+      if (error.response) {
+        console.error('Response error data:', error.response.data);
+        console.error('Response error status:', error.response.status);
+      } else if (error.request) {
+        console.error('No response received:', error.request);
+      } else {
+        console.error('Error message:', error.message);
+      }
+      
+      setError(`Error connecting to the server: ${error.message || 'Unknown error'}`);
+      // Keep using mock data if API fails
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchTrends();
+    // Auto-refresh every 5 minutes
+    const intervalId = setInterval(fetchTrends, 5 * 60 * 1000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const handleRefresh = () => {
+    fetchTrends();
   };
 
   const getPlatformIcon = (platform: string) => {
@@ -174,6 +232,17 @@ export default function SocialTrends() {
             Refresh
           </Button>
         </motion.div>
+
+        {/* Error message */}
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="p-4 bg-danger/10 text-danger rounded-md"
+          >
+            {error}
+          </motion.div>
+        )}
 
         {/* Trends Grid */}
         <div className="grid gap-6">

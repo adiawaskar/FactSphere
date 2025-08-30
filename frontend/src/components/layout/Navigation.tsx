@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Menu, X, Image, TrendingUp, Bot, Brain, Info } from 'lucide-react';
+import { Shield, Menu, X, Image, TrendingUp, Bot, Brain, Info, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const navigationItems = [
@@ -10,7 +10,8 @@ const navigationItems = [
   { path: '/deepfake-detection', label: 'Deepfake Detection', icon: Image },
   { path: '/social-trends', label: 'Social Trends', icon: TrendingUp },
   { path: '/ai-analyzer', label: 'AI Analyzer', icon: Bot },
-  { path: '/knowledge-base', label: 'Knowledge Base', icon: Brain },
+  { path: '/ask-ai', label: 'Ask AI', icon: Brain },
+  { path: '/knowledge-base', label: 'Knowledge Base', icon: Globe },
   { path: '/about', label: 'About', icon: Info },
 ];
 

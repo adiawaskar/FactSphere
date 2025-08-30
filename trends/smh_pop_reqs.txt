@@ -1,6 +1,0 @@
-pandas
-datetime
-requests
-bs4
-pytz
-selenium
