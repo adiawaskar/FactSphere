@@ -21,7 +21,12 @@ export const Header = () => {
           whileHover={{ scale: 1.05 }}
         >
           <div className="relative">
-            <Shield className="h-6 w-6 lg:h-8 lg:w-8 text-primary" />
+            {/* <Shield className="h-6 w-6 lg:h-8 lg:w-8 text-primary" /> */}
+            <img 
+              src="/factspherelogo.png" 
+              alt="FactSphere Logo" 
+              className="h-8 w-8 lg:h-10 lg:w-10 object-contain" 
+            />
             <motion.div 
               className="absolute -top-1 -right-1 w-2 h-2 lg:w-3 lg:h-3 bg-secondary rounded-full"
               animate={{ scale: [1, 1.2, 1] }}

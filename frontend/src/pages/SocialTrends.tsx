@@ -146,7 +146,7 @@ export default function SocialTrends() {
     try {
       console.log("Fetching trends from backend API...");
       // Update the URL to point to the backend API
-      const response = await axios.get('http://localhost:8000/api/trends');
+      const response = await axios.get('http://127.0.0.1:8000/api/trends');
       
       console.log("API response received:", response.data);
       
@@ -191,7 +191,7 @@ export default function SocialTrends() {
 
   const fetchAgentStatus = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/agent/status');
+      const response = await axios.get('http://127.0.0.1:8000/api/agent/status');
       setAgentStatus(response.data);
     } catch (error: any) {
       console.error('Error fetching agent status:', error);
@@ -205,7 +205,7 @@ export default function SocialTrends() {
 
   const fetchAgentResults = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/agent/results');
+      const response = await axios.get('http://127.0.0.1:8000/api/agent/results');
       setAgentResults(response.data);
       setAgentError(null);
       
@@ -224,11 +224,11 @@ export default function SocialTrends() {
     setAgentError(null);
     
     try {
-      await axios.post('http://localhost:8000/api/agent/analyze');
+      await axios.post('http://127.0.0.1:8000/api/agent/analyze');
       
       // Poll for status
       const checkStatus = async () => {
-        const status = await axios.get('http://localhost:8000/api/agent/status');
+        const status = await axios.get('http://127.0.0.1:8000/api/agent/status');
         setAgentStatus(status.data);
         
         if (status.data.running) {
