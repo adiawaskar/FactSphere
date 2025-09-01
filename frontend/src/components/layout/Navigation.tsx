@@ -1,8 +1,7 @@
-
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Menu, X, Image, TrendingUp, Bot, Brain, Info, Globe } from 'lucide-react';
+import { Shield, Menu, X, Image, TrendingUp, Bot, Brain, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const navigationItems = [
@@ -11,7 +10,7 @@ const navigationItems = [
   { path: '/social-trends', label: 'Social Trends', icon: TrendingUp },
   { path: '/ai-analyzer', label: 'AI Analyzer', icon: Bot },
   { path: '/ask-ai', label: 'Ask AI', icon: Brain },
-  { path: '/knowledge-base', label: 'Knowledge Base', icon: Globe },
+  { path: '/knowledge-base', label: 'Knowledge Base', icon: Brain },
   { path: '/about', label: 'About', icon: Info },
 ];
 
@@ -22,7 +21,7 @@ export const Navigation = () => {
   return (
     <>
       {/* Desktop Navigation */}
-      <nav className="hidden lg:flex items-center gap-4 xl:gap-4">
+      <nav className="hidden lg:flex items-center gap-4 xl:gap-2">
         {navigationItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
