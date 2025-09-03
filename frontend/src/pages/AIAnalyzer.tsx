@@ -1,321 +1,298 @@
 
-import { useState } from 'react';
-import { PageLayout } from '@/components/layout/PageLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Bot, Send, Upload, Link, Type, Loader2, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+import { useState } from "react";
+import { PageLayout } from "@/components/layout/PageLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+// import { Globe } from "lucide-react";
 
-interface AnalysisResult {
-  verdict: 'true' | 'false' | 'partial' | 'unverified';
-  confidence: number;
-  sources: Array<{
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import {
+  Bot,
+  Send,
+  Loader2,
+  Globe,
+  Languages,
+  FileText,
+  Link,
+  Image,
+  Video,
+  AlertTriangle,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+
+interface Report {
+  status: string;
+  url: string;
+  lang: string;
+  title: string;
+  text: string;
+  images: string[];
+  videos: string[];
+  trigger_report: Record<string, any>;
+  source_crebility: Array<{
     title: string;
     url: string;
     credibility: number;
   }>;
-  reasoning: string;
-  factChecks: Array<{
-    claim: string;
-    status: 'verified' | 'disputed' | 'false';
-    explanation: string;
-  }>;
 }
 
 export default function AIAnalyzer() {
-  const [activeTab, setActiveTab] = useState('text');
-  const [textInput, setTextInput] = useState('');
-  const [urlInput, setUrlInput] = useState('');
+  const [urlInput, setUrlInput] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
-  
+  const [report, setReport] = useState<Report | null>(null);
+
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
   const handleAnalyze = async () => {
-    if (!textInput && !urlInput) return;
-    
+    if (!urlInput) return;
+
     setIsAnalyzing(true);
-    
-    // Simulate AI analysis
-    await new Promise(resolve => setTimeout(resolve, 4000));
-    
-    // Mock result
-    const mockResult: AnalysisResult = {
-      verdict: Math.random() > 0.7 ? 'true' : Math.random() > 0.4 ? 'false' : 'partial',
-      confidence: 70 + Math.random() * 30,
-      sources: [
-        { title: 'Reuters Fact Check', url: 'https://reuters.com', credibility: 95 },
-        { title: 'Associated Press', url: 'https://ap.org', credibility: 92 },
-        { title: 'Snopes', url: 'https://snopes.com', credibility: 88 }
-      ],
-      reasoning: 'Based on cross-referencing with multiple credible sources and fact-checking databases, the claim contains elements that have been verified by reputable news organizations.',
-      factChecks: [
-        { claim: 'Main assertion', status: 'verified', explanation: 'Confirmed by multiple sources' },
-        { claim: 'Supporting detail', status: 'disputed', explanation: 'Some conflicting information found' }
-      ]
-    };
-    
-    setResult(mockResult);
-    setIsAnalyzing(false);
-  };
+    setReport(null);
 
-  const getVerdictIcon = (verdict: string) => {
-    switch (verdict) {
-      case 'true': return <CheckCircle className="h-5 w-5 text-verified" />;
-      case 'false': return <XCircle className="h-5 w-5 text-danger" />;
-      case 'partial': return <AlertTriangle className="h-5 w-5 text-warning" />;
-      default: return <AlertTriangle className="h-5 w-5 text-muted-foreground" />;
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: urlInput }),
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+      const data = await response.json();
+      setReport(data.report);
+    } catch (error) {
+      console.error("Error calling API:", error);
+      setReport(null);
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
-  const getVerdictColor = (verdict: string) => {
-    switch (verdict) {
-      case 'true': return 'text-verified bg-verified/10';
-      case 'false': return 'text-danger bg-danger/10';
-      case 'partial': return 'text-warning bg-warning/10';
-      default: return 'text-muted-foreground bg-muted/10';
-    }
-  };
+return (
+  <PageLayout className="py-8">
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6 }}
+      className="space-y-10"
+    >
+      {/* Hero Section */}
+      <div className="text-center space-y-4">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full shadow-sm"
+        >
+          <Bot className="h-5 w-5 text-blue-600" />
+          <span className="text-blue-700 font-medium">AI Fact Analyzer</span>
+        </motion.div>
+        <h1 className="text-4xl md:text-6xl font-bold text-gradient">
+          Fact Check Any URL
+        </h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Paste a link to analyze its credibility, sources, and content.
+        </p>
+      </div>
 
-  return (
-    <PageLayout className="py-8">
-      <motion.div
-        ref={ref}
-        initial={{ opacity: 0, y: 50 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6 }}
-        className="space-y-8"
-      >
-        {/* Hero Section */}
-        <div className="text-center space-y-4">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-full"
+      {/* Two Column Layout */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto w-full">
+  {/* LEFT COLUMN */}
+  <div className="space-y-6">
+    {/* Input Section */}
+    <Card className="glass-card shadow-lg border border-blue-100">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-blue-600">
+          <Link className="h-5 w-5" />
+          Submit URL
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Input
+            type="url"
+            placeholder="🔗 Enter a news/article link..."
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+            className="flex-grow px-4 py-3 rounded-lg border focus:ring-2 focus:ring-blue-500"
+          />
+          <Button
+            onClick={handleAnalyze}
+            disabled={isAnalyzing || !urlInput}
+            className="gradient-primary px-6 py-3 rounded-lg shadow-md"
           >
-            <Bot className="h-5 w-5 text-secondary" />
-            <span className="text-secondary font-medium">AI-Powered Analysis</span>
-          </motion.div>
-          
-          <motion.h1 
-            className="text-4xl md:text-6xl font-bold text-gradient"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            AI Fact Checker
-          </motion.h1>
-          
-          <motion.p 
-            className="text-xl text-muted-foreground max-w-2xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            Submit any claim, article, or media content for comprehensive AI-powered fact-checking and verification
-          </motion.p>
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <Send className="mr-2 h-4 w-4" />
+                Analyze
+              </>
+            )}
+          </Button>
         </div>
+      </CardContent>
+    </Card>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Input Section */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Type className="h-5 w-5" />
-                  Submit for Analysis
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="text">Text</TabsTrigger>
-                    <TabsTrigger value="url">URL</TabsTrigger>
-                    <TabsTrigger value="file">File</TabsTrigger>
-                  </TabsList>
+    {/* Source Credibility */}
+    {report && report.source_crebility && (
+  <Card className="border-l-4 border-green-400 shadow-sm">
+    <CardHeader>
+      <CardTitle className="text-green-600 flex items-center gap-2">
+        ✅ Source Credibility
+      </CardTitle>
+    </CardHeader>
+    <CardContent className="space-y-3">
+      {/* Domain */}
+      <p>
+        <strong>Domain:</strong> {report.source_crebility.domain}
+      </p>
 
-                  <div className="mt-6">
-                    <TabsContent value="text" className="space-y-4">
-                      <Textarea
-                        placeholder="Paste the claim, news article, or statement you want to fact-check..."
-                        value={textInput}
-                        onChange={(e) => setTextInput(e.target.value)}
-                        className="min-h-40 resize-none"
-                      />
-                    </TabsContent>
+      {/* Credibility Label & Score */}
+      <p>
+        <strong>Credibility:</strong>{" "}
+        <span className="px-2 py-1 rounded bg-gray-100">
+          {report.source_crebility.label} (
+          {(report.source_crebility.score * 100).toFixed(1)}%)
+        </span>
+      </p>
 
-                    <TabsContent value="url" className="space-y-4">
-                      <Input
-                        type="url"
-                        placeholder="https://example.com/article-to-verify"
-                        value={urlInput}
-                        onChange={(e) => setUrlInput(e.target.value)}
-                      />
-                    </TabsContent>
-
-                    <TabsContent value="file" className="space-y-4">
-                      <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
-                        <Upload className="h-8 w-8 mx-auto mb-4 text-muted-foreground" />
-                        <p className="text-muted-foreground">Upload documents or images</p>
-                      </div>
-                    </TabsContent>
-
-                    <Button
-                      onClick={handleAnalyze}
-                      disabled={isAnalyzing || (!textInput && !urlInput)}
-                      className="w-full gradient-primary mt-6"
-                    >
-                      {isAnalyzing ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Analyzing...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="mr-2 h-4 w-4" />
-                          Analyze Content
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </Tabs>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Results Section */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6 }}
-          >
-            <Card className="glass-card h-full">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bot className="h-5 w-5" />
-                  Analysis Results
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <AnimatePresence mode="wait">
-                  {!result && !isAnalyzing && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center justify-center h-64 text-muted-foreground"
-                    >
-                      Submit content to see analysis results
-                    </motion.div>
-                  )}
-
-                  {isAnalyzing && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex flex-col items-center justify-center h-64 space-y-4"
-                    >
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                      <p className="text-muted-foreground">AI is analyzing the content...</p>
-                    </motion.div>
-                  )}
-
-                  {result && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="space-y-6"
-                    >
-                      <div className="flex items-center gap-3">
-                        {getVerdictIcon(result.verdict)}
-                        <div>
-                          <h3 className="text-lg font-semibold flex items-center gap-2">
-                            <Badge className={getVerdictColor(result.verdict)}>
-                              {result.verdict.toUpperCase()}
-                            </Badge>
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            Confidence: {result.confidence.toFixed(1)}%
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <h4 className="font-medium">AI Reasoning</h4>
-                        <p className="text-sm text-muted-foreground p-4 bg-muted/50 rounded-lg">
-                          {result.reasoning}
-                        </p>
-                      </div>
-
-                      <div className="space-y-4">
-                        <h4 className="font-medium">Fact Checks</h4>
-                        {result.factChecks.map((check, index) => (
-                          <motion.div
-                            key={index}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="p-3 border rounded-lg space-y-2"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Badge
-                                className={
-                                  check.status === 'verified' ? 'bg-verified/10 text-verified' :
-                                  check.status === 'disputed' ? 'bg-warning/10 text-warning' :
-                                  'bg-danger/10 text-danger'
-                                }
-                              >
-                                {check.status}
-                              </Badge>
-                              <span className="text-sm font-medium">{check.claim}</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground">{check.explanation}</p>
-                          </motion.div>
-                        ))}
-                      </div>
-
-                      <div className="space-y-4">
-                        <h4 className="font-medium">Sources</h4>
-                        {result.sources.map((source, index) => (
-                          <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="flex items-center justify-between p-2 border rounded"
-                          >
-                            <div>
-                              <p className="text-sm font-medium">{source.title}</p>
-                              <p className="text-xs text-muted-foreground">{source.url}</p>
-                            </div>
-                            <Badge variant="outline">
-                              {source.credibility}% credible
-                            </Badge>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </CardContent>
-            </Card>
-          </motion.div>
+      {/* Reasons */}
+      {/* {report.source_crebility.reasons?.length > 0 && (
+        <div>
+          <strong>Reasons:</strong>
+          <ul className="list-disc list-inside mt-1 text-sm text-gray-700">
+            {report.source_crebility.reasons.map((reason, idx) => (
+              <li key={idx}>{reason}</li>
+            ))}
+          </ul>
         </div>
-      </motion.div>
-    </PageLayout>
-  );
+      )} */}
+
+      {/* Signals */}
+      {report.source_crebility.signals && (
+        <div className="text-sm mt-2">
+          <strong>Signals:</strong>
+          <ul className="list-disc list-inside text-gray-700 mt-1">
+            <li>
+              <strong>NewsAPI:</strong>{" "}
+              {report.source_crebility.signals.newsapi.present
+                ? "✅ Present"
+                : "❌ Not Present"}
+            </li>
+            <li>
+              <strong>GNews:</strong>{" "}
+              {report.source_crebility.signals.gnews.present
+                ? "✅ Present"
+                : "❌ Not Present"}
+            </li>
+            <li>
+              <strong>Fact Check:</strong>{" "}
+              {report.source_crebility.signals.factcheck.found
+                ? "✅ Found"
+                : "❌ Not Found"}
+            </li>
+            <li>
+              <strong>Domain Age:</strong>{" "}
+              {report.source_crebility.signals.domain_age_days
+                ? `${report.source_crebility.signals.domain_age_days} days`
+                : "Unknown"}
+            </li>
+          </ul>
+        </div>
+      )}
+    </CardContent>
+  </Card>
+)}
+    {/* Risk Assessment */}
+    {report && (
+      <Card className="border-l-4 border-red-400 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-red-600 flex items-center gap-2">
+            ⚠️ Risk Assessment
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-3 h-3 rounded-full ${
+                report.trigger_report.risk_score < 0.3
+                  ? "bg-green-500"
+                  : report.trigger_report.risk_score < 0.6
+                  ? "bg-yellow-500"
+                  : "bg-red-500"
+              }`}
+            ></div>
+            <span className="font-medium">
+              {(report.trigger_report.risk_score * 100)}%
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+    )}
+  </div>
+
+  {/* RIGHT COLUMN */}
+  <div className="space-y-6">
+    {/* Article Info */}
+    {report && (
+      <Card className="border-l-4 border-blue-400 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-blue-600 flex items-center gap-2">
+            <Link className="h-5 w-5" />
+            Article Info
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground break-all">
+            <strong>URL:</strong> {report.url}
+          </p>
+          <p className="text-sm mt-1 flex items-center gap-2">
+  <Globe className="w-4 h-4 text-blue-500" />
+  <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+    {report.lang.toUpperCase()}
+  </span>
+</p>
+        </CardContent>
+      </Card>
+    )}
+
+    {/* Flagged Phrases */}
+    {report && (
+      <Card className="border-l-4 border-yellow-400 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-yellow-600 flex items-center gap-2">
+            🚩 Flagged Phrases
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {report.trigger_report.matched_triggers.slice(0, 5).map((t, i) => (
+            <div key={i} className="p-3 border rounded-lg bg-yellow-50">
+              <p className="font-medium">"{t.phrase}"</p>
+              <p className="text-xs text-muted-foreground">{t.category}</p>
+              {t.snippets && (
+                <p className="text-sm italic text-muted-foreground mt-1">
+                  ...{t.snippets[0]}...
+                </p>
+              )}
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    )}
+  </div>
+</div>
+    </motion.div>
+  </PageLayout>
+);
 }

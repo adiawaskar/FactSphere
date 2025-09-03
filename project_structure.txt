@@ -1,0 +1,61 @@
+.
+├── agents
+│   ├── credibility-context
+│   ├── fake-news-detection
+│   ├── input_images
+│   ├── media_audit
+│   ├── vid.py
+│   └── yolov8n.pt
+├── backend
+│   ├── __init__.py
+│   ├── __pycache__
+│   ├── agents
+│   ├── api
+│   ├── direct_api.py
+│   ├── docs
+│   ├── install_dependencies.py
+│   ├── package-lock.json
+│   ├── requirements.txt
+│   ├── static
+│   ├── utils
+│   └── wsgi.py
+├── backend_methods_and_tasks.txt
+├── extract_content.py
+├── frontend
+│   ├── bun.lockb
+│   ├── components.json
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── node_modules
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── public
+│   ├── README.md
+│   ├── src
+│   ├── tailwind.config.ts
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.ts
+├── main.py
+├── news
+│   ├── latest_news.json
+│   ├── news_scraper.py
+│   ├── topic_news_scraper.py
+│   └── topic_news.json
+├── project_structure.txt
+├── README.md
+├── requirements.txt
+├── TwitterScraper
+│   └── test.py
+├── venv
+│   ├── bin
+│   ├── include
+│   ├── lib
+│   ├── pyvenv.cfg
+│   └── share
+└── videos
+    └── news.mov
+
+25 directories, 34 files

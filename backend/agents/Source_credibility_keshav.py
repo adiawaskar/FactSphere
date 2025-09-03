@@ -282,6 +282,6 @@ def publication_reputation_check(url_or_domain: str, verbose=False):
     return result
 
 # Manual test
-if __name__ == "__main__":
-    test = "https://www.aljazeera.com/news/2025/8/22/world-reacts-as-un-backed-body-declares-famine-in-gaza"
-    publication_reputation_check(test, verbose=True)
+# if __name__ == "__main__":
+    # test = "https://www.aljazeera.com/news/2025/8/22/world-reacts-as-un-backed-body-declares-famine-in-gaza"
+    # publication_reputation_check(test, verbose=True)
