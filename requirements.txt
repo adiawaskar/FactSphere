@@ -1,25 +1,24 @@
-trafilatura 
+groq
+trafilatura
 requests
 lxml[html_clean]
 lxml_html_clean
-groq
+google-generativeai
 python-dotenv
 rich
-
-
-# --------------Adi-----------
+langchain
+sentence-transformers
+chromadb
+googlesearch-python
+numpy
 transformers
 torch
-requests
 beautifulsoup4
-sentence-transformers
 scikit-learn
-python-dotenv
 newsapi-python
 newspaper3k
 lxml
 cross-encoder
-
 
 # source checker
 python-whois
