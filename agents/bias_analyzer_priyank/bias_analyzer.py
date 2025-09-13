@@ -1,4 +1,4 @@
-# bias_analyzer.py
+# agents/bias_analyzer_priyank/bias_analyzer.py
 
 import sys
 import json

@@ -1,4 +1,4 @@
-
+// frontend/src/components/dashboard/StatsCard.tsx
 import { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 

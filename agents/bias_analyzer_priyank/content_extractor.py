@@ -1,4 +1,4 @@
-# content_extractor.py
+# agents/bias_analyzer_priyank/content_extractor.py
 import trafilatura
 from config import CONSOLE
 

@@ -1,4 +1,5 @@
 # -------------------- scorer.py --------------------
+#agents/fake-news-detection/scorer.py
 def calculate_confidence(similarity_scores, entailment_scores):
     if not similarity_scores:
         return "UNVERIFIED", 0.0

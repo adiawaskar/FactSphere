@@ -260,6 +260,8 @@
 
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+#backend/agents/susKeywords.py
 """
 Dynamic trigger-word scanner (LLM-driven, no hard-coded list)
 

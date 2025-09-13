@@ -1,3 +1,4 @@
+//frontend/src/pages/AskAI.tsx
 import { useState, useRef, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

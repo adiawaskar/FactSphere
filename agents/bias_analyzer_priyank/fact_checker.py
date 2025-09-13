@@ -1,4 +1,4 @@
-# fact_checker.py
+# agents/bias_analyzer_priyank/fact_checker.py
 import json
 from typing import List
 import google.generativeai as genai

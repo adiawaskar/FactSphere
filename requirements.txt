@@ -1,3 +1,4 @@
+# requirements.txt
 groq
 trafilatura
 requests

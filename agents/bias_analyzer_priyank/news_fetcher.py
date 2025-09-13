@@ -1,4 +1,4 @@
-# news_fetcher.py
+# agents/bias_analyzer_priyank/news_fetcher.py
 from typing import List
 import requests
 from googlesearch import search

@@ -1,4 +1,4 @@
-
+//frontend/src/pages/AIAnalyzer.tsx
 import { useState } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

@@ -1,4 +1,4 @@
-
+//frontend/src/pages/Index.tsx
 import { PageLayout } from '@/components/layout/PageLayout';
 import { InputForm } from '@/components/analysis/InputForm';
 import { AnalysisResults } from '@/components/analysis/AnalysisResults';

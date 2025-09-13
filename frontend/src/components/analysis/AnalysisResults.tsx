@@ -1,4 +1,4 @@
-
+// frontend/src/components/analysis/AnalysisResults.tsx
 import { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, AlertTriangle, Info, ExternalLink, User, Calendar, Globe, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
