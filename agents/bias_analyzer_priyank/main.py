@@ -1,4 +1,4 @@
-# main.py
+# agents/bias_analyzer_priyank/main.py
 import google.generativeai as genai
 from config import CONSOLE, NEUTRAL_BIAS_THRESHOLD, GEMINI_API_KEY
 from query_enhancer import enhance_query

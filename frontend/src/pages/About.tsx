@@ -253,7 +253,7 @@
 //   );
 // }
 
-
+//frontend/src/pages/About.tsx
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Shield, Target, Users, Award, Zap, Globe } from 'lucide-react';

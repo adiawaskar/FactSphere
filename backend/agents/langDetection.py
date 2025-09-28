@@ -63,6 +63,8 @@
 # url = "https://www.divyabhaskar.co.in/local/gujarat/ahmedabad/news/gujarat-heavy-rain-sabarmati-riverfront-walkway-submerged-135749005.html"  # Example
 # result = process_url(url)
 # print(json.dumps(result, indent=2))
+
+# backend/agents/langDetection.py
 from langdetect import detect, DetectorFactory
 import json
 

@@ -1,4 +1,4 @@
-# knowledge_base.py
+# agents/bias_analyzer_priyank/knowledge_base.py
 import hashlib
 from typing import List
 import chromadb

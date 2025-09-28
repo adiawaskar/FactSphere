@@ -1,3 +1,4 @@
+#backend/api/trend_routes.py
 from fastapi import APIRouter, HTTPException
 from typing import List, Dict, Any
 from backend.utils.trends import get_trending_topics

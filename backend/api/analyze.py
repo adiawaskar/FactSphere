@@ -109,6 +109,8 @@
 #     test_url = "https://www.indiatoday.in/world/us-news/story/trump-aide-peter-navarros-another-bizarre-take-on-india-russia-oil-ties-brahmins-profiteering-2779779-2025-09-01"
 #     report = analyze_url(test_url)
 #     print(json.dumps(report, indent=2, ensure_ascii=False))
+
+#backend/api/analyze.py
 import os
 import requests
 import tempfile

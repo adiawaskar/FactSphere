@@ -1,4 +1,4 @@
-
+// frontend/src/components/ui/background-elements.tsx
 import { motion } from 'framer-motion';
 
 export const BackgroundElements = () => {

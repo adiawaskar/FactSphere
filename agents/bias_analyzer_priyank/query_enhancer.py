@@ -1,4 +1,4 @@
-# query_enhancer.py
+# agents/bias_analyzer_priyank/query_enhancer.py
 import json
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions

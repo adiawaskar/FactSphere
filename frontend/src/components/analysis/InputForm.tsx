@@ -1,4 +1,4 @@
-
+// frontend/src/components/analysis/InputForm.tsx
 import { useState } from 'react';
 import { Upload, Link, Type, Image, Video, Mic, FileText, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -1,4 +1,4 @@
-
+// frontend/src/components/education/EducationHub.tsx
 import { BookOpen, Play, Users, Award, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

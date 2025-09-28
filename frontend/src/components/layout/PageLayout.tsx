@@ -1,4 +1,4 @@
-
+// frontend/src/components/layout/PageLayout.tsx
 import { ReactNode } from 'react';
 import { Header } from './Header';
 import { BackgroundElements } from '@/components/ui/background-elements';

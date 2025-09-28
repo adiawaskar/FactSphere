@@ -1,3 +1,4 @@
+//frontend/src/pages/SocialTrends.tsx
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { PageLayout } from '@/components/layout/PageLayout';

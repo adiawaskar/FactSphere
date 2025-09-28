@@ -1,4 +1,5 @@
 # -------------------- news_fetcher.py --------------------
+#agents/fake-news-detection/news_fetcher.py
 import requests
 import os
 from dotenv import load_dotenv

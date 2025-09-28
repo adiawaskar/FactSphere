@@ -1,4 +1,4 @@
-
+# news/news_scraper.py
 import requests
 import json
 from datetime import datetime
