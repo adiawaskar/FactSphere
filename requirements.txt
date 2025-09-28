@@ -1,32 +1,43 @@
-# requirements.txt
-groq
+# Core backend and ML dependencies
+fastapi>=0.68.0
+uvicorn>=0.15.0
+requests>=2.28.0
+beautifulsoup4==4.12.2
+scikit-learn>=1.0.0
+nltk==3.8.1
+transformers>=4.5.0
+torch>=1.9.0
+pandas==2.1.0
+huggingface_hub==0.16.4
+pydantic==2.3.0
+python-dotenv==1.0.0
+numpy
+
+# Web scraping and parsing
+newspaper3k==0.2.8
 trafilatura
-requests
 lxml[html_clean]
 lxml_html_clean
-google-generativeai
-python-dotenv
-rich
-langchain
-sentence-transformers
-chromadb
-googlesearch-python
-numpy
-transformers
-torch
-beautifulsoup4
-scikit-learn
-newsapi-python
-newspaper3k
 lxml
-cross-encoder
+feedparser
 
-# source checker
+# Search and source validation
+googlesearch-python
+newsapi-python
 python-whois
 tldextract
 dnspython
 validators
-feedparser
 
-# language detection
+# Language and semantic modeling
+langchain
+sentence-transformers
+cross-encoder
 langdetect
+
+# Generative AI and API clients
+groq
+google-generativeai
+
+# Utilities and formatting
+rich
