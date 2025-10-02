@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.api.trend_routes import router as trends_router
-from backend.api import analyze
+# from backend.api.trend_routes import router as trends_router
+# from backend.api import analyze
+from .trend_routes import router as trends_router
+from . import analyze
 
 app = FastAPI(title="FactSphere API", description="Misinformation Detection System API")
 

@@ -4,22 +4,28 @@
 # import tempfile
 # import json
 # from urllib.parse import urljoin, urlparse
-# from agents.langDetection import process_text
-# from agents.susKeywords import analyze_text_for_triggers
-# from agents.ImageForensic import analyze_local_images
-# from utils.fetch_content import fetch_content
-# from agents.Source_credibility_keshav import publication_reputation_check
+# from fastapi import APIRouter, FastAPI, HTTPException
+# from pydantic import BaseModel
+# from typing import Dict, Any
+
+# # ---- Local imports ----
+# from backend.agents.langDetection import process_text
+# from backend.agents.susKeywords import analyze_text_for_triggers
+# # from agents.ImageForensic import analyze_local_images   # optional
+# from backend.utils.fetch_content import fetch_content
+# from backend.agents.Source_credibility_keshav import publication_reputation_check
 
 # # Make langdetect deterministic
 # SUPPORTED_LANGS = ["en"]
 
-# def analyze_url(url: str, workdir="media_audit"):
+# # ---------------- ANALYSIS PIPELINE ----------------
+# def analyze(url: str, workdir="media_audit"):
 #     """
 #     Fetch text, images, and videos from a URL, check language, 
-#     run trigger analysis and forensic analysis on the images.
+#     run trigger analysis and credibility analysis.
 #     """
 #     # Step 1: Fetch content
-#     content = fetch_content(url)
+#     # content = fetch_content(url)
 #     title, text, images, videos = (
 #         content.get("title") or "",
 #         content.get("text") or "",
@@ -43,7 +49,7 @@
 #     if lang not in SUPPORTED_LANGS:
 #         return {"status": "notvalid", "reason": f"Unsupported language: {lang}"}
 
-#     # Step 3: Download images locally for forensic check
+#     # Step 3: Download images locally (optional)
 #     tmp_dir = os.path.join(tempfile.gettempdir(), "url_images")
 #     os.makedirs(tmp_dir, exist_ok=True)
 
@@ -63,24 +69,14 @@
 #         except Exception as e:
 #             print(f"Failed to download {img_url}: {e}")
 
-#     # Step 4: Run forensic analysis (optional)
-#     # forensic_report = {}
-#     # if local_image_paths:
-#     #     try:
-#     #         forensic_report = analyze_local_images(local_image_paths, workdir)
-#     #     except Exception as e:
-#     #         forensic_report = {"error": f"Forensic analysis failed: {e}"}
-#     # else:
-#     #     forensic_report = {"warning": "No images available for forensic analysis."}
-
-#     # Step 5: Run trigger-word analysis
+#     # Step 4: Trigger-word analysis
 #     trigger_report = {}
 #     try:
 #         trigger_report = analyze_text_for_triggers(title, text)
 #     except Exception as e:
 #         trigger_report = {"error": f"Trigger analysis failed: {e}"}
 
-#     # source credebility
+#     # Step 5: Source credibility
 #     credibility_report = {}
 #     try:
 #         credibility_report = publication_reputation_check(url, verbose=False)
@@ -96,19 +92,58 @@
 #         "text": text[:500] + ("..." if len(text) > 500 else ""),  # preview
 #         "images": images,
 #         "videos": videos,
-#         # "forensic_report": forensic_report,
+#         # "forensic_report": forensic_report,   # optional
 #         "trigger_report": trigger_report,
-#         "source_crebility":credibility_report
+#         "source_crebility": credibility_report
 #     }
 
 #     return final_report
 
+# # ---------------- FASTAPI ROUTER ----------------
+# router = APIRouter()
 
-# # ---------- Example Usage ----------
+# class AnalyzeRequest(BaseModel):
+#     url: str
+
+# @router.post("/analyze")
+# async def analyze_endpoint(request: AnalyzeRequest) -> Dict[str, Any]:
+#     """
+#     API endpoint to analyze a given URL.
+#     """
+#     try:
+#         content=""
+#         if request.type=="url" and request.input:
+#             content=fetch_content(request.input)
+#         if request.type=="text" and request.input:
+#             content=request.input
+        
+
+#         report = analyze(content, request.url if request.type=="url" else None)
+
+#         if report.get("status") != "success":
+#             raise HTTPException(status_code=400, detail=report)
+
+#         return {
+#             "success": True,
+#             "report": report
+#         }
+
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Error analyzing URL: {str(e)}")
+
+
+# # ---------------- RUN DIRECTLY ----------------
 # if __name__ == "__main__":
+#     # Run as script
 #     test_url = "https://www.indiatoday.in/world/us-news/story/trump-aide-peter-navarros-another-bizarre-take-on-india-russia-oil-ties-brahmins-profiteering-2779779-2025-09-01"
 #     report = analyze_url(test_url)
 #     print(json.dumps(report, indent=2, ensure_ascii=False))
+
+#     # Run API if needed
+#     import uvicorn
+#     app = FastAPI(title="Media Audit API")
+#     app.include_router(router)
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
 import os
 import requests
 import tempfile
@@ -121,34 +156,25 @@ from typing import Dict, Any
 # ---- Local imports ----
 from backend.agents.langDetection import process_text
 from backend.agents.susKeywords import analyze_text_for_triggers
-# from agents.ImageForensic import analyze_local_images   # optional
 from backend.utils.fetch_content import fetch_content
 from backend.agents.Source_credibility_keshav import publication_reputation_check
 
-# Make langdetect deterministic
+# Supported languages
 SUPPORTED_LANGS = ["en"]
 
-# ---------------- ANALYSIS PIPELINE ----------------
-def analyze_url(url: str, workdir="media_audit"):
-    """
-    Fetch text, images, and videos from a URL, check language, 
-    run trigger analysis and credibility analysis.
-    """
-    # Step 1: Fetch content
-    content = fetch_content(url)
-    title, text, images, videos = (
-        content.get("title") or "",
-        content.get("text") or "",
-        content.get("images", []),
-        content.get("videos", []),
-    )
+# -------------------- COMMON PIPELINE --------------------
+def run_pipeline(text: str, url: str = None, title: str = "", images=None, videos=None):
+    if not images:
+        images = []
+    if not videos:
+        videos = []
 
-    # Step 2: Language detection
+    # Step 1: Language detection
     if not text or len(text) < 20:
         return {"status": "error", "reason": "Insufficient text extracted"}
 
     try:
-        lang_result = process_text(text)   # this is a dict
+        lang_result = process_text(text)   # dict
     except Exception as e:
         return {"status": "error", "reason": f"Language detection failed: {e}"}
 
@@ -159,14 +185,13 @@ def analyze_url(url: str, workdir="media_audit"):
     if lang not in SUPPORTED_LANGS:
         return {"status": "notvalid", "reason": f"Unsupported language: {lang}"}
 
-    # Step 3: Download images locally (optional)
+    # Step 2: Download images locally (optional)
     tmp_dir = os.path.join(tempfile.gettempdir(), "url_images")
     os.makedirs(tmp_dir, exist_ok=True)
 
     local_image_paths = []
     for i, img_url in enumerate(images):
         try:
-            # Resolve relative URLs
             if not bool(urlparse(img_url).netloc):
                 img_url = urljoin(url, img_url)
 
@@ -179,65 +204,80 @@ def analyze_url(url: str, workdir="media_audit"):
         except Exception as e:
             print(f"Failed to download {img_url}: {e}")
 
-    # Step 4: Trigger-word analysis
+    # Step 3: Trigger analysis
     trigger_report = {}
     try:
         trigger_report = analyze_text_for_triggers(title, text)
     except Exception as e:
         trigger_report = {"error": f"Trigger analysis failed: {e}"}
 
-    # Step 5: Source credibility
+    # Step 4: Source credibility
     credibility_report = {}
     try:
-        credibility_report = publication_reputation_check(url, verbose=False)
+        if url:
+            credibility_report = publication_reputation_check(url)
     except Exception as e:
         credibility_report = {"error": f"Credibility check failed: {e}"}
-        
-    # Step 6: Final report
+
+    # Step 5: Final report
     final_report = {
         "status": "success",
         "url": url,
         "lang": lang,
         "title": title,
-        "text": text[:500] + ("..." if len(text) > 500 else ""),  # preview
+        "text": text[:1500] + ("..." if len(text) > 1500 else ""),
         "images": images,
         "videos": videos,
-        # "forensic_report": forensic_report,   # optional
         "trigger_report": trigger_report,
-        "source_crebility": credibility_report
+        "source_credibility": credibility_report
     }
 
     return final_report
 
-# ---------------- FASTAPI ROUTER ----------------
+# -------------------- ANALYZE FUNCTIONS --------------------
+def analyze_url(url: str):
+    content = fetch_content(url)
+    title, text, images, videos = (
+        content.get("title") or "",
+        content.get("text") or "",
+        content.get("images", []),
+        content.get("videos", []),
+    )
+    return run_pipeline(text, url=url, title=title, images=images, videos=videos)
+
+
+def analyze_text(text: str):
+    return run_pipeline(text, url=None, title="User Provided Text", images=[], videos=[])
+
+
+# -------------------- FASTAPI ROUTER --------------------
 router = APIRouter()
 
 class AnalyzeRequest(BaseModel):
-    url: str
+    input: str
+    type: str   # "url" or "text"
 
 @router.post("/analyze")
 async def analyze_endpoint(request: AnalyzeRequest) -> Dict[str, Any]:
-    """
-    API endpoint to analyze a given URL.
-    """
     try:
-        report = analyze_url(request.url)
+        if request.type == "url":
+            report = analyze_url(request.input)
+        elif request.type == "text":
+            report = analyze_text(request.input)
+        else:
+            raise HTTPException(status_code=400, detail="Invalid type. Must be 'url' or 'text'.")
 
         if report.get("status") != "success":
             raise HTTPException(status_code=400, detail=report)
 
-        return {
-            "success": True,
-            "report": report
-        }
+        return {"success": True, "report": report}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error analyzing URL: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error analyzing input: {str(e)}")
 
 
-# ---------------- RUN DIRECTLY ----------------
+# -------------------- RUN DIRECTLY --------------------
 if __name__ == "__main__":
-    # Run as script
     test_url = "https://www.indiatoday.in/world/us-news/story/trump-aide-peter-navarros-another-bizarre-take-on-india-russia-oil-ties-brahmins-profiteering-2779779-2025-09-01"
     report = analyze_url(test_url)
     print(json.dumps(report, indent=2, ensure_ascii=False))

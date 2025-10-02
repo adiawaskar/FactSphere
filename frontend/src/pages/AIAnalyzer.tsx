@@ -32,7 +32,7 @@ interface Report {
   images: string[];
   videos: string[];
   trigger_report: Record<string, any>;
-  source_crebility: Array<{
+  source_credibility: Array<{
     title: string;
     url: string;
     credibility: number;
@@ -40,7 +40,8 @@ interface Report {
 }
 
 export default function AIAnalyzer() {
-  const [urlInput, setUrlInput] = useState("");
+  const [input, setInput] = useState("");
+  const [inputType,setInputType]=useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [report, setReport] = useState<Report | null>(null);
 
@@ -50,7 +51,7 @@ export default function AIAnalyzer() {
   });
 
   const handleAnalyze = async () => {
-    if (!urlInput) return;
+    if (!input) return;
 
     setIsAnalyzing(true);
     setReport(null);
@@ -59,7 +60,7 @@ export default function AIAnalyzer() {
       const response = await fetch("http://127.0.0.1:8000/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: urlInput }),
+        body: JSON.stringify({ type:inputType, input: input }),
       });
 
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
@@ -107,7 +108,7 @@ return (
   {/* LEFT COLUMN */}
   <div className="space-y-6">
     {/* Input Section */}
-    <Card className="glass-card shadow-lg border border-blue-100">
+    {/* <Card className="glass-card shadow-lg border border-blue-100">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-blue-600">
           <Link className="h-5 w-5" />
@@ -142,10 +143,117 @@ return (
           </Button>
         </div>
       </CardContent>
-    </Card>
+    </Card> */}
+    {/* Input Section */}
+<Card className="glass-card shadow-lg border border-blue-100">
+  <CardHeader>
+    <CardTitle className="flex items-center gap-2 text-blue-600">
+      <Link className="h-5 w-5" />
+      Submit Content
+    </CardTitle>
+  </CardHeader>
+  <CardContent>
+    <Tabs defaultValue="url" className="w-full">
+      <TabsList className="grid grid-cols-3 mb-4">
+        <TabsTrigger value="url">URL</TabsTrigger>
+        <TabsTrigger value="text">Text</TabsTrigger>
+        <TabsTrigger value="file">File</TabsTrigger>
+      </TabsList>
+
+      {/* URL Input */}
+      <TabsContent value="url">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Input
+            type="url"
+            placeholder="🔗 Enter a news/article link..."
+            value={input}
+            onChange={(e) => {setInput(e.target.value);
+               setInputType("url")}}
+            className="flex-grow px-4 py-3 rounded-lg border focus:ring-2 focus:ring-blue-500"
+          />
+          <Button
+            onClick={handleAnalyze}
+            disabled={isAnalyzing || !input}
+            className="gradient-primary px-6 py-3 rounded-lg shadow-md"
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <Send className="mr-2 h-4 w-4" />
+                Analyze
+              </>
+            )}
+          </Button>
+        </div>
+      </TabsContent>
+
+      {/* Text Input */}
+      <TabsContent value="text">
+        <div className="space-y-3">
+          <textarea
+            placeholder="📝 Paste article text here..."
+            value={input}
+            onChange={(e) => {setInput(e.target.value);
+               setInputType("text")}}
+            className="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-blue-500 min-h-[120px]"
+          />
+          <Button
+            onClick={handleAnalyze}
+            disabled={isAnalyzing}
+            className="gradient-primary px-6 py-3 rounded-lg shadow-md"
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <Send className="mr-2 h-4 w-4" />
+                Analyze
+              </>
+            )}
+          </Button>
+        </div>
+      </TabsContent>
+
+      {/* File Upload */}
+      <TabsContent value="file">
+        <div className="space-y-3">
+          <Input
+            type="file"
+            accept=".txt,.pdf,.docx"
+            className="cursor-pointer"
+          />
+          <Button
+            onClick={handleAnalyze}
+            disabled={isAnalyzing}
+            className="gradient-primary px-6 py-3 rounded-lg shadow-md"
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <Send className="mr-2 h-4 w-4" />
+                Analyze
+              </>
+            )}
+          </Button>
+        </div>
+      </TabsContent>
+    </Tabs>
+  </CardContent>
+</Card>
 
     {/* Source Credibility */}
-    {report && report.source_crebility && (
+    {report && report.source_credibility && (
   <Card className="border-l-4 border-green-400 shadow-sm">
     <CardHeader>
       <CardTitle className="text-green-600 flex items-center gap-2">
@@ -155,24 +263,24 @@ return (
     <CardContent className="space-y-3">
       {/* Domain */}
       <p>
-        <strong>Domain:</strong> {report.source_crebility.domain}
+        <strong>Domain:</strong> {report.source_credibility.domain}
       </p>
 
       {/* Credibility Label & Score */}
       <p>
         <strong>Credibility:</strong>{" "}
         <span className="px-2 py-1 rounded bg-gray-100">
-          {report.source_crebility.label} (
-          {(report.source_crebility.score * 100).toFixed(1)}%)
+          {report.source_credibility.label} (
+          {(report.source_credibility.score * 100).toFixed(1)}%)
         </span>
       </p>
 
       {/* Reasons */}
-      {/* {report.source_crebility.reasons?.length > 0 && (
+      {/* {report.source_credibility.reasons?.length > 0 && (
         <div>
           <strong>Reasons:</strong>
           <ul className="list-disc list-inside mt-1 text-sm text-gray-700">
-            {report.source_crebility.reasons.map((reason, idx) => (
+            {report.source_credibility.reasons.map((reason, idx) => (
               <li key={idx}>{reason}</li>
             ))}
           </ul>
@@ -180,32 +288,32 @@ return (
       )} */}
 
       {/* Signals */}
-      {report.source_crebility.signals && (
+      {report.source_credibility.signals && (
         <div className="text-sm mt-2">
           <strong>Signals:</strong>
           <ul className="list-disc list-inside text-gray-700 mt-1">
-            <li>
+            {/* <li>
               <strong>NewsAPI:</strong>{" "}
-              {report.source_crebility.signals.newsapi.present
+              {report.source_credibility.signals.newsapi.present
                 ? "✅ Present"
                 : "❌ Not Present"}
-            </li>
+            </li> */}
             <li>
               <strong>GNews:</strong>{" "}
-              {report.source_crebility.signals.gnews.present
+              {report.source_credibility.signals.gnews.present
                 ? "✅ Present"
                 : "❌ Not Present"}
             </li>
             <li>
               <strong>Fact Check:</strong>{" "}
-              {report.source_crebility.signals.factcheck.found
+              {report.source_credibility.signals.factcheck.found
                 ? "✅ Found"
                 : "❌ Not Found"}
             </li>
             <li>
               <strong>Domain Age:</strong>{" "}
-              {report.source_crebility.signals.domain_age_days
-                ? `${report.source_crebility.signals.domain_age_days} days`
+              {report.source_credibility.signals.domain_age_days
+                ? `${report.source_credibility.signals.domain_age_days} days`
                 : "Unknown"}
             </li>
           </ul>
@@ -257,6 +365,9 @@ return (
           <p className="text-sm text-muted-foreground break-all">
             <strong>URL:</strong> {report.url}
           </p>
+           <p className="text-sm text-muted-foreground break-all">
+            <strong>Title:</strong> {report.title}
+          </p>
           <p className="text-sm mt-1 flex items-center gap-2">
   <Globe className="w-4 h-4 text-blue-500" />
   <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
@@ -276,15 +387,21 @@ return (
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {report.trigger_report.matched_triggers.slice(0, 5).map((t, i) => (
+          {report.trigger_report.list_of_phrases.map((t, i) => (
             <div key={i} className="p-3 border rounded-lg bg-yellow-50">
               <p className="font-medium">"{t.phrase}"</p>
-              <p className="text-xs text-muted-foreground">{t.category}</p>
-              {t.snippets && (
+              {/* <p className="text-xs text-muted-foreground">{t.category}</p> */}
+              {/* {t.snippets && (
                 <p className="text-sm italic text-muted-foreground mt-1">
                   ...{t.snippets[0]}...
                 </p>
-              )}
+              )} */}
+               {/* Show first 2 snippets (or all if you want) */}
+    {/* {t.snippets?.slice(0, 2).map((snippet, idx) => ( */}
+      <p  className="text-sm italic text-muted-foreground mt-1">
+        ...{t.snippet}...
+      </p>
+    
             </div>
           ))}
         </CardContent>

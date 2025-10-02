@@ -119,6 +119,7 @@ def best_evidence_for_claim(claim, articles, per_article_topk=2, global_topk=6):
       (combined_norm, bi_sim, cross_score, entail_score, sentence, url, source)
     where combined_norm is in [0,1].
     """
+    # print(articles)
     # Simple claim keyword set for prefiltering (words length>3)
     claim_tokens = set(re.findall(r"\w{4,}", claim.lower()))
 

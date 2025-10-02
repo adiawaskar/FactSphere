@@ -1,236 +1,349 @@
-import os
-import re
-import json
+
 import requests
-import tldextract
+from urllib.parse import quote
 import whois
-from urllib.parse import urlparse
+import tldextract
 from datetime import datetime, timezone
-
+import os
 from dotenv import load_dotenv
-load_dotenv()  # loads environment variables from .env file
+load_dotenv()
 
+# -------------------------------
 # Utility helpers
-def _domain_from_url_or_domain(value: str) -> str:
-    if not re.search(r"://", value):
-        netloc = value.strip().lower()
+# -------------------------------
+import tldextract
+
+def _domain_from_url_or_domain(url_or_domain: str, include_subdomain=True) -> str:
+    if "://" not in url_or_domain:
+        url_or_domain = "http://" + url_or_domain
+    ext = tldextract.extract(url_or_domain)
+    if not ext.domain or not ext.suffix:
+        return url_or_domain
+    if include_subdomain and ext.subdomain:
+        return f"{ext.subdomain}.{ext.domain}.{ext.suffix}"
     else:
-        netloc = urlparse(value).netloc.lower() or ""
-    ext = tldextract.extract(netloc)
-    return f"{ext.domain}.{ext.suffix}" if ext.suffix else netloc
+        return f"{ext.domain}.{ext.suffix}"
 
-def _clamp(x, lo=0.0, hi=1.0): return max(lo, min(hi, x))
+def _clamp(x, lo=0.0, hi=1.0):
+    return max(lo, min(hi, x))
 
-def _label(score: float) -> str:
-    return "High" if score >= 0.75 else "Medium" if score >= 0.5 else "Low"
+def _label(score):
+    if score >= 0.75:
+        return "High Credibility ✅"
+    elif score >= 0.5:
+        return "Moderate Credibility ⚖️"
+    else:
+        return "Low Credibility ⚠️"
 
-def _get_domain_age_days(domain: str):
-    print(f"🔎 Checking WHOIS info for domain: {domain}")
+# -------------------------------
+# 1. NewsAPI check
+# -------------------------------
+def _newsapi_presence(domain: str):
+    try:
+        API_KEY = os.getenv("NEWSAPI_KEY")
+        resp = requests.get(
+            f"https://newsapi.org/v2/top-headlines/sources?apiKey={API_KEY}"
+        )
+        if resp.status_code != 200:
+            return {"ok": False, "error": resp.text}
+
+        sources = resp.json().get("sources", [])
+        present = any(domain in (s.get("url", "")) for s in sources)
+        return {"ok": True, "present": present}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+# -------------------------------
+# 2. GNews presence
+# -------------------------------
+def _gnews_presence(domain: str):
+    try:
+        API_KEY = os.getenv("GNEWS_API_KEY")
+        resp = requests.get(
+    f"https://gnews.io/api/v4/top-headlines?token={API_KEY}&lang=en&country=in&max=50"
+)
+        if resp.status_code != 200:
+            return {"ok": False, "error": resp.text}
+
+        articles = resp.json().get("articles", [])
+        # print(articles)
+        present = any(domain in (a.get("source", {}).get("url", "")) for a in articles)
+        return {"ok": True, "present": present}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+# -------------------------------
+# 3. NewsData.io presence
+# -------------------------------
+def _newsdata_presence(domain: str):
+    try:
+        API_KEY = os.getenv("NEWSDATA_API_KEY")
+        resp = requests.get(
+            f"https://newsdata.io/api/1/news?apikey={API_KEY}&q={domain}"
+        )
+        if resp.status_code != 200:
+            return {"ok": False, "error": resp.text}
+
+        results = resp.json().get("results", [])
+        present = any(domain in (r.get("link", "")) for r in results)
+        return {"ok": True, "present": present}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+# -------------------------------
+# 4. WHOIS age
+# -------------------------------
+
+def get_domain_age_days(domain: str):
+    """
+    Try WHOIS first, fallback to Wayback Machine.
+    Returns domain age in days (int) or None if unavailable.
+    """
+    # --- WHOIS method ---
     try:
         w = whois.whois(domain)
         created = w.creation_date
-        if isinstance(created, list): created = created[0]
-        if isinstance(created, datetime):
-            if created.tzinfo is None:
-                created = created.replace(tzinfo=timezone.utc)
-            age = (datetime.now(timezone.utc) - created).days
-            print(f"✅ Domain age: {age} days")
-            return age
-    except Exception as e:
-        print(f"⚠️ WHOIS lookup failed: {e}")
-        return None
+        if isinstance(created, list):
+            created = created[0]
+        if created:
+            return (datetime.now() - created).days
+    except Exception:
+        pass  # WHOIS may fail (esp. for .in, .uk)
+
+    # --- Wayback Machine fallback ---
+    try:
+        url = f"http://archive.org/wayback/available?url={domain}"
+        resp = requests.get(url, timeout=10)
+        if resp.status_code == 200:
+            data = resp.json()
+            archived = data.get("archived_snapshots", {}).get("closest")
+            if archived:
+                timestamp = archived.get("timestamp")
+                if timestamp:
+                    snap_date = datetime.strptime(timestamp, "%Y%m%d%H%M%S")
+                    return (datetime.now() - snap_date).days
+    except Exception:
+        pass
+
     return None
 
-# Free external signals
-
-def _newsapi_presence(domain: str):
-    print(f"\n📰 Checking NewsAPI sources for: {domain}")
-    api_key = os.getenv("NEWSAPI_KEY")
-    ret = {"ok": False, "present": False, "raw": None, "error": None}
-    if not api_key:
-        print("⚠️ NEWSAPI_KEY not set.")
-        ret["error"] = "NEWSAPI_KEY not set"
-        return ret
+def _google_fact_check_presence(query: str):
     try:
-        url = f"https://newsapi.org/v2/sources?language=en&apiKey={api_key}"
-        r = requests.get(url, timeout=10)
-        print(f"🔎 NewsAPI response: {r.status_code}")
-        # print(json.dumps(r.json(), indent=2)) 
-        if r.status_code == 200:
-            sources = r.json().get("sources", [])
-            for s in sources:
-                d = _domain_from_url_or_domain(s.get("url", ""))
-                if d == domain:
-                    print(f"✅ Found {domain} in NewsAPI sources list")
-                    ret.update({"ok": True, "present": True})
-                    return ret
-            print(f"❌ {domain} not in NewsAPI sources list")
-            ret["ok"] = True
-        else:
-            print(f"⚠️ NewsAPI error: {r.text[:200]}")
-            ret["error"] = f"HTTP {r.status_code}"
-    except Exception as e:
-        print(f"⚠️ NewsAPI failed: {e}")
-        ret["error"] = str(e)
-    return ret
+        API_KEY = os.getenv("GOOGLE_FC_API_KEY")
+        if not API_KEY:
+            return {"ok": False, "error": "GOOGLE_FC_API_KEY not set"}
 
-def _gnews_presence(domain: str):
-    print(f"\n📰 Checking GNews headlines for: {domain}")
-    api_key = os.getenv("GNEWS_API_KEY")
-    ret = {"ok": False, "present": False, "raw": None, "error": None}
-    if not api_key:
-        print("⚠️ GNEWS_API_KEY not set.")
-        ret["error"] = "GNEWS_API_KEY not set"
-        return ret
-    try:
-        url = f"https://gnews.io/api/v4/top-headlines?lang=en&token={api_key}&max=50"
-        r = requests.get(url, timeout=10)
-        print(f"🔎 GNews response: {r.status_code}")
-        # print(json.dumps(r.json(), indent=2)) 
-        if r.status_code == 200:
-            for art in r.json().get("articles", []):
-                if _domain_from_url_or_domain(art.get("url", "")) == domain:
-                    print(f"✅ Found {domain} in GNews top headlines")
-                    ret.update({"ok": True, "present": True})
-                    return ret
-            print(f"❌ {domain} not in GNews top headlines")
-            ret["ok"] = True
-        else:
-            print(f"⚠️ GNews error: {r.text[:200]}")
-            ret["error"] = f"HTTP {r.status_code}"
-    except Exception as e:
-        print(f"⚠️ GNews failed: {e}")
-        ret["error"] = str(e)
-    return ret
+        all_claims = []
+        page_token = None
 
-# def _google_fact_check_presence(domain: str):
-#     print(f"\n🔎 Checking Google Fact Check API for: {domain}")
-#     api_key = os.getenv("GOOGLE_FC_API_KEY")
-#     ret = {"ok": False, "found": False, "raw": None, "error": None}
-#     if not api_key:
-#         print("⚠️ GOOGLE_FC_API_KEY not set.")
-#         ret["error"] = "GOOGLE_FC_API_KEY not set"
-#         return ret
-#     try:
-#         url = ("https://factchecktools.googleapis.com/v1alpha1/claims:search?key="
-#                f"{api_key}&languageCode=en&query={domain}")
-#         r = requests.get(url, timeout=10)
-#         print(f"🔎 Google Fact Check response: {r.status_code}")
-#         # print(json.dumps(r.json(), indent=2))
-#         if r.status_code == 200 and r.json().get("claims"):
-#             print(f"⚠️ {domain} has fact-check claims (possible controversy)")
-#             ret.update({"ok": True, "found": True, "claims": r.json().get("claims")})
-#         else:
-#             print(f"✅ {domain} has no flagged claims in Fact Check API")
-#             ret["ok"] = True
-#         return ret
-#     except Exception as e:
-#         print(f"⚠️ Google Fact Check failed: {e}")
-#         ret["error"] = str(e)
-#     return ret
-def _google_fact_check_presence(domain: str):
-    print(f"\n🔎 Checking Google Fact Check API for: {domain}")
-    api_key = os.getenv("GOOGLE_FC_API_KEY")
-    ret = {"ok": False, "found": False, "raw": None, "error": None, "claims": []}
-    if not api_key:
-        print("⚠️ GOOGLE_FC_API_KEY not set.")
-        ret["error"] = "GOOGLE_FC_API_KEY not set"
-        return ret
+        encoded_query = quote(query)
 
-    all_claims = []
-    next_token = None
-
-    try:
         while True:
-            url = ("https://factchecktools.googleapis.com/v1alpha1/claims:search?"
-                   f"key={api_key}&languageCode=en&query={domain}")
-            if next_token:
-                url += f"&pageToken={next_token}"
+            url = f"https://factchecktools.googleapis.com/v1alpha1/claims:search?key={API_KEY}&query={encoded_query}&pageSize=100"
+            if page_token:
+                url += f"&pageToken={page_token}"
 
-            r = requests.get(url, timeout=10)
-            data = r.json()
-            if r.status_code != 200:
-                print(f"⚠️ Google Fact Check API error: {r.text[:200]}")
-                ret["error"] = f"HTTP {r.status_code}"
+            resp = requests.get(url)
+            if resp.status_code != 200:
+                return {"ok": False, "error": resp.text}
+
+            data = resp.json()
+            claims = data.get("claims", [])
+            for c in claims:
+                clean_claim = {
+                    "text": c.get("text"),
+                    "claimant": c.get("claimant"),
+                    "claimDate": c.get("claimDate"),
+                    "claimReview": [
+                        {
+                            "publisher": cr.get("publisher"),
+                            "url": cr.get("url"),
+                            "title": cr.get("title"),
+                            "reviewDate": cr.get("reviewDate"),
+                            "textualRating": cr.get("textualRating"),
+                            "languageCode": cr.get("languageCode"),
+                        } for cr in c.get("claimReview", [])
+                    ]
+                }
+                all_claims.append(clean_claim)
+
+            page_token = data.get("nextPageToken")
+            if not page_token:
                 break
 
-            claims_page = data.get("claims", [])
-            all_claims.extend(claims_page)
-            next_token = data.get("nextPageToken")
-            if not next_token:
-                break
-
-        ret["ok"] = True
-        if all_claims:
-            ret["found"] = True
-            ret["claims"] = all_claims
-            print(f"⚠️ {domain} has fact-check claims (possible controversy)")
-        else:
-            print(f"✅ {domain} has no flagged claims in Fact Check API")
-        return ret
+        return {"ok": True, "found": len(all_claims) > 0, "claims": all_claims}
 
     except Exception as e:
-        print(f"⚠️ Google Fact Check failed: {e}")
-        ret["error"] = str(e)
-        return ret
+        return {"ok": False, "error": str(e)}
+# -------------------------------
+# MAIN FUNCTION
+# -------------------------------
+# def publication_reputation_check(url_or_domain: str):
+#     domain = _domain_from_url_or_domain(url_or_domain)
+#     print(f"\n🚀 Checking credibility for: {domain}")
 
-# Main checker
-def publication_reputation_check(url_or_domain: str, verbose=False):
+#     score = 0.5
+#     reasons = []
+#     signals = {}
+
+#     # # NewsAPI
+#     # newsapi = _newsapi_presence(domain)
+#     # signals["newsapi"] = newsapi
+#     # if newsapi["ok"]:
+#     #     if newsapi["present"]:
+#     #         score += 0.2
+#     #         reasons.append("In NewsAPI source list")
+#     #     else:
+#     #         reasons.append("Not in NewsAPI sources")
+#     # else:
+#     #     reasons.append("NewsAPI unavailable")
+
+#     # GNews
+#     gnews = _gnews_presence(domain)
+#     signals["gnews"] = gnews
+#     if gnews["ok"]:
+#         if gnews["present"]:
+#             score += 0.1
+#             reasons.append("Ranked in GNews headlines")
+#         else:
+#             reasons.append("Not in GNews headlines")
+#     else:
+#         reasons.append("GNews unavailable")
+
+#     # NewsData.io
+#     newsdata = _newsdata_presence(domain)
+#     signals["newsdata"] = newsdata
+#     if newsdata["ok"]:
+#         if newsdata["present"]:
+#             score += 0.2
+#             reasons.append("Domain publishes on NewsData.io")
+#         else:
+#             reasons.append("Domain not found in NewsData.io")
+#     else:
+#         reasons.append("NewsData.io unavailable")
+
+#     # WHOIS
+#     age_days = get_domain_age_days(domain)
+#     signals["domain_age_days"] = age_days
+#     if age_days is not None:
+#         if age_days > 3650:
+#             score += 0.05
+#             reasons.append("Domain >10 years old (WHOIS)")
+#         elif age_days < 365:
+#             score -= 0.1
+#             reasons.append("Domain <1 year old (WHOIS)")
+#         else:
+#             reasons.append("Domain age neutral (WHOIS)")
+#     else:
+#         reasons.append("WHOIS lookup failed")
+
+#     # Wayback
+#     # wb = _wayback_first_snapshot(domain)
+#     # signals["wayback"] = wb
+#     # if wb["ok"] and wb["age_days"] is not None:
+#     #     if wb["age_days"] > 3650:
+#     #         score += 0.1
+#     #         reasons.append("Domain >10 years old (Wayback)")
+#     #     elif wb["age_days"] < 365:
+#     #         score -= 0.1
+#     #         reasons.append("Domain <1 year old (Wayback)")
+#     #     else:
+#     #         reasons.append("Domain age neutral (Wayback)")
+#     # else:
+#     #     reasons.append("Wayback data unavailable")
+
+
+#     # Fact check
+#     fc = _google_fact_check_presence(domain)
+#     signals["factcheck"] = fc
+#     if fc["ok"]:
+#         if fc["found"]:
+#             claims = fc.get("claims", [])
+#             total = len(claims)
+#             false_misleading = sum(
+#                 1 for c in claims
+#                 if any(r.get("textualRating", "").lower() in ["false", "misleading", "altered photo"]
+#                        for r in c.get("claimReview", []))
+#             )
+#             true_claims = total - false_misleading
+#             if total > 0:
+#                 credibility_ratio = true_claims / total
+#                 score += (credibility_ratio - 0.5) * 0.6
+#                 reasons.append(f"Fact-checked claims: {total}, credibility ratio: {credibility_ratio:.2f}")
+#         else:
+#             reasons.append("Not in Google Fact Check results")
+#     else:
+#         reasons.append("Google Fact Check unavailable")
+
+#     # Finalize
+#     score = _clamp(score)
+#     label = _label(score)
+#     result = {
+#         "domain": domain,
+#         "score": round(score, 3),
+#         "label": label,
+#         "reasons": reasons,
+#         "signals": signals,
+#     }
+
+#     print(f"\n📊 Final Score: {result['score']} → {result['label']}")
+#     print(f"📌 Reasons: {reasons}")
+#     return result
+
+def publication_reputation_check(url_or_domain: str):
     domain = _domain_from_url_or_domain(url_or_domain)
-    print(f"\n\n🚀 Starting publication reputation check for: {domain}")
+    print(f"\n🚀 Checking credibility for: {domain}")
 
-    base_score = 0.5   # baseline
-    score = base_score
+    score = 0.5
     reasons = []
     signals = {}
 
-    # -------------------------------
-    # 1. NewsAPI sources
-    newsapi = _newsapi_presence(domain)
-    signals["newsapi"] = newsapi
-    if newsapi["ok"]:
-        if newsapi["present"]:
-            score += 0.2
-            reasons.append("In NewsAPI source list")
-        else:
-            reasons.append("Not in NewsAPI sources")
-    else:
-        reasons.append("NewsAPI unavailable")
+    # Extract publisher name from domain
+    ext = tldextract.extract(domain)
+    publisher_name = ext.domain.replace("-", " ").title()  # e.g. 'aljazeera' -> 'Aljazeera'
 
-    # -------------------------------
-    # 2. GNews top headlines
+    # GNews
     gnews = _gnews_presence(domain)
     signals["gnews"] = gnews
     if gnews["ok"]:
         if gnews["present"]:
             score += 0.1
-            reasons.append("Ranked among GNews headlines")
+            reasons.append("Ranked in GNews headlines")
         else:
-            reasons.append("Not in current GNews headlines")
+            reasons.append("Not in GNews headlines")
     else:
         reasons.append("GNews unavailable")
 
-    # -------------------------------
-    # 3. WHOIS domain age
-    age_days = _get_domain_age_days(domain)
+    # NewsData.io
+    newsdata = _newsdata_presence(domain)
+    signals["newsdata"] = newsdata
+    if newsdata["ok"]:
+        if newsdata["present"]:
+            score += 0.2
+            reasons.append("Domain publishes on NewsData.io")
+        else:
+            reasons.append("Domain not found in NewsData.io")
+    else:
+        reasons.append("NewsData.io unavailable")
+
+    # WHOIS age
+    age_days = get_domain_age_days(domain)
     signals["domain_age_days"] = age_days
     if age_days is not None:
-        if age_days > 3650:  # >10 years
+        if age_days > 3650:
             score += 0.05
-            reasons.append("Domain >10 years old")
-        elif age_days < 365:  # <1 year
+            reasons.append("Domain >10 years old (WHOIS)")
+        elif age_days < 365:
             score -= 0.1
-            reasons.append("Domain <1 year old")
+            reasons.append("Domain <1 year old (WHOIS)")
         else:
-            reasons.append("Domain age neutral")
+            reasons.append("Domain age neutral (WHOIS)")
     else:
-        reasons.append("Domain age unknown")
+        reasons.append("WHOIS lookup failed")
 
-    # -------------------------------
-    # 4. Google Fact Check presence
-    fc = _google_fact_check_presence(domain)
+    # Fact check
+    fc = _google_fact_check_presence(publisher_name)  # Use publisher name here!
     signals["factcheck"] = fc
-
     if fc["ok"]:
         if fc["found"]:
             claims = fc.get("claims", [])
@@ -241,32 +354,18 @@ def publication_reputation_check(url_or_domain: str, verbose=False):
                        for r in c.get("claimReview", []))
             )
             true_claims = total - false_misleading
-
-            print(f"Total fact-checked claims retrieved: {total}")
-
             if total > 0:
-                # credibility ratio: fraction of true claims
                 credibility_ratio = true_claims / total
-
-                # Fact-check weight: +/- 0.3
                 score += (credibility_ratio - 0.5) * 0.6
-                # This means if all claims are true, +0.3; if all false, -0.3
                 reasons.append(f"Fact-checked claims: {total}, credibility ratio: {credibility_ratio:.2f}")
-            else:
-                reasons.append("Fact-checked claims present but no details found")
         else:
-            reasons.append("Not in Google Fact Check results (no known controversy)")
+            reasons.append("Not in Google Fact Check results")
     else:
         reasons.append("Google Fact Check unavailable")
 
-    # -------------------------------
-    # Clamp score and get label
+    # Finalize
     score = _clamp(score)
     label = _label(score)
-
-    print(f"\n📊 Final Score: {score:.3f} → {label}")
-    print(f"📌 Reasons: {reasons}\n")
-
     result = {
         "domain": domain,
         "score": round(score, 3),
@@ -275,13 +374,17 @@ def publication_reputation_check(url_or_domain: str, verbose=False):
         "signals": signals,
     }
 
-
-    # if verbose:
-    #     print(json.dumps(result, indent=2))
-
+    print(f"\n📊 Final Score: {result['score']} → {result['label']}")
+    print(f"📌 Reasons: {reasons}")
     return result
 
-# Manual test
-# if __name__ == "__main__":
-    # test = "https://www.aljazeera.com/news/2025/8/22/world-reacts-as-un-backed-body-declares-famine-in-gaza"
-    # publication_reputation_check(test, verbose=True)
+if __name__ == "__main__":
+    # Example domains to test
+    test_domains = [
+        "https://www.aljazeera.com/news/2025/9/6/after-trump-jab-indias-modi-says-ties-with-us-still-very-positive"
+    ]
+
+    for d in test_domains:
+        result = publication_reputation_check(d)
+        print("\n--- Result ---")
+        print(result)

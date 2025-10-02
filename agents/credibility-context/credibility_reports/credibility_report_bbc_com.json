@@ -1,37 +1,39 @@
 {
-  "input": "https://bbc.com",
+  "input": "https://www.bbc.com/news",
   "parsed_domain_or_name": "bbc.com",
-  "timestamp": "2025-08-22T11:48:27.769504+00:00",
+  "timestamp": "2025-09-06T16:12:50.450467+00:00",
   "checks": {
     "known_unreliable": false,
     "unreliable_list_size": 7,
     "unreliable_sample": [
-      "naturalnews.com",
       "rt.com",
       "sputniknews.com",
       "infowars.com",
-      "zerohedge.com",
+      "thegatewaypundit.com",
+      "naturalnews.com",
       "newspunch.com",
-      "thegatewaypundit.com"
+      "zerohedge.com"
     ],
     "domain_age_days": null,
-    "domain_age_note": "whois error: [Errno 11002] getaddrinfo failed",
+    "domain_age_note": "whois error: module 'whois' has no attribute 'whois'",
     "registrant_privacy": null,
-    "registrant_privacy_note": "whois error: [Errno 11002] getaddrinfo failed",
+    "registrant_privacy_note": "whois error: module 'whois' has no attribute 'whois'",
     "https": true,
     "https_note": "HTTPS reachable (HEAD 200)",
     "dns_resolves": true,
-    "dns_info": "151.101.192.81",
+    "dns_info": "151.101.64.81",
     "email_auth": {
-      "has_mx": true,
-      "has_spf": true,
-      "has_dmarc": true,
-      "notes": []
+      "has_mx": null,
+      "has_spf": null,
+      "has_dmarc": null,
+      "notes": [
+        "dnspython not installed"
+      ]
     },
     "wayback": {
       "available": true,
-      "timestamp": "20250822103328",
-      "url": "http://web.archive.org/web/20250822103328/https://www.bbc.com/",
+      "timestamp": "20250906080905",
+      "url": "http://web.archive.org/web/20250906080905/https://www.bbc.com/news",
       "source": "availability"
     },
     "local_factcheck_debunk_count": 0,
@@ -63,9 +65,9 @@
     },
     "email_auth": {
       "value": {
-        "mx": true,
-        "spf": true,
-        "dmarc": true
+        "mx": null,
+        "spf": null,
+        "dmarc": null
       },
       "delta": 0,
       "note": "email auth present"
