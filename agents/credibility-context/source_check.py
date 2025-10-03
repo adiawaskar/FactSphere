@@ -1,4 +1,4 @@
-# # agents/credibility-context/source_check.py
+#agents/credibility-context/source_check.py
 
 # import whois
 # import requests
@@ -763,7 +763,7 @@
 
 
 
-#!/usr/bin/env python3
+#agents/credibility-context/source_check.py
 """
 source_check.py — Credibility checker with tiered scoring, robust HTTPS check,
 and recommended actions.

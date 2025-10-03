@@ -1,3 +1,4 @@
+// frontend/src/contexts/NotificationsContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export interface Notification {

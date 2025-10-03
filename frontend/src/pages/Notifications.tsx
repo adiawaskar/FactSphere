@@ -1,4 +1,4 @@
-
+//frontend/src/pages/Notifications.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
 import { PageLayout } from '@/components/layout/PageLayout';

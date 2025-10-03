@@ -253,7 +253,7 @@
 //   );
 // }
 
-
+//frontend/src/pages/About.tsx
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Shield, Target, Users, Award, Zap, Globe } from 'lucide-react';
@@ -286,10 +286,10 @@ const features = [
 // --- CHANGED: Added a 4th team member and an 'image' property for each ---
 const team = [
   {
-    name: 'Dr. Sarah Chen',
+    name: 'Priyank Jhaveri',
     role: 'Chief AI Scientist',
     description: 'Former MIT researcher specializing in natural language processing and misinformation detection.',
-    image: '/images/team1.jpg' // Path relative to the 'public' folder
+    image: '/images/team1.jpg' 
   },
   {
     name: 'Adi Awaskar',
@@ -298,13 +298,13 @@ const team = [
     image: '/images/team2.jpg'
   },
   {
-    name: 'Dr. Aisha Patel',
+    name: 'Keshav Dhanuka',
     role: 'Research Director',
     description: 'Computational linguist focused on cross-cultural misinformation patterns and detection.',
     image: '/images/team3.jpg'
   },
   {
-    name: 'Emily Carter',
+    name: 'Aditya Yedurkar',
     role: 'UX Research Lead',
     description: 'Focuses on the human-computer interaction aspects of trust and information verification.',
     image: '/images/team4.jpg'

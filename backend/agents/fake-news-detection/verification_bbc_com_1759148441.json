@@ -1,0 +1,113 @@
+{
+    "url": "https://www.bbc.com/news/articles/c98dqyj5dpjo",
+    "timestamp": "2025-09-29T17:50:41.895413",
+    "article": {
+        "title": "Vijay rally crush: At least 39 killed at political event in Tamil Nadu",
+        "source": "www.bbc.com",
+        "extraction_method": "newspaper3k"
+    },
+    "verification": {
+        "verdict": "HIGHLY_CREDIBLE",
+        "confidence": 0.95,
+        "credibility_score": 0.95
+    },
+    "consensus_analysis": {
+        "consensus_score": 0.9,
+        "source_diversity": 1.0,
+        "credible_sources_count": 2,
+        "total_sources": 9,
+        "unique_sources": 7,
+        "confirmations": [
+            {
+                "source": "www.aljazeera.com",
+                "similarity": 0.8703550100326538,
+                "confirmation_strength": 0.8372296988964081,
+                "title": "Crowd crush at political rally in southern India kills 39 people"
+            },
+            {
+                "source": "www.hindustantimes.com",
+                "similarity": 0.8180725169181824,
+                "confirmation_strength": 0.8700181245803833,
+                "title": "36 killed, several critical in crush at Vijay’s rally in TN"
+            },
+            {
+                "source": "www.hindustantimes.com",
+                "similarity": 0.7434815341776068,
+                "confirmation_strength": 0.7462925910949707,
+                "title": "Massive tragedy in Tamil Nadu as 31 dead at Vijay's Karur rally in 'stampede-like crush' | Latest up"
+            },
+            {
+                "source": "abc17news.com",
+                "similarity": 0.6923127200868394,
+                "confirmation_strength": 0.7498399019241333,
+                "title": "Rally for Indian actor-politician turns to tragedy as crush kills 39"
+            }
+        ],
+        "contradictions": [],
+        "analysis": "STRONG_CONSENSUS"
+    },
+    "similar_articles": [
+        {
+            "title": "Crowd crush at political rally in southern India kills 39 people",
+            "source": "www.aljazeera.com",
+            "similarity": 0.87,
+            "url": "https://www.aljazeera.com/gallery/2025/9/28/crowd-crush-at-a-political-rally-in-southern-india-kills-36-people"
+        },
+        {
+            "title": "36 killed, several critical in crush at Vijay’s rally in TN",
+            "source": "www.hindustantimes.com",
+            "similarity": 0.818,
+            "url": "https://www.hindustantimes.com/india-news/36-killed-several-critical-in-crush-at-vijay-s-rally-in-tn-101758999078883.html"
+        },
+        {
+            "title": "Massive tragedy in Tamil Nadu as 31 dead at Vijay's Karur rally in 'stampede-like crush' | Latest up",
+            "source": "www.hindustantimes.com",
+            "similarity": 0.743,
+            "url": "https://www.hindustantimes.com/india-news/massive-tragedy-in-tamil-nadu-as-31-dead-at-vijays-karur-rally-in-stampede-like-crush-latest-updates-101758989763650.html"
+        },
+        {
+            "title": "Rally for Indian actor-politician turns to tragedy as crush kills 39",
+            "source": "abc17news.com",
+            "similarity": 0.692,
+            "url": "https://abc17news.com/news/national-world/cnn-world/2025/09/27/rally-for-indian-actor-politician-turns-to-tragedy-as-crush-kills-39/"
+        },
+        {
+            "title": "TVK Rally Death Toll: Vijay rally stampede casualties rise quickly, 31 reported dead so far",
+            "source": "economictimes.indiatimes.com",
+            "similarity": 0.658,
+            "url": "https://economictimes.indiatimes.com/news/politics-and-nation/tvk-karur-rally-stampede-death-toll/articleshow/124184286.cms"
+        },
+        {
+            "title": "'Deliberate Mobilisation Of Crowds': DMK's Big Charge At Vijay Over Stampede",
+            "source": "www.ndtv.com",
+            "similarity": 0.629,
+            "url": "https://www.ndtv.com/india-news/karur-vijay-rally-stampede-so-disturbing-people-waited-for-hours-dmk-leader-on-vijay-rally-tragedy-9356536"
+        },
+        {
+            "title": "Karur tragedy: Over 39 dead, Tamil Nadu CM MK Stalin meets injured at hospital and announces inquiry",
+            "source": "economictimes.indiatimes.com",
+            "similarity": 0.483,
+            "url": "https://economictimes.indiatimes.com/news/india/karur-tragedy-over-39-dead-tamil-nadu-cm-mk-stalin-meets-injured-at-hospital-and-announces-inquiry-led-by-retired-judge/articleshow/124189592.cms"
+        },
+        {
+            "title": "TVK Vijay’s Tamil Nadu campaign: The realpolitik of a reel hero",
+            "source": "www.thehindu.com",
+            "similarity": 0.479,
+            "url": "https://www.thehindu.com/news/national/tamil-nadu/the-realpolitik-of-a-reel-hero-journey-of-tvk-vijay-from-screen-to-masses/article70045576.ece"
+        },
+        {
+            "title": "Vijay sounds poll bugle: Disruptor or just another player in Tamil Nadu?",
+            "source": "timesofindia.indiatimes.com",
+            "similarity": 0.37,
+            "url": "https://timesofindia.indiatimes.com/india/vijay-sounds-poll-bugle-disruptor-or-just-another-player-in-tamil-nadu/articleshow/123841949.cms"
+        }
+    ],
+    "content_analysis": {
+        "entities_count": 40,
+        "sentiment": "LABEL_0",
+        "source_credibility": {
+            "is_trusted": true,
+            "is_high_credibility": true
+        }
+    }
+}

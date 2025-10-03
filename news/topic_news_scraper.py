@@ -1,3 +1,4 @@
+# news/topic_news_scraper.py
 # Topic News Scraper: Fetches news for a specific topic and saves to JSON
 import requests
 import json

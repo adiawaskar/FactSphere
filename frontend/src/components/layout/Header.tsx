@@ -1,3 +1,4 @@
+// frontend/src/components/layout/Header.tsx
 import { Shield, Bell, User, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

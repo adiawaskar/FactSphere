@@ -340,6 +340,7 @@
 #     print(f"ELA images saved to '{report['output_dirs']['ela_images_dir']}'.")
 #     print("\n" + json.dumps(report, indent=2, ensure_ascii=False))
 
+#backend/agents/ImageForensic.py
 import os
 import json
 import uuid

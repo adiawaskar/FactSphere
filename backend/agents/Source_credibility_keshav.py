@@ -1,4 +1,7 @@
-
+#backend/agents/Source_credibility_keshav.py
+import os
+import re
+import json
 import requests
 from urllib.parse import quote
 import whois
@@ -6,7 +9,10 @@ import tldextract
 from datetime import datetime, timezone
 import os
 from dotenv import load_dotenv
-load_dotenv()
+
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+ENV_PATH = os.path.join(BASE_DIR, ".env")
+load_dotenv(ENV_PATH)
 
 # -------------------------------
 # Utility helpers
@@ -175,120 +181,7 @@ def _google_fact_check_presence(query: str):
 
     except Exception as e:
         return {"ok": False, "error": str(e)}
-# -------------------------------
-# MAIN FUNCTION
-# -------------------------------
-# def publication_reputation_check(url_or_domain: str):
-#     domain = _domain_from_url_or_domain(url_or_domain)
-#     print(f"\n🚀 Checking credibility for: {domain}")
 
-#     score = 0.5
-#     reasons = []
-#     signals = {}
-
-#     # # NewsAPI
-#     # newsapi = _newsapi_presence(domain)
-#     # signals["newsapi"] = newsapi
-#     # if newsapi["ok"]:
-#     #     if newsapi["present"]:
-#     #         score += 0.2
-#     #         reasons.append("In NewsAPI source list")
-#     #     else:
-#     #         reasons.append("Not in NewsAPI sources")
-#     # else:
-#     #     reasons.append("NewsAPI unavailable")
-
-#     # GNews
-#     gnews = _gnews_presence(domain)
-#     signals["gnews"] = gnews
-#     if gnews["ok"]:
-#         if gnews["present"]:
-#             score += 0.1
-#             reasons.append("Ranked in GNews headlines")
-#         else:
-#             reasons.append("Not in GNews headlines")
-#     else:
-#         reasons.append("GNews unavailable")
-
-#     # NewsData.io
-#     newsdata = _newsdata_presence(domain)
-#     signals["newsdata"] = newsdata
-#     if newsdata["ok"]:
-#         if newsdata["present"]:
-#             score += 0.2
-#             reasons.append("Domain publishes on NewsData.io")
-#         else:
-#             reasons.append("Domain not found in NewsData.io")
-#     else:
-#         reasons.append("NewsData.io unavailable")
-
-#     # WHOIS
-#     age_days = get_domain_age_days(domain)
-#     signals["domain_age_days"] = age_days
-#     if age_days is not None:
-#         if age_days > 3650:
-#             score += 0.05
-#             reasons.append("Domain >10 years old (WHOIS)")
-#         elif age_days < 365:
-#             score -= 0.1
-#             reasons.append("Domain <1 year old (WHOIS)")
-#         else:
-#             reasons.append("Domain age neutral (WHOIS)")
-#     else:
-#         reasons.append("WHOIS lookup failed")
-
-#     # Wayback
-#     # wb = _wayback_first_snapshot(domain)
-#     # signals["wayback"] = wb
-#     # if wb["ok"] and wb["age_days"] is not None:
-#     #     if wb["age_days"] > 3650:
-#     #         score += 0.1
-#     #         reasons.append("Domain >10 years old (Wayback)")
-#     #     elif wb["age_days"] < 365:
-#     #         score -= 0.1
-#     #         reasons.append("Domain <1 year old (Wayback)")
-#     #     else:
-#     #         reasons.append("Domain age neutral (Wayback)")
-#     # else:
-#     #     reasons.append("Wayback data unavailable")
-
-
-#     # Fact check
-#     fc = _google_fact_check_presence(domain)
-#     signals["factcheck"] = fc
-#     if fc["ok"]:
-#         if fc["found"]:
-#             claims = fc.get("claims", [])
-#             total = len(claims)
-#             false_misleading = sum(
-#                 1 for c in claims
-#                 if any(r.get("textualRating", "").lower() in ["false", "misleading", "altered photo"]
-#                        for r in c.get("claimReview", []))
-#             )
-#             true_claims = total - false_misleading
-#             if total > 0:
-#                 credibility_ratio = true_claims / total
-#                 score += (credibility_ratio - 0.5) * 0.6
-#                 reasons.append(f"Fact-checked claims: {total}, credibility ratio: {credibility_ratio:.2f}")
-#         else:
-#             reasons.append("Not in Google Fact Check results")
-#     else:
-#         reasons.append("Google Fact Check unavailable")
-
-#     # Finalize
-#     score = _clamp(score)
-#     label = _label(score)
-#     result = {
-#         "domain": domain,
-#         "score": round(score, 3),
-#         "label": label,
-#         "reasons": reasons,
-#         "signals": signals,
-#     }
-
-#     print(f"\n📊 Final Score: {result['score']} → {result['label']}")
-#     print(f"📌 Reasons: {reasons}")
-#     return result
 
 def publication_reputation_check(url_or_domain: str):
     domain = _domain_from_url_or_domain(url_or_domain)

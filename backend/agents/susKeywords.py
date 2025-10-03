@@ -31,7 +31,9 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from groq import Groq
 
-load_dotenv()
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+ENV_PATH = os.path.join(BASE_DIR, ".env")
+load_dotenv(ENV_PATH)
 
 def safe_json(raw: str) -> dict:
     """Try to salvage JSON from LLM output safely."""

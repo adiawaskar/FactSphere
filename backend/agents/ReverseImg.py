@@ -8,7 +8,9 @@ from rapidfuzz import fuzz
 from sentence_transformers import SentenceTransformer, util
 
 # Load environment variables
-load_dotenv()
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+ENV_PATH = os.path.join(BASE_DIR, ".env")
+load_dotenv(ENV_PATH)
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Get your SerpAPI key from https://serpapi.com/dashboard
@@ -57,29 +59,6 @@ def download_page(url):
         print(f"❌ Error downloading page: {e}")
         return None
 
-# def extract_images(html, base_url):
-#     soup = BeautifulSoup(html, "html.parser")
-#     images = []
-#     for img in soup.find_all("img"):
-#         src = img.get("src") or img.get("data-src") or img.get("data-lazy")
-#         if src:
-#             if not src.startswith(('http', '//')):
-#                 src = urljoin(base_url, src)
-#             elif src.startswith('//'):
-#                 src = 'https:' + src
-#             if (
-#                 "placeholder" in src.lower()
-#                 or "sprite" in src.lower()
-#                 or "icon" in src.lower()
-#                 or "logo" in src.lower()
-#                 or "tracker" in src.lower()
-#                 or "pixel" in src.lower()
-#                 or src.endswith((".svg", ".gif"))
-#             ):
-#                 continue
-#             if src.startswith('http'):
-#                 images.append(src)
-#     return images[:5]
 
 def extract_images(html, base_url):
     soup = BeautifulSoup(html, "html.parser")
@@ -153,36 +132,6 @@ def categorize_source(source_name, link):
         return "⚠️ Social Media"
     else:
         return "❓ Other/Unknown"
-
-# def analyze_results(results, original_title):
-#     if not results:
-#         print("❌ No results to analyze")
-#         return
-#     print("\n" + "="*60)
-#     print("📊 REVERSE IMAGE SEARCH ANALYSIS")
-#     print("="*60)
-#     sources = set(r['source'] for r in results)
-#     print(f"📈 Found matches from {len(sources)} unique sources")
-#     print(f"🔍 Total visual matches: {len(results)}")
-
-#     print(f"\n📰 Original Article Title: {original_title}")
-
-#     for i, result in enumerate(results, 1):
-#         category = categorize_source(result['source'], result['link'])
-#         similar, ratio = titles_similar(original_title, result['title'])
-#         print(f"\n--- Match {i} ---")
-#         print(f"   🏷️ Title: {result['title']}")
-#         print(f"   🌍 Source: {result['source']} ({category})")
-#         print(f"   🔗 Link: {result['link']}")
-#         print(f"   🔎 Similar to original: {similar} (score={ratio:.2f})")
-
-#     credible_count = sum(1 for r in results if categorize_source(r['source'], r['link']) == "✅ Credible News")
-#     if credible_count >= 3:
-#         print("\n✅ HIGH CONFIDENCE: Image appears on multiple credible news outlets")
-#     elif credible_count >= 1:
-#         print("\n⚠️ MEDIUM CONFIDENCE: Image found, but limited credible coverage")
-#     else:
-#         print("\n❌ LOW CONFIDENCE: No credible news sources found, verify carefully")
 
 def analyze_results(results, original_title, threshold=0.4):
     if not results:

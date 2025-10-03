@@ -1,4 +1,4 @@
-
+// frontend/src/components/dashboard/RecentActivity.tsx
 import { Clock, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
