@@ -34,6 +34,7 @@ def get_trending_topics(num_trends=5):
             'apiKey': api_key,
             'language': 'en',
             'pageSize': 100,  # Get more articles to analyze trends
+
         }
         
         response = requests.get(base_url, params=params, timeout=10)
@@ -43,10 +44,13 @@ def get_trending_topics(num_trends=5):
         
         if data.get('status') != 'ok':
             print(f"API Error: {data.get('message', 'Unknown error')}")
+            print(f"Full response: {json.dumps(data, indent=2)}")
             return []
         
         if not data.get('articles'):
             print("No articles found")
+            print(f"Total results: {data.get('totalResults', 0)}")
+            print(f"Full response: {json.dumps(data, indent=2)}")
             return []
         
         articles = data['articles']
@@ -107,6 +111,7 @@ def get_trending_topics(num_trends=5):
             if not distinctive_words and main_keywords:
                 distinctive_words = main_keywords[:2]  # Take at least a couple keywords if no distinctive ones
             
+            # First, check in-memory articles for related content
             for other_article in articles:
                 other_url = other_article.get('url', '')
                 if other_url == article_url or other_url in processed_articles or not other_url:
@@ -140,9 +145,58 @@ def get_trending_topics(num_trends=5):
                     related_articles.append(article_info)
                     processed_articles.add(other_url)
                     
-                    # Get enough related articles but not too many
-                    if len(related_articles) >= 3:
+                    # Get enough related articles but not too many from in-memory
+                    if len(related_articles) >= 5:
                         break
+            
+            # If we don't have many related articles, do a reverse keyword search
+            if len(related_articles) < 3 and distinctive_words:
+                try:
+                    # Create search query from top 3 distinctive keywords
+                    search_query = ' '.join(distinctive_words[:3])
+                    print(f"  Searching for more articles with: '{search_query}'")
+                    
+                    search_url = "https://newsapi.org/v2/everything"
+                    search_params = {
+                        'apiKey': api_key,
+                        'q': search_query,
+                        'language': 'en',
+                        'sortBy': 'publishedAt',
+                        'pageSize': 10
+                    }
+                    
+                    search_response = requests.get(search_url, params=search_params, timeout=10)
+                    search_response.raise_for_status()
+                    search_data = search_response.json()
+                    
+                    if search_data.get('status') == 'ok' and search_data.get('articles'):
+                        for search_article in search_data['articles']:
+                            search_url_str = search_article.get('url', '')
+                            if search_url_str in processed_articles or not search_url_str:
+                                continue
+                            
+                            article_info = {
+                                'title': search_article.get('title', 'No title'),
+                                'source': search_article.get('source', {}).get('name', 'Unknown'),
+                                'url': search_url_str,
+                                'snippet': search_article.get('description', '')[:200] if search_article.get('description') else '',
+                                'published': search_article.get('publishedAt', '')
+                            }
+                            
+                            if search_article.get('urlToImage'):
+                                article_info['image'] = search_article.get('urlToImage')
+                            
+                            related_articles.append(article_info)
+                            processed_articles.add(search_url_str)
+                            
+                            # Stop when we have enough articles
+                            if len(related_articles) >= 8:
+                                break
+                        
+                        print(f"  Found {len(related_articles)} total articles after search")
+                    
+                except Exception as search_error:
+                    print(f"  Search API error (continuing): {str(search_error)}")
             
             # Only add topics with at least one article (the main one)
             trend_info = {
