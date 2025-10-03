@@ -3,21 +3,21 @@
         "topic": "yemen",
         "articles": [
             {
-                "title": "Israel confirms strike on Houthis in Yemen, marks second time this week",
-                "source": "Fox News",
-                "url": "https://www.foxnews.com/world/israel-confirms-strike-houthis-yemen-marks-second-time-week",
-                "snippet": null
-            },
-            {
                 "title": "Israeli strikes in Yemen reportedly targeted gathering of Houthi leadership",
                 "source": "The Times of Israel",
                 "url": "https://www.timesofisrael.com/liveblog_entry/israeli-strikes-in-yemen-reportedly-targeted-gathering-of-houthi-leadership/",
                 "snippet": null
             },
             {
-                "title": "Israeli airstrikes hit Yemeni capital, Houthis say",
-                "source": "AP News",
-                "url": "https://apnews.com/article/yemen-israeli-airstrikes-sanaa-mideast-wars-0af1a06ff8078a9659b44aa54d47f0c4",
+                "title": "Israel launches latest attacks against Houthis in Yemen’s Sanaa",
+                "source": "Al Jazeera",
+                "url": "https://www.aljazeera.com/news/2025/8/28/israel-launches-latest-attacks-against-houthis-in-yemens-sanaa",
+                "snippet": null
+            },
+            {
+                "title": "Video | Houthis Feel Israel&apos;s Wrath, Russia-Ukraine War, Russia Unveils &apos;Sea Monster&apos; | Faultlines",
+                "source": "NDTV",
+                "url": "https://www.ndtv.com/video/houthis-feel-israel-s-wrath-russia-ukraine-war-russia-unveils-sea-monster-faultlines-986634",
                 "snippet": null
             }
         ],
@@ -81,21 +81,21 @@
         "topic": "nick woltemade",
         "articles": [
             {
-                "title": "Schlag ins Gesicht für den FC Bayern! Transfer-Hammer um Nick Woltemade für gigantische Ablöse angeblich kurz vor dem Abschluss",
-                "source": "SPOX.com",
-                "url": "https://www.spox.com/fussball/listen/schlag-ins-gesicht-fuer-den-fc-bayern-transfer-hammer-um-nick-woltemade-fuer-gigantische-abloese-angeblich-kurz-vor-dem-abschluss/blt7106c7c4dd1d0e45",
-                "snippet": null
-            },
-            {
-                "title": "Bundesliga-Transferticker aktuell: Woltemade bald in England? Kuriose Wende im Poker um VfB-Star",
-                "source": "News.de",
-                "url": "https://www.news.de/sport/858637209/transferticker-bundesliga-2025-aktuell-wechsel-xavi-simons-rb-leipzig-zugaenge-abgaenge-saison-25-26-woltemade-stuttgart-weiper-mainz/1/",
+                "title": "Undav über Woltemade-Debatte: &quot;Lasst den Jungen in Ruhe&quot;",
+                "source": "OneFootball",
+                "url": "https://onefootball.com/de/news/undav-ueber-woltemade-debatte-lasst-den-jungen-in-ruhe-41571499",
                 "snippet": null
             },
             {
                 "title": "Nick Woltemade zu Newcastle United: Seine Tore für den VfB Stuttgart",
                 "source": "Sport Bild",
                 "url": "https://sportbild.bild.de/fussball/1-bundesliga/nick-woltemade-zu-newcastle-united-seine-tore-fuer-den-vfb-stuttgart-68b08ef23bd50e21e29765d2",
+                "snippet": null
+            },
+            {
+                "title": "Nagelsmann kritisiert den Bayern-Transferpoker um Woltemade",
+                "source": "Merkur",
+                "url": "https://www.merkur.de/sport/fc-bayern/25-prozent-spielzeit-nagelsmann-kritisiert-transferpoker-um-woltemade-zr-93905377.html",
                 "snippet": null
             }
         ],
@@ -182,32 +182,6 @@
         "link": "https://trends.google.com/trending/rss?geo=IN"
     },
     {
-        "topic": "bruce willis",
-        "articles": [
-            {
-                "title": "Bruce Willis’ wife Emma Heming shares heartbreaking update on dementia battle: ‘His brain is failing him’ | Hollywood - Hindustan Times",
-                "source": "Hindustan Times",
-                "url": "https://www.hindustantimes.com/entertainment/hollywood/bruce-willis-wife-emma-heming-shares-heartbreaking-update-on-dementia-battle-his-brain-is-failing-him-101756214014624.html",
-                "snippet": null
-            },
-            {
-                "title": "Bruce Willis and wife Emma now living separately amid his heart breaking dementia struggle",
-                "source": "The Economic Times",
-                "url": "https://m.economictimes.com/news/international/us/bruce-willis-and-wife-emma-now-living-separately-amid-his-heart-breaking-dementia-struggle/articleshow/123565159.cms",
-                "snippet": null
-            },
-            {
-                "title": "Bruce Willis is living in a ‘second home’ with full-time care team as he battles dementia",
-                "source": "New York Post",
-                "url": "https://nypost.com/2025/08/27/entertainment/bruce-willis-living-in-second-home-with-caregivers-amid-dementia/",
-                "snippet": null
-            }
-        ],
-        "volume": "500+",
-        "started": 1756399200,
-        "link": "https://trends.google.com/trending/rss?geo=IN"
-    },
-    {
         "topic": "uefa champions league games",
         "articles": [
             {
@@ -234,6 +208,32 @@
         "link": "https://trends.google.com/trending/rss?geo=IN"
     },
     {
+        "topic": "bruce willis",
+        "articles": [
+            {
+                "title": "Bruce Willis’ wife Emma Heming shares heartbreaking update on dementia battle: ‘His brain is failing him’ | Hollywood - Hindustan Times",
+                "source": "Hindustan Times",
+                "url": "https://www.hindustantimes.com/entertainment/hollywood/bruce-willis-wife-emma-heming-shares-heartbreaking-update-on-dementia-battle-his-brain-is-failing-him-101756214014624.html",
+                "snippet": null
+            },
+            {
+                "title": "Bruce Willis and wife Emma now living separately amid his heart breaking dementia struggle",
+                "source": "The Economic Times",
+                "url": "https://m.economictimes.com/news/international/us/bruce-willis-and-wife-emma-now-living-separately-amid-his-heart-breaking-dementia-struggle/articleshow/123565159.cms",
+                "snippet": null
+            },
+            {
+                "title": "Bruce Willis is living in a ‘second home’ with full-time care team as he battles dementia",
+                "source": "New York Post",
+                "url": "https://nypost.com/2025/08/27/entertainment/bruce-willis-living-in-second-home-with-caregivers-amid-dementia/",
+                "snippet": null
+            }
+        ],
+        "volume": "500+",
+        "started": 1756399200,
+        "link": "https://trends.google.com/trending/rss?geo=IN"
+    },
+    {
         "topic": "kick",
         "articles": [
             {
@@ -249,9 +249,9 @@
                 "snippet": null
             },
             {
-                "title": "Champions League final to begin at 9.30pm IST as UEFA changes timings",
-                "source": "The Indian Express",
-                "url": "https://indianexpress.com/article/sports/football/champions-league-final-to-begin-at-9-30-ist-as-uefa-changes-timings-10216933/",
+                "title": "UEFA announces major change to Champions League final that will be implemented for the first time in 2025-26 showpiece at Puskas Arena",
+                "source": "Goal.com",
+                "url": "https://www.goal.com/en-in/lists/uefa-major-change-champions-league-final-first-time-2025-26-puskas-arena/bltec55e38b84009921",
                 "snippet": null
             }
         ],
