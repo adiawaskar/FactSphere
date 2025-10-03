@@ -4,18 +4,22 @@ import json
 import os
 from datetime import datetime
 from collections import Counter
+import dotenv
+
+# Load environment variables from .env file
+dotenv.load_dotenv()
 
 
 def get_trending_topics(num_trends=5):
     """
-    Get trending topics and associated news articles using GNews API
+    Get trending topics and associated news articles using News API
     Returns a list of trend data dictionaries
     """
     # Get API key from environment variable
-    api_key = os.getenv("GNEWS_API_KEY", None)
+    api_key = os.getenv("NEWS_API_KEY", None)
     if not api_key:
-        print("Warning: GNEWS_API_KEY not found in environment variables")
-        print("Get a free API key from https://gnews.io/")
+        print("Warning: NEWS_API_KEY not found in environment variables")
+        print("Get a free API key from https://newsapi.org/")
         return []
     
     trend_data = []
@@ -23,20 +27,23 @@ def get_trending_topics(num_trends=5):
     try:
         print("Fetching trending topics...")
         
-        # GNews API endpoint for top headlines
-        base_url = "https://gnews.io/api/v4/top-headlines"
+        # News API endpoint for top headlines
+        base_url = "https://newsapi.org/v2/top-headlines"
         
         params = {
-            'apikey': api_key,
-            'lang': 'en',
-            'max': 100,  # Get more articles to analyze trends
-            'nullable': 'image'
+            'apiKey': api_key,
+            'language': 'en',
+            'pageSize': 100,  # Get more articles to analyze trends
         }
         
         response = requests.get(base_url, params=params, timeout=10)
         response.raise_for_status()
         
         data = response.json()
+        
+        if data.get('status') != 'ok':
+            print(f"API Error: {data.get('message', 'Unknown error')}")
+            return []
         
         if not data.get('articles'):
             print("No articles found")
@@ -55,7 +62,7 @@ def get_trending_topics(num_trends=5):
             
             # Skip if we've already processed this article
             article_url = article.get('url', '')
-            if article_url in processed_articles:
+            if article_url in processed_articles or not article_url:
                 continue
                 
             headline = article.get('title', 'No title')
@@ -73,8 +80,8 @@ def get_trending_topics(num_trends=5):
                 'published': article.get('publishedAt', '')
             }
             
-            if article.get('image'):
-                main_article_info['image'] = article.get('image')
+            if article.get('urlToImage'):
+                main_article_info['image'] = article.get('urlToImage')
             
             # Find related articles with improved similarity matching
             related_articles = [main_article_info]
@@ -102,7 +109,7 @@ def get_trending_topics(num_trends=5):
             
             for other_article in articles:
                 other_url = other_article.get('url', '')
-                if other_url == article_url or other_url in processed_articles:
+                if other_url == article_url or other_url in processed_articles or not other_url:
                     continue
                     
                 other_title = other_article.get('title', '').lower()
@@ -127,8 +134,8 @@ def get_trending_topics(num_trends=5):
                         'published': other_article.get('publishedAt', '')
                     }
                     
-                    if other_article.get('image'):
-                        article_info['image'] = other_article.get('image')
+                    if other_article.get('urlToImage'):
+                        article_info['image'] = other_article.get('urlToImage')
                     
                     related_articles.append(article_info)
                     processed_articles.add(other_url)
