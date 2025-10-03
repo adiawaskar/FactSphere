@@ -37,3 +37,10 @@ scikit-learn
 nltk
 dotenv
 
+
+
+textstat
+transformers
+sentence-transformers
+spacy
+torch

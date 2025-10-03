@@ -1,0 +1,94 @@
+{
+    "url": "https://www.bbc.com/news/world-middle-east-67477240",
+    "timestamp": "2025-09-29T17:48:26.243739",
+    "article": {
+        "title": "Who are Israeli hostages released and rescued from Gaza?",
+        "source": "www.bbc.com",
+        "extraction_method": "newspaper3k"
+    },
+    "verification": {
+        "verdict": "LIKELY_CREDIBLE",
+        "confidence": 0.86,
+        "credibility_score": 0.86
+    },
+    "consensus_analysis": {
+        "consensus_score": 0.2,
+        "source_diversity": 0.4,
+        "credible_sources_count": 0,
+        "total_sources": 10,
+        "unique_sources": 2,
+        "confirmations": [],
+        "contradictions": [],
+        "analysis": "INSUFFICIENT_CONSENSUS"
+    },
+    "similar_articles": [
+        {
+            "title": "Hamas releases hostage video even as Israel bombs Gaza high-rise",
+            "source": "www.onmanorama.com",
+            "similarity": 0.775,
+            "url": "https://www.onmanorama.com/news/world/2025/09/06/israeli-hostages-gaza-video.html"
+        },
+        {
+            "title": "Israel Gaza war | Latest News & Updates | BBC News",
+            "source": "duckduckgo.com",
+            "similarity": 0.5,
+            "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.bbc.com%2Fnews%2Ftopics%2Fc2vdnvdg6xxt&rut=b00d23270b9b3fd7693cc5ab69ce6603792859505161c8db02a02af25ac24e47"
+        },
+        {
+            "title": "'Leave now': Israel issues evacuation order for residents in Gaza City",
+            "source": "www.onmanorama.com",
+            "similarity": 0.479,
+            "url": "https://www.onmanorama.com/news/world/2025/09/09/israel-to-intensify-attack-on-gaza-orders-evacuation.html"
+        },
+        {
+            "title": "Trump issues 'last warning' to Hamas, eyes Gaza deal 'soon'",
+            "source": "www.onmanorama.com",
+            "similarity": 0.469,
+            "url": "https://www.onmanorama.com/news/world/2025/09/08/trump-gaza-deal-hostage-release-hamas-israel-palestine.html"
+        },
+        {
+            "title": "Tanks thrust deeper into Gaza, medics say many injured trapped",
+            "source": "duckduckgo.com",
+            "similarity": 0.431,
+            "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.reuters.com%2Fworld%2Fmiddle%2Deast%2Ftanks%2Dthrust%2Ddeeper%2Dinto%2Dgaza%2Dmedics%2Dsay%2Dmany%2Dinjured%2Dtrapped%2D2025%2D09%2D28%2F&rut=db905c73e72fdd341a4bcfd398fd49f054431d73f1e64d94074de6561592fb18"
+        },
+        {
+            "title": "Satellite image shows Gaza City camp dismantled as Israeli ... - BBC",
+            "source": "duckduckgo.com",
+            "similarity": 0.417,
+            "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.bbc.com%2Fnews%2Flive%2Fc3w54gy568qt&rut=e267d807c5f5c1a9e6430cb082c56d224615d735f8d1fd0d5ccae25f86caebad"
+        },
+        {
+            "title": "Satellite images reveal wide destruction in Gaza City as Israel steps ...",
+            "source": "duckduckgo.com",
+            "similarity": 0.41,
+            "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.cnn.com%2F2025%2F09%2F12%2Fmiddleeast%2Fsatellite%2Dimages%2Ddestruction%2Dgaza%2Dcity%2Disrael%2Dintl%2Dcmd&rut=bb861d2244dd8336eb5b50fdcb14fe2cc7ef6f30fd0e00b01e942a0e1eb33a08"
+        },
+        {
+            "title": "Israel launches ground invasion of Gaza City as residents flee homes ...",
+            "source": "duckduckgo.com",
+            "similarity": 0.387,
+            "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.reuters.com%2Fworld%2Fisrael%2Dhamas%2Fgaza%2Dlive%2Disraeli%2Dmilitary%2Dbegins%2Doperation%2Doccupy%2Dgaza%2Dcity%2D2025%2D09%2D16%2F&rut=b5d64ddfc2a462ffd70b761505953478618424570adb212ff4a1a5fe9c503d3b"
+        },
+        {
+            "title": "Israeli forces push deeper into Gaza City with heavy shelling and ... - CNN",
+            "source": "duckduckgo.com",
+            "similarity": 0.352,
+            "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.cnn.com%2F2025%2F09%2F23%2Fmiddleeast%2Fisraeli%2Dforces%2Dpush%2Ddeeper%2Dgaza%2Dcity%2Dintl&rut=212ca4941de323f1fd3c1f137500f6f10e23c62381f0813e687ff44de29eca2a"
+        },
+        {
+            "title": "'Cataclysmic' situation in Gaza City, UN official says, as Israeli ...",
+            "source": "duckduckgo.com",
+            "similarity": 0.317,
+            "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.bbc.com%2Fnews%2Farticles%2Fc5y8l46m5evo&rut=9e5e0e597bb74ecebc8aa00730ad3d6f4b1e8b34460a519a6f2388077b065be5"
+        }
+    ],
+    "content_analysis": {
+        "entities_count": 63,
+        "sentiment": "LABEL_1",
+        "source_credibility": {
+            "is_trusted": true,
+            "is_high_credibility": true
+        }
+    }
+}
