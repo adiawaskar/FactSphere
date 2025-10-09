@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import Index from "./pages/Index";
 import DeepfakeDetection from "./pages/DeepfakeDetection";
-import SocialTrends from "./pages/SocialTrends";
+import GlobalTrends from "./pages/GlobalTrends";
 import AIAnalyzer from "./pages/AIAnalyzer";
 import AskAI from "./pages/AskAI";
 import KnowledgeBase from "./pages/KnowledgeBase";
@@ -27,7 +27,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/deepfake-detection" element={<DeepfakeDetection />} />
-            <Route path="/social-trends" element={<SocialTrends />} />
+            <Route path="/social-trends" element={<GlobalTrends />} />
             <Route path="/ai-analyzer" element={<AIAnalyzer />} />
             <Route path="/ask-ai" element={<AskAI />} />
             <Route path="/knowledge-base" element={<KnowledgeBase />} />

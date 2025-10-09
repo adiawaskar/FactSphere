@@ -127,11 +127,11 @@ def true_reverse_image_search(image_url):
 def categorize_source(source_name, link):
     source_lower = source_name.lower()
     if any(x in source_lower for x in ["reuters", "bbc", "times", "week", "cnn", "news", "srn"]):
-        return "✅ Credible News"
+        return "📰  Credible News"
     elif "twitter" in source_lower or "x.com" in link or "facebook" in source_lower or "instagram" in source_lower:
-        return "⚠️ Social Media"
+        return "📱 Social Media"
     else:
-        return "❓ Other/Unknown"
+        return "💬 Other/Unknown"
 
 def analyze_results(results, original_title, threshold=0.4):
     if not results:
@@ -154,7 +154,7 @@ def analyze_results(results, original_title, threshold=0.4):
     scored_results.sort(key=lambda x: x['score'], reverse=True)
 
     # Separate credible vs non-credible
-    credible_results = [r for r in scored_results if r['category'] == "✅ Credible News"]
+    credible_results = [r for r in scored_results if r['category'] == " Credible News"]
 
     print(f"\n📰 Original Article Title: {original_title}\n")
 
@@ -182,24 +182,77 @@ def analyze_results(results, original_title, threshold=0.4):
         print(f"{i}. {r['source']} — \"{r['title']}\" ({r['score']:.2f})")
         print(f"   🔗 {r['link']}")
 
+# def verify_news(url):
+#     print(f"🔍 Verifying news with TRUE reverse image search")
+#     print(f"📄 Article URL: {url}")
+#     print("-" * 60)
+#     html = download_page(url)
+#     if not html:
+#         return
+#     images = extract_images(html, url)
+#     if not images:
+#         print("❌ No real images found in article (only placeholders/logos)")
+#         return
+#     print(f"📷 Found {len(images)} real image(s)")
+#     print(images)
+#     original_title = get_page_title(html)
+#     for idx, image_url in enumerate(images, 1):
+#         print(f"\n🖼️ Running reverse search for image {idx}/{len(images)}: {image_url}")
+#         results = true_reverse_image_search(image_url)
+#         analyze_results(results, original_title)
 def verify_news(url):
     print(f"🔍 Verifying news with TRUE reverse image search")
     print(f"📄 Article URL: {url}")
     print("-" * 60)
     html = download_page(url)
     if not html:
-        return
+        return {"status": "error", "reason": "Failed to download page"}
+
     images = extract_images(html, url)
     if not images:
         print("❌ No real images found in article (only placeholders/logos)")
-        return
+        return {"status": "error", "reason": "No real images found"}
+
     print(f"📷 Found {len(images)} real image(s)")
     print(images)
+
     original_title = get_page_title(html)
+    all_results = []
+
     for idx, image_url in enumerate(images, 1):
         print(f"\n🖼️ Running reverse search for image {idx}/{len(images)}: {image_url}")
         results = true_reverse_image_search(image_url)
-        analyze_results(results, original_title)
+        if not results:
+            all_results.append({
+                "image_url": image_url,
+                "status": "no_matches"
+            })
+            continue
+
+        scored_results = []
+        for r in results:
+            ratio = titles_similar(original_title, r['title'])
+            scored_results.append({
+                "title": r['title'],
+                "source": r['source'],
+                "link": r['link'],
+                "score": round(ratio, 2),
+                "category": categorize_source(r['source'], r['link'])
+            })
+
+        scored_results.sort(key=lambda x: x['score'], reverse=True)
+        best_matches = scored_results[:3]
+
+        all_results.append({
+            "image_url": image_url,
+            "best_matches": best_matches
+        })
+
+    return {
+        "status": "success",
+        "article_title": original_title,
+        "image_results": all_results
+    }
 
 def create_env_template():
     env_file = ".env"

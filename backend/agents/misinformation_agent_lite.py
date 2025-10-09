@@ -16,8 +16,20 @@ import re
 from typing import Dict, List, Any, Optional
 import urllib.parse
 import hashlib
+import difflib
+import itertools
+from collections import defaultdict
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.schema import HumanMessage
+import json
+import re
+from typing import List, Dict, Any
+import dotenv
 
-# Configure logging
+
+dotenv.load_dotenv()
+
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("misinformation-agent-lite")
 
@@ -32,56 +44,11 @@ except ImportError:
 # Set path to include parent directory for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Define a fallback function for trends if import fails
-def mock_get_trending_topics(num_trends=5):
-    """Generate mock trending topics for testing when imports fail."""
-    logger.warning("Using mock trend data since import failed")
-    
-    mock_topics = [
-        "Global warming", "COVID-19 vaccine", "Political election", 
-        "Economic recovery", "Celebrity scandal", "Technology innovation",
-        "Sports championship", "Health study", "Education policy",
-        "Environmental protection"
-    ]
-    
-    mock_snippets = [
-        "New research suggests significant impact on global populations.",
-        "Officials released statements confirming the recent developments.",
-        "Experts disagree on the long-term implications of this trend.",
-        "Social media users have been sharing their opinions widely.",
-        "The latest data shows surprising patterns that analysts are studying.",
-        "Critics claim that misinformation is spreading about this topic."
-    ]
-    
-    result = []
-    for i in range(min(num_trends, len(mock_topics))):
-        articles = []
-        for j in range(3):  
-            articles.append({
-                "title": f"Article about {mock_topics[i]}",
-                "snippet": random.choice(mock_snippets),
-                "url": f"https://example.com/article{i}{j}"
-            })
-            
-        result.append({
-            "topic": mock_topics[i],
-            "articles": articles,
-            "volume": random.randint(1000, 50000),
-            "started": datetime.now().isoformat()
-        })
-    
-    return result
-
 # Try to import trends utility
-try:
-    logger.info(f"Current working directory: {os.getcwd()}")
-    from utils.trends import get_trending_topics
-    HAS_TRENDS_IMPORT = True
-    logger.info("Successfully imported get_trending_topics")
-except ImportError:
-    logger.error("Could not import trend utilities")
-    get_trending_topics = mock_get_trending_topics
-    HAS_TRENDS_IMPORT = False
+logger.info(f"Current working directory: {os.getcwd()}")
+from utils.trends import get_trending_topics
+HAS_TRENDS_IMPORT = True
+logger.info("Successfully imported get_trending_topics")
 
 # Try to import ML libraries
 try:
@@ -104,8 +71,8 @@ except ImportError:
     HAS_NLTK = False
 
 # Check for Gemini API configuration
-GEMINI_API_KEY = "AIzaSyCpxZUOCicMaRgYxj0sBqespv0etbDMkH4"
-HAS_GEMINI_API = GEMINI_API_KEY is not None and HAS_REQUESTS
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", None)
+HAS_GEMINI_API = GEMINI_API_KEY is not None
 if HAS_GEMINI_API:
     logger.info("Gemini API integration is available")
 else:
@@ -445,154 +412,248 @@ class LightweightMisinformationAgent:
         
         return result
     
-    def _analyze_with_gemini(self, text: str) -> Dict[str, Any]:
-        """Use Gemini API for enhanced analysis."""
-        if not HAS_GEMINI_API or not HAS_REQUESTS:
-            return {}
-            
+    
+
+    def _analyze_with_gemini(self, text: str, sources: List[str] = None, contradiction_data: Dict = None) -> Dict[str, Any]:
+        """Use Gemini API for enhanced analysis with cross-verification and contradiction detection."""
         try:
-            # Use a content hash to avoid re-analyzing identical content
-            content_hash = hashlib.md5(text.encode()).hexdigest()
+            # Initialize the LangChain Gemini model
+            llm = ChatGoogleGenerativeAI(
+                model="gemini-2.5-flash",
+                google_api_key=GEMINI_API_KEY,
+                temperature=0.2,
+                top_p=0.8,
+                top_k=40,
+                max_output_tokens=2048
+            )
             
             # Truncate text if too long
-            if len(text) > 1000:
-                text = text[:997] + "..."
+            if len(text) > 2000:
+                text = text[:1997] + "..."
                 
-            # Prepare the prompt for Gemini
+            # Create a more detailed prompt for Gemini with cross-verification data
             prompt = f"""
-            Please analyze the following text for potential misinformation indicators. 
-            Consider factual accuracy, source credibility, logical consistency, and emotional manipulation.
+            Analyze the following text for potential misinformation. Focus on WORLDWIDE implications and cross-verification.
             
             Text to analyze:
             "{text}"
-            
-            Provide your analysis in JSON format with the following fields:
-            1. score: A number from 0 to 1 where 0 is highly credible and 1 is likely misinformation
-            2. confidence: A number from 0 to 1 indicating your confidence in this assessment
-            3. analysis: A brief analysis of the content
-            4. indicators: A list of specific misinformation indicators found, if any
-            5. justification: A brief explanation of your reasoning
             """
             
-            # Make the API call
-            url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
-            headers = {
-                "Content-Type": "application/json"
-            }
-            data = {
-                "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {
-                    "temperature": 0.2,
-                    "topP": 0.8,
-                    "topK": 40
+            # Add source information if available
+            if sources and len(sources) > 0:
+                prompt += f"\n\nThe text references these sources:\n"
+                for source in sources[:5]:  # Limit to 5 sources to keep prompt size reasonable
+                    prompt += f"- {source}\n"
+            
+            # Add contradiction information if available
+            if contradiction_data and len(contradiction_data) > 0:
+                prompt += "\n\nThe following contradictions were detected between sources:\n"
+                for i, (sources, details) in enumerate(list(contradiction_data.items())[:3]):  # Limit to top 3
+                    prompt += f"{i+1}. Between {sources}: {details}\n"
+            
+            prompt += f"""
+            Please provide a DETAILED analysis in JSON format with the following fields:
+            1. misinformation_score: A number from 0 to 1 where 0 is highly credible and 1 is likely misinformation
+            2. confidence: A number from 0 to 1 indicating your confidence in this assessment
+            3. global_impact_score: A score from 0-1 indicating how significant this topic is globally
+            4. detailed_analysis: A comprehensive analysis (at least 200 words) addressing:
+            - Factual accuracy
+            - Source credibility
+            - Logical consistency
+            - Global implications
+            - Cross-verification results
+            5. contradiction_assessment: Analysis of any contradictions between sources
+            6. verification_sources: Suggested reliable sources to verify this information
+            7. misinformation_indicators: A list of specific misinformation indicators found
+            8. credibility_indicators: A list of specific credibility indicators found
+            9. key_metrics: A JSON object with numeric metrics for dashboard display including:
+            - emotional_language_score (0-1)
+            - source_diversity_score (0-1)
+            - factual_consistency_score (0-1)
+            - global_spread_risk (0-1)
+            - manipulation_probability (0-1)
+            10. recommendations: Specific actions readers should take when encountering this information
+            
+            Your analysis should be thorough, unbiased, and focused on helping readers determine the reliability of this information.
+            """
+            
+            # Make the API call using LangChain
+            message = HumanMessage(content=prompt)
+            response = llm.invoke([message])
+            
+            # Extract the text from the response
+            text_response = response.content
+            
+            # Extract the JSON part from the response
+            json_str = re.search(r'```json\s*(.*?)\s*```', text_response, re.DOTALL)
+            if json_str:
+                result = json.loads(json_str.group(1))
+                return result
+            
+            # Try without markdown code blocks
+            json_str = re.search(r'\{.*\}', text_response, re.DOTALL)
+            if json_str:
+                try:
+                    result = json.loads(json_str.group(0))
+                    return result
+                except json.JSONDecodeError:
+                    pass
+            
+            # Default values if we couldn't parse JSON
+            return {
+                "misinformation_score": 0.0,
+                "confidence": 0.0,
+                "detailed_analysis": "Could not extract structured analysis from API response.",
+                "key_metrics": {
+                    "emotional_language_score": 0.5,
+                    "source_diversity_score": 0.5,
+                    "factual_consistency_score": 0.5,
+                    "global_spread_risk": 0.5,
+                    "manipulation_probability": 0.5
                 }
             }
             
-            response = requests.post(
-                f"{url}?key={GEMINI_API_KEY}",
-                headers=headers,
-                json=data
-            )
+        except Exception as e:
+            logger.error(f"Error calling Gemini API: {str(e)}")
+            import traceback
+            traceback.print_exc()
             
-            if response.status_code == 200:
-                response_json = response.json()
+            # Return empty dict on error
+            return {}
+    
+
+    def cross_verify_sources(self, topic: str, articles: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Cross-verify multiple sources on the same topic to detect contradictions and consistency.
+        
+        Args:
+            topic: The trending topic being analyzed
+            articles: List of article dictionaries containing title, snippet, url, etc.
+            
+        Returns:
+            Dictionary containing cross-verification results
+        """
+        if not articles or len(articles) < 2:
+            return {
+                "verification_possible": False,
+                "reason": "Insufficient sources for cross-verification",
+                "contradictions": {}
+            }
+        
+        try:
+            # Extract key information from articles
+            article_info = []
+            for i, article in enumerate(articles):
+                snippet = article.get('snippet', '')
+                title = article.get('title', '')
+                url = article.get('url', '')
+                domain = urllib.parse.urlparse(url).netloc if url else 'unknown'
                 
-                # Extract the text from the response
-                if "candidates" in response_json and response_json["candidates"]:
-                    text_response = response_json["candidates"][0]["content"]["parts"][0]["text"]
-                    
-                    # Extract the JSON part from the response
-                    json_str = re.search(r'```json\s*(.*?)\s*```', text_response, re.DOTALL)
-                    if json_str:
-                        result = json.loads(json_str.group(1))
-                        return result
-                    
-                    # Try without markdown code blocks
-                    json_str = re.search(r'\{.*\}', text_response, re.DOTALL)
-                    if json_str:
-                        try:
-                            result = json.loads(json_str.group(0))
-                            return result
-                        except json.JSONDecodeError:
-                            pass
-                    
-                    # Default values if we couldn't parse JSON
-                    return {
-                        "score": 0.5,
-                        "confidence": 0.3,
-                        "analysis": "Could not extract structured analysis from API response.",
-                        "justification": "Automated analysis was inconclusive."
+                # Skip articles with insufficient content
+                if not snippet and not title:
+                    continue
+                
+                article_info.append({
+                    "id": i,
+                    "domain": domain,
+                    "content": f"{title} {snippet}".strip(),
+                    "url": url
+                })
+            
+            # Need at least 2 articles with content
+            if len(article_info) < 2:
+                return {
+                    "verification_possible": False,
+                    "reason": "Insufficient content for cross-verification",
+                    "contradictions": {}
+                }
+            
+            # Compare each pair of articles for contradictions
+            contradictions = {}
+            similarities = {}
+            fact_clusters = defaultdict(list)
+            
+            for a1, a2 in itertools.combinations(article_info, 2):
+                # Calculate text similarity
+                similarity = difflib.SequenceMatcher(None, a1["content"], a2["content"]).ratio()
+                pair_key = f"{a1['domain']}-{a2['domain']}"
+                similarities[pair_key] = similarity
+                
+                # If similar enough, consider them supporting each other
+                if similarity > 0.6:
+                    cluster_key = f"cluster_{hash(a1['content'][:50]) % 1000}"
+                    fact_clusters[cluster_key].append(a1)
+                    fact_clusters[cluster_key].append(a2)
+                
+                # Check for potential contradictions (empirically, very dissimilar articles on same topic
+                # often have contradictory information)
+                elif similarity < 0.3:
+                    contradictions[pair_key] = {
+                        "source1": a1["domain"],
+                        "source2": a2["domain"],
+                        "similarity": similarity,
+                        "urls": [a1["url"], a2["url"]]
                     }
             
-            return {}
-                
+            # Deduplicate clusters
+            for key in list(fact_clusters.keys()):
+                fact_clusters[key] = list({item['id']: item for item in fact_clusters[key]}.values())
+            
+            # Calculate consistency metrics
+            total_pairs = len(list(itertools.combinations(article_info, 2)))
+            contradictory_pairs = len(contradictions)
+            consistency_score = 1 - (contradictory_pairs / total_pairs) if total_pairs > 0 else 0
+            
+            # Group articles by shared information clusters
+            cluster_sizes = [len(cluster) for cluster in fact_clusters.values()]
+            largest_cluster_size = max(cluster_sizes) if cluster_sizes else 0
+            largest_cluster_ratio = largest_cluster_size / len(article_info) if article_info else 0
+            
+            # Identify domains with multiple contradictions
+            contradiction_counts = defaultdict(int)
+            for pair_key in contradictions:
+                domains = pair_key.split('-')
+                contradiction_counts[domains[0]] += 1
+                contradiction_counts[domains[1]] += 1
+            
+            problematic_sources = {
+                domain: count for domain, count in contradiction_counts.items() 
+                if count > len(article_info) * 0.3  # Sources contradicting >30% of others
+            }
+            
+            return {
+                "verification_possible": True,
+                "contradictions": contradictions,
+                "consistency_score": consistency_score,
+                "fact_clusters": {key: [a["domain"] for a in items] for key, items in fact_clusters.items()},
+                "largest_cluster_ratio": largest_cluster_ratio,
+                "problematic_sources": problematic_sources,
+                "article_count": len(article_info)
+            }
+            
         except Exception as e:
-            logger.error(f"Error in Gemini API analysis: {str(e)}")
-            return {}
-    
-    def _find_related_trends(self, trends_data):
-        """Find related trends based on content similarity."""
-        if not trends_data or len(trends_data) < 2:
-            return {}
-            
-        related_trends = {}
-        
-        # Extract text from each trend
-        trend_texts = {}
-        for i, trend in enumerate(trends_data):
-            text = trend.get('topic', '') + " "
-            articles = trend.get('articles', [])
-            for article in articles:
-                if 'title' in article and article['title']:
-                    text += article['title'] + " "
-                if 'snippet' in article and article['snippet']:
-                    text += article['snippet'] + " "
-            trend_texts[i] = text
-        
-        # Simple keyword overlap analysis
-        for i in range(len(trends_data)):
-            for j in range(i+1, len(trends_data)):
-                # Skip if either trend is too short
-                if len(trend_texts[i]) < 10 or len(trend_texts[j]) < 10:
-                    continue
-                
-                # Calculate word overlap
-                words_i = set(trend_texts[i].lower().split())
-                words_j = set(trend_texts[j].lower().split())
-                
-                if len(words_i) == 0 or len(words_j) == 0:
-                    continue
-                
-                overlap = len(words_i.intersection(words_j)) / min(len(words_i), len(words_j))
-                
-                # If sufficient overlap, consider them related
-                if overlap > 0.2:  # 20% word overlap threshold
-                    if i not in related_trends:
-                        related_trends[i] = []
-                    if j not in related_trends:
-                        related_trends[j] = []
-                    
-                    related_trends[i].append((j, overlap))
-                    related_trends[j].append((i, overlap))
-        
-        return related_trends
-    
+            logger.error(f"Error in cross-verification: {str(e)}")
+            return {
+                "verification_possible": False,
+                "reason": f"Error during cross-verification: {str(e)}",
+                "contradictions": {}
+            }
+
     def analyze_trends(self) -> Dict[str, Any]:
-        """Analyze current trends for misinformation potential with enhanced analysis."""
+        """Analyze current global trends for misinformation with cross-verification and expanded Gemini analysis."""
         try:
-            logger.info("Starting enhanced lightweight analysis of trends")
+            logger.info("Starting comprehensive worldwide misinformation analysis")
             
-            # Get trends data
+            # Get trends data - focus on GLOBAL trends
             trends_data = get_trending_topics()
             source_type = "real" if HAS_TRENDS_IMPORT else "mock"
-            logger.info(f"Analyzing {len(trends_data)} trends (using {source_type} data)")
+            logger.info(f"Analyzing {len(trends_data)} global trends (using {source_type} data)")
             
-            # Process each trend
+            # Process each trend with enhanced analysis
             analyzed_trends = []
             overall_risk_score = 0
-            trend_topics = []
+            total_contradictions = 0
             
-            # First pass - analyze each trend individually
             for trend in trends_data:
                 topic = trend.get('topic', '')
                 articles = trend.get('articles', [])
@@ -601,24 +662,76 @@ class LightweightMisinformationAgent:
                 if not topic and not articles:
                     continue
                 
-                trend_topics.append(topic)
-                
                 # Extract sources for domain credibility analysis
                 sources = []
+                source_details = []
                 for article in articles:
                     if 'url' in article and article['url']:
                         sources.append(article['url'])
+                        domain = urllib.parse.urlparse(article['url']).netloc
+                        if domain.startswith('www.'):
+                            domain = domain[4:]
+                        
+                        # Assess domain credibility
+                        domain_cred = self._assess_domain_credibility(article['url'])
+                        
+                        source_details.append({
+                            "title": article.get('title', 'Untitled'),
+                            "url": article['url'],
+                            "domain": domain,
+                            "snippet": article.get('snippet', 'No description available'),
+                            "is_credible": domain_cred.get('is_credible_source', False),
+                            "is_problematic": domain_cred.get('is_problematic_source', False),
+                            "credibility_score": 1 - domain_cred.get('score', 0.5)
+                        })
                 
                 # Create a combined text from all articles
-                combined_text = topic + " "
+                combined_text = f"{topic}: "
                 for article in articles:
                     if 'title' in article and article['title']:
                         combined_text += article['title'] + " "
                     if 'snippet' in article and article['snippet']:
                         combined_text += article['snippet'] + " "
                 
-                # Analyze the combined text with enhanced analysis
+                # NEW: Cross-verify sources
+                cross_verification = self.cross_verify_sources(topic, articles)
+                
+                # NEW: Add contradiction data for Gemini
+                contradiction_data = {
+                    f"{details['source1']} and {details['source2']}": 
+                    f"These sources disagree significantly (similarity score: {details['similarity']:.2f})"
+                    for pair_key, details in cross_verification.get('contradictions', {}).items()
+                }
+                
+                # Analyze the combined text with enhanced analysis including contradiction data
                 analysis = self.analyze_text(combined_text, sources)
+                
+                # NEW: Get expanded Gemini analysis with cross-verification data
+                gemini_analysis = None
+                if HAS_GEMINI_API and len(combined_text) > 50:
+                    try:
+                        gemini_analysis = self._analyze_with_gemini(
+                            combined_text, 
+                            sources, 
+                            contradiction_data
+                        )
+                        if gemini_analysis and "detailed_analysis" in gemini_analysis:
+                            # Include the full Gemini analysis
+                            analysis["gemini_detailed_analysis"] = gemini_analysis["detailed_analysis"]
+                            analysis["gemini_contradiction_assessment"] = gemini_analysis.get("contradiction_assessment", "")
+                            analysis["gemini_recommendations"] = gemini_analysis.get("recommendations", [])
+                            analysis["gemini_verification_sources"] = gemini_analysis.get("verification_sources", [])
+                            analysis["gemini_metrics"] = gemini_analysis.get("key_metrics", {})
+                            
+                            # Update scores if available
+                            if "misinformation_score" in gemini_analysis:
+                                # Blend scores, giving more weight to Gemini's assessment
+                                analysis["misinformation_score"] = analysis["misinformation_score"] * 0.3 + gemini_analysis["misinformation_score"] * 0.7
+                            
+                            if "confidence" in gemini_analysis:
+                                analysis["confidence"] = max(analysis["confidence"], gemini_analysis["confidence"])
+                    except Exception as api_error:
+                        logger.warning(f"Error using expanded Gemini API analysis: {str(api_error)}")
                 
                 risk_level = "low"
                 if analysis["misinformation_score"] > 0.7:
@@ -626,34 +739,70 @@ class LightweightMisinformationAgent:
                 elif analysis["misinformation_score"] > 0.4:
                     risk_level = "medium"
                 
+                # Count contradictions
+                contradiction_count = len(cross_verification.get('contradictions', {}))
+                total_contradictions += contradiction_count
+                
+                # Create enriched trend analysis
                 analyzed_trend = {
                     "topic": topic,
                     "risk_level": risk_level,
                     "misinformation_score": analysis["misinformation_score"],
                     "confidence": analysis["confidence"],
-                    "misinformation_indicators": analysis["misinformation_indicators"][:5],  # Limit to top 5
-                    "credibility_indicators": analysis["credibility_indicators"][:5],  # Limit to top 5
+                    "misinformation_indicators": analysis["misinformation_indicators"][:5],
+                    "credibility_indicators": analysis["credibility_indicators"][:5],
                     "article_count": len(articles),
                     "justification": analysis["justification"],
                     "misinformation_categories": {k: v[:3] for k, v in analysis.get("misinformation_categories", {}).items()},
-                    "has_gemini_analysis": "gemini_analysis" in analysis
+                    "has_gemini_analysis": "gemini_detailed_analysis" in analysis,
+                    
+                    # Add source details
+                    "sources": source_details,
+                    
+                    # Add cross-verification data
+                    "cross_verification": {
+                        "contradiction_count": contradiction_count,
+                        "consistency_score": cross_verification.get('consistency_score', 0),
+                        "verification_possible": cross_verification.get('verification_possible', False),
+                        "problematic_sources": cross_verification.get('problematic_sources', {}),
+                        "contradictions": contradiction_data
+                    },
+                    
+                    # Add metrics
+                    "metrics": {
+                        "credibility_score": 1 - analysis["misinformation_score"],
+                        "confidence": analysis["confidence"],
+                        "emotional_language": 0.5,
+                        "source_reliability": 0.5,
+                        "global_impact": gemini_analysis.get("global_impact_score", 0.5) if gemini_analysis else 0.5
+                    }
                 }
                 
-                # Include Gemini analysis if available
-                if "gemini_analysis" in analysis:
-                    analyzed_trend["gemini_analysis"] = analysis["gemini_analysis"]
+                # Add Gemini metrics if available
+                if "gemini_metrics" in analysis:
+                    analyzed_trend["metrics"].update({
+                        "emotional_language": analysis["gemini_metrics"].get("emotional_language_score", 0.5),
+                        "source_reliability": 1 - analysis["gemini_metrics"].get("manipulation_probability", 0.5),
+                        "factual_consistency": analysis["gemini_metrics"].get("factual_consistency_score", 0.5),
+                        "source_diversity": analysis["gemini_metrics"].get("source_diversity_score", 0.5),
+                        "global_spread_risk": analysis["gemini_metrics"].get("global_spread_risk", 0.5)
+                    })
+                
+                # Add Gemini analysis fields if available
+                if "gemini_detailed_analysis" in analysis:
+                    analyzed_trend["gemini_analysis"] = analysis["gemini_detailed_analysis"]
+                
+                if "gemini_contradiction_assessment" in analysis:
+                    analyzed_trend["contradiction_assessment"] = analysis["gemini_contradiction_assessment"]
+                
+                if "gemini_recommendations" in analysis:
+                    analyzed_trend["recommendations"] = analysis["gemini_recommendations"]
+                
+                if "gemini_verification_sources" in analysis:
+                    analyzed_trend["verification_sources"] = analysis["gemini_verification_sources"]
                 
                 analyzed_trends.append(analyzed_trend)
                 overall_risk_score += analysis["misinformation_score"]
-            
-            # Second pass - find related trends
-            related_trends = self._find_related_trends(trends_data)
-            
-            # Add relationship information to analyzed trends
-            for i, trend_analysis in enumerate(analyzed_trends):
-                if i in related_trends:
-                    related_indices = [rel[0] for rel in related_trends[i]]
-                    trend_analysis["related_trends"] = [analyzed_trends[idx]["topic"] for idx in related_indices]
             
             # Calculate overall statistics
             if analyzed_trends:
@@ -665,73 +814,128 @@ class LightweightMisinformationAgent:
             
             data_source_note = ""
             if not HAS_TRENDS_IMPORT:
-                data_source_note = "Note: Using simulated trend data for analysis since the trends module could not be imported. "
+                data_source_note = "Note: Using simulated trend data since the trends module could not be imported. "
             
             gemini_note = ""
             if HAS_GEMINI_API:
-                gemini_note = "Enhanced with Gemini API analysis where applicable. "
+                gemini_note = "Enhanced with Gemini API for comprehensive global analysis. "
             
-            # Find trends with concerning patterns
+            # Enhanced summary focused on global implications
             concerning_trends = [t["topic"] for t in analyzed_trends if t["risk_level"] == "high"]
             concerning_trends_note = ""
             if concerning_trends:
-                concerning_trends_note = f"Trends of particular concern include: {', '.join(concerning_trends[:3])}"
+                concerning_trends_note = f"Trends of global concern include: {', '.join(concerning_trends[:3])}"
                 if len(concerning_trends) > 3:
                     concerning_trends_note += f" and {len(concerning_trends) - 3} others. "
                 else:
                     concerning_trends_note += ". "
             
+            # Add contradiction information
+            contradiction_note = ""
+            if total_contradictions > 0:
+                contradiction_note = f"Detected {total_contradictions} significant contradictions between sources. "
+                
+            # Create detailed metrics summary for dashboard
+            metrics_summary = {
+                "topics_analyzed": len(analyzed_trends),
+                "high_risk_percentage": (high_risk_count / len(analyzed_trends)) * 100 if analyzed_trends else 0,
+                "overall_misinformation_score": overall_risk_score,
+                "overall_confidence": sum(t["confidence"] for t in analyzed_trends) / len(analyzed_trends) if analyzed_trends else 0,
+                "total_contradictions": total_contradictions,
+                "analysis_timestamp": datetime.now().isoformat(),
+                "sentiment_distribution": {
+                    "positive": 0,
+                    "neutral": 0,
+                    "negative": 0
+                },
+                "average_misinformation_score": overall_risk_score,
+                
+                # Aggregate indicators across all trends
+                "top_misinformation_indicators": self._aggregate_indicators(
+                    [indicator for trend in analyzed_trends for indicator in trend.get("misinformation_indicators", [])]
+                ),
+                "top_credibility_indicators": self._aggregate_indicators(
+                    [indicator for trend in analyzed_trends for indicator in trend.get("credibility_indicators", [])]
+                ),
+                
+                # Add contradiction metrics
+                "contradiction_metrics": {
+                    "total": total_contradictions,
+                    "per_topic_average": total_contradictions / len(analyzed_trends) if analyzed_trends else 0
+                }
+            }
+            
             summary_text = (
-                f"Analyzed {len(analyzed_trends)} trending topics using enhanced misinformation detection.\n\n"
-                f"Found {high_risk_count} high-risk topics and {medium_risk_count} medium-risk topics that "
-                f"may contain misinformation. The overall misinformation risk level is "
+                f"Global Misinformation Alert: Analyzed {len(analyzed_trends)} trending topics from worldwide sources.\n\n"
+                f"Found {high_risk_count} high-risk topics and {medium_risk_count} medium-risk topics with potential for global impact. "
+                f"{contradiction_note}The overall misinformation risk level is "
                 f"{'high' if overall_risk_score > 0.7 else 'medium' if overall_risk_score > 0.4 else 'low'}. "
                 f"{concerning_trends_note}\n\n"
-                f"{data_source_note}{gemini_note}This analysis was performed using a lightweight model optimized for systems with limited memory. "
-                f"For each trend, we've provided a justification explaining why it received its risk score."
+                f"{data_source_note}{gemini_note}Our cross-verification system has compared multiple sources "
+                f"for each topic to identify contradictions and verify consistency. "
+                f"For each trend, we've provided a detailed global impact assessment and recommendations."
             )
             
             # Store and return results
             results = {
                 "success": True,
                 "timestamp": datetime.now().isoformat(),
-                "message": "Enhanced lightweight analysis completed",
+                "message": "Global misinformation analysis completed",
                 "analysis": summary_text,
                 "trends": analyzed_trends,
                 "overall_risk_score": overall_risk_score,
+                "metrics_summary": metrics_summary,
                 "using_lightweight_model": True,
                 "using_mock_data": not HAS_TRENDS_IMPORT,
                 "using_gemini_api": HAS_GEMINI_API
             }
             
             self.latest_results = results
-            logger.info("Enhanced lightweight trend analysis completed successfully")
+            logger.info("Global misinformation trend analysis completed successfully")
             return results
             
         except Exception as e:
-            logger.error(f"Error in enhanced lightweight trend analysis: {str(e)}")
+            logger.error(f"Error in global misinformation analysis: {str(e)}")
             logger.error(traceback.format_exc())
             
             error_results = {
                 "success": False,
                 "timestamp": datetime.now().isoformat(),
-                "message": f"Error in lightweight analysis: {str(e)}",
-                "analysis": "The lightweight analysis encountered an error. Please check the server logs for details.",
+                "message": f"Error in analysis: {str(e)}",
+                "analysis": "The analysis encountered an error. Please check the server logs for details.",
                 "using_lightweight_model": True,
                 "error_details": str(e)
             }
             
             self.latest_results = error_results
             return error_results
-    
+
+    # Helper method to aggregate indicators
+    def _aggregate_indicators(self, indicators):
+        """Aggregate indicators and count frequencies."""
+        if not indicators:
+            return []
+        
+        # Count occurrences of each indicator
+        counter = defaultdict(int)
+        for indicator in indicators:
+            counter[indicator] += 1
+        
+        # Convert to list of dictionaries sorted by count (descending)
+        result = [{"name": name, "count": count} for name, count in counter.items()]
+        return sorted(result, key=lambda x: x["count"], reverse=True)[:10]  # Top 10 only
+
     def get_latest_results(self) -> Dict[str, Any]:
-        """Get the latest analysis results."""
-        if not self.latest_results:
+        """Return the most recent analysis results.
+        
+        Returns:
+            The latest analysis results or a default response if no results available
+        """
+        if self.latest_results is None:
             return {
-                "success": True,
+                "success": False,
+                "message": "No analysis has been performed yet",
                 "timestamp": datetime.now().isoformat(),
-                "message": "No analysis has been run yet",
-                "analysis": "The lightweight agent hasn't analyzed any trends yet. Please trigger an analysis first.",
                 "using_lightweight_model": True
             }
         

@@ -30,6 +30,13 @@ feedparser
 
 # language detection
 langdetect
+fastapi
+uvicorn
+trendspy
+scikit-learn
+nltk
+dotenv
+
 
 
 textstat

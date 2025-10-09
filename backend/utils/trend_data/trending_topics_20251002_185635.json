@@ -1,0 +1,92 @@
+[
+    {
+        "topic": "Top Technology News",
+        "articles": [
+            {
+                "title": "Chemical Company Charged After Fatal Fire",
+                "source": "Mirage News",
+                "url": "https://www.miragenews.com/chemical-company-charged-after-fatal-fire-1544988/",
+                "snippet": "A 44-year-old man was working inside the factory when an explosion and fire occurred during the blending of flammable liquids, causing fatal",
+                "published": "2025-10-02T01:20:00Z",
+                "image": "https://cdn1.miragenews.com/tmp_cache?cdn=cdn.pixabay.com%2Fphoto%2F2019%2F01%2F29%2F16%2F33%2Ftool-3962800_960_720.jpg"
+            },
+            {
+                "title": "Assassin's Creed, Far Cry and Rainbow Six Now Operated by Vantage Studios, Ubisoft and Tencent's New Business Group With Full Autonomy on Creative Direction and Business Plans",
+                "source": "IGN Southeast Asia",
+                "url": "https://sea.ign.com/assassins-creed-codename-red/233650/news/assassins-creed-far-cry-and-rainbow-six-now-operated-by-vantage-studios-ubisoft-and-tencents-new-bus",
+                "snippet": "Group name chosen by employee vote.",
+                "published": "2025-10-02T01:17:01Z",
+                "image": "https://sm.ign.com/t/ign_ap/news/a/assassins-/assassins-creed-far-cry-and-rainbow-six-now-operated-by-vant_3pq4.1200.jpg"
+            },
+            {
+                "title": "Meta Ray-Ban Display Sells Out As Early Adopters Struggle To Buy",
+                "source": "UploadVR",
+                "url": "https://www.uploadvr.com/meta-ray-ban-display-sold-out-early-adopters-struggle/",
+                "snippet": "Meta Ray-Ban Display is now sold out in almost every store it was available in.\nRestocks are \"coming\", Meta says, and the company is doubling the number of stores offering the glasses.",
+                "published": "2025-10-02T01:09:08Z",
+                "image": "https://www.uploadvr.com/content/images/2025/10/Meta-Ray-Ban-Display-with-case.png"
+            },
+            {
+                "title": "Nacon’s Revolution X Unlimited Xbox Controller Equips You With Pro-Level Tuning",
+                "source": "CNET",
+                "url": "https://www.cnet.com/tech/gaming/this-xbox-controller-gives-you-pro-level-performance/",
+                "snippet": "Incredible levels of customization set this controller apart from the pack. For a price.",
+                "published": "2025-10-02T01:03:57Z",
+                "image": "https://www.cnet.com/a/img/resize/e60a602e3418ffafb29cc755f60c2ad068132dec/hub/2025/09/25/b87b4d46-6c92-41f5-aacd-5d90d3df6ea6/pxl-20250915-155745769.jpg?auto=webp&fit=crop&height=675&width=1200"
+            },
+            {
+                "title": "HUAWEI WATCH GT 6 Pro Review | Geek Lifestyle",
+                "source": "UnGeek",
+                "url": "https://www.ungeek.ph/2025/10/huawei-watch-gt-6-pro-review-geek-lifestyle/",
+                "snippet": "The HUAWEI WATCH GT 6 Pro is proof of the brand's commitment to bringing wearables that can keep up with various lifestyles.",
+                "published": "2025-10-02T01:00:20Z",
+                "image": "https://www.ungeek.ph/wp-content/uploads/2025/10/UnGeek-HUAWEI-Watch-GT-6-Pro-rev.webp"
+            }
+        ]
+    },
+    {
+        "topic": "Top Business News",
+        "articles": [
+            {
+                "title": "Copper Prices Climb As Chile And Indonesia Face Supply Issues",
+                "source": "Finimize",
+                "url": "https://finimize.com/content/copper-prices-climb-as-chile-and-indonesia-face-supply-issues",
+                "snippet": "Shrinking inventories, weaker dollar, and global supply problems outweigh slow demand to lift copper and other metals.",
+                "published": "2025-10-02T01:18:46Z",
+                "image": "https://finimize-img.imgix.net/https%3A%2F%2Fchivas-assets.s3-eu-west-1.amazonaws.com%2Fstatic%2Fimages%2Ftag_reuters_com_2025_newsml_L3N3VJ05E_782684125.jpeg?ixlib=python-3.1.2&s=65048b98b51a5e0f7e8db7494f9f00c4"
+            },
+            {
+                "title": "Starbucks closes San Jose stores as competitor moves in",
+                "source": "San José Spotlight",
+                "url": "https://sanjosespotlight.com/starbucks-closes-san-jose-stores-as-competitor-dutch-bros-moves-in/",
+                "snippet": "Four Starbucks locations in San Jose have closed, following the company announcing it would shutter 1% of its stores across North America. Two other locations in Mountain View and one each in Cupertin",
+                "published": "2025-10-02T01:18:45Z",
+                "image": "https://sanjosespotlight.s3.us-east-2.amazonaws.com/wp-content/uploads/2025/09/30093914/IMG_2013-1200x630.jpg"
+            },
+            {
+                "title": "Singtel rings up no tax as miners and banks support the budget",
+                "source": "The Age",
+                "url": "https://www.theage.com.au/politics/federal/singtel-rings-up-no-tax-as-miners-and-banks-support-the-budget-20251001-p5mzdw.html",
+                "snippet": "The parent company of Optus has for the fourth successive year managed to record $8 billion in income without paying company tax.",
+                "published": "2025-10-02T01:17:53Z",
+                "image": "https://static.ffx.io/images/$zoom_0.2857%2C$multiply_0.7554%2C$ratio_1.777778%2C$width_1059%2C$x_330%2C$y_117/t_crop_custom/q_86%2Cf_auto/t_theage_no_label_no_age_social_wm/06b2c8dfaaa9e9a0cc5efe57920a1262cd8b752f"
+            },
+            {
+                "title": "Optus, JBS, Virgin Australia among large firms paying no tax",
+                "source": "The Sydney Morning Herald",
+                "url": "https://www.smh.com.au/politics/federal/singtel-rings-up-no-tax-as-miners-and-banks-support-the-budget-20251001-p5mzdw.html",
+                "snippet": "The parent company of Optus has for the fourth successive year managed to record $8 billion in income without paying company tax.",
+                "published": "2025-10-02T01:17:53Z",
+                "image": "https://static.ffx.io/images/$zoom_0.2857%2C$multiply_0.7554%2C$ratio_1.777778%2C$width_1059%2C$x_330%2C$y_117/t_crop_custom/q_86%2Cf_auto/t_smh_no_label_no_age_social_wm/06b2c8dfaaa9e9a0cc5efe57920a1262cd8b752f"
+            },
+            {
+                "title": "Qantas closes more bases, staff be damned",
+                "source": "Crikey",
+                "url": "https://www.crikey.com.au/2025/10/02/qantas-closes-bases-staff-outraged/",
+                "snippet": "Qantas has made the decision to close more bases in the name of Vanessa Hudson's cost-cutting scheme, angering pilots, staff and unions.",
+                "published": "2025-10-02T01:13:17Z",
+                "image": "https://www.crikey.com.au/wp-content/uploads/sites/3/2025/10/20250126138129559765-original.jpg?quality=70&w=1024"
+            }
+        ]
+    }
+]

@@ -1,0 +1,88 @@
+{
+    "url": "https://www.thehindu.com/news/national/gaza-peace-plan-pm-modi-welcomes-president-trumps-leadership-amid-decisive-progress-in-gaza/article70123951.ece",
+    "timestamp": "2025-10-04T15:10:17.865469",
+    "article": {
+        "title": "Gaza peace plan: PM Modi welcomes President Trump’s leadership amid ‘decisive’ progress in Gaza",
+        "source": "www.thehindu.com",
+        "extraction_method": "newspaper3k"
+    },
+    "verification": {
+        "verdict": "LIKELY_CREDIBLE",
+        "confidence": 0.755,
+        "credibility_score": 0.755
+    },
+    "consensus_analysis": {
+        "consensus_score": 0.35,
+        "source_diversity": 1.0,
+        "credible_sources_count": 0,
+        "total_sources": 9,
+        "unique_sources": 7,
+        "confirmations": [],
+        "contradictions": [],
+        "analysis": "INSUFFICIENT_CONSENSUS"
+    },
+    "similar_articles": [
+        {
+            "title": "Does Trump’s Gaza Peace Plan have more for Trump than Gaza?",
+            "source": "www.republicworld.com",
+            "similarity": 0.831,
+            "url": "https://www.republicworld.com/world-news/does-trumps-gaza-peace-plan-have-more-for-trump-than-gaza"
+        },
+        {
+            "title": "Gaza peace plan: Trump the businessman’s big imprint; for India, reasons for relief, caution",
+            "source": "indianexpress.com",
+            "similarity": 0.806,
+            "url": "https://indianexpress.com/article/explained/explained-global/gaza-peace-plan-trump-businessman-india-pakistan-10280037/"
+        },
+        {
+            "title": "Gaza peace plan success hinges on Israel's actions on ground: Palestinian envoy to India",
+            "source": "www.tribuneindia.com",
+            "similarity": 0.757,
+            "url": "https://www.tribuneindia.com/news/world/gaza-peace-plan-success-hinges-on-israels-actions-on-ground-palestinian-envoy-to-india/"
+        },
+        {
+            "title": "Israel won't occupy Gaza: Trump, standing beside Netanyahu, announces Gaza deal",
+            "source": "www.indiatoday.in",
+            "similarity": 0.731,
+            "url": "https://www.indiatoday.in/world/story/israel-wont-occupy-gaza-no-one-will-be-forced-to-flee-trump-standing-beside-netanyahu-announces-gaza-deal-glbs-2795411-2025-09-30"
+        },
+        {
+            "title": "Gaza peace plan success hinges on Israel's actions on ground: Palestinian envoy to India",
+            "source": "www.lokmattimes.com",
+            "similarity": 0.694,
+            "url": "https://www.lokmattimes.com/international/gaza-peace-plan-success-hinges-on-israels-actions-on-ground-palestinian-envoy-to-india/"
+        },
+        {
+            "title": "Trump Gaza Peace Plan: Pakistan, Arab-Muslim nations called traitors to Ummah",
+            "source": "www.indiatoday.in",
+            "similarity": 0.694,
+            "url": "https://www.indiatoday.in/world/story/traitors-to-ummah-pakistan-arab-nations-outrage-trump-gaza-peace-plan-hamas-backlash-muslim-ummah-2796304-2025-10-01"
+        },
+        {
+            "title": "BIG setback for Trump’s Gaza peace plan as Netanyahu backtracks, says IDF will not…",
+            "source": "www.india.com",
+            "similarity": 0.621,
+            "url": "https://www.india.com/news/world/big-setback-for-donald-trump-gaza-peace-plan-as-benjamin-netanyahu-backtracks-says-idf-will-not-withdraw-from-gaza-strip-israel-gaza-war-palestine-statehood-8106706/"
+        },
+        {
+            "title": "Hamas to review Trump’s Gaza peace plan with Palestinian factions before issuing response",
+            "source": "www.firstpost.com",
+            "similarity": 0.585,
+            "url": "https://www.firstpost.com/world/hamas-to-review-trumps-gaza-peace-plan-with-palestinian-factions-before-issuing-response-13938171.html"
+        },
+        {
+            "title": "UPSC Key: Trump’s Gaza Peace Plan, Payments Regulatory Board, and India’s railway grid to Bhutan",
+            "source": "indianexpress.com",
+            "similarity": 0.525,
+            "url": "https://indianexpress.com/article/upsc-current-affairs/upsc-key-trumps-gaza-plan-payments-regulatory-board-indias-railway-bhutan-10282264/"
+        }
+    ],
+    "content_analysis": {
+        "entities_count": 28,
+        "sentiment": "LABEL_2",
+        "source_credibility": {
+            "is_trusted": true,
+            "is_high_credibility": false
+        }
+    }
+}
