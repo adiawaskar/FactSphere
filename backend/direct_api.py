@@ -1016,12 +1016,12 @@ async def trigger_agent_analysis(background_tasks: BackgroundTasks):
     }
 
 @app.get("/api/agent/results")
-async def get_agent_results():
-    """Get the latest agent analysis results."""
-    global agent_results
+async def get_agent_results(background_tasks: BackgroundTasks):
+    """Get the latest agent analysis results. Triggers analysis if none exists."""
+    global agent_results, is_agent_running, last_agent_run_time
     
     if not HAS_AGENT:
-        
+        # Return fallback response if agent is not available
         return {
             "success": True,
             "timestamp": datetime.now().isoformat(),
@@ -1031,22 +1031,71 @@ async def get_agent_results():
         }
     
     try:
-        
+        # Check if we have existing results
         results = agent_service.get_latest_results()
-        if results:
+        
+        # Check if results indicate no analysis has been performed
+        no_analysis = (
+            not results or 
+            (isinstance(results, dict) and results.get("success") == False and "no analysis" in results.get("message", "").lower())
+        )
+        
+        # If no results exist and agent is not currently running, trigger analysis
+        if no_analysis and not is_agent_running:
+            logger.info("No existing results found. Triggering automatic analysis...")
             
+            # Set the flag to prevent duplicate runs
+            is_agent_running = True
+            
+            # Run analysis synchronously to return results immediately
+            try:
+                results = agent_service.analyze_trends()
+                enhanced_results = enhance_analysis_results(results)
+                agent_results = enhanced_results
+                last_agent_run_time = datetime.now().isoformat()
+                logger.info("Automatic analysis completed successfully")
+                return enhanced_results
+            except Exception as analysis_error:
+                logger.error(f"Error during automatic analysis: {analysis_error}")
+                logger.error(traceback.format_exc())
+                
+                # Return error response
+                return {
+                    "success": False,
+                    "timestamp": datetime.now().isoformat(),
+                    "error": str(analysis_error),
+                    "message": "Error during automatic analysis",
+                    "analysis": "An error occurred while running the automatic AI analysis. Please try again later."
+                }
+            finally:
+                is_agent_running = False
+        
+        # If agent is currently running
+        if is_agent_running:
+            return {
+                "success": True,
+                "timestamp": datetime.now().isoformat(),
+                "message": "Analysis is currently in progress",
+                "analysis": "The AI agent is currently analyzing trends. Please wait a moment and refresh.",
+                "running": True,
+                "using_enhanced_analysis": True
+            }
+        
+        # If we have existing results, return them
+        if results:
             enhanced_results = enhance_analysis_results(results)
             agent_results = enhanced_results
             return enhanced_results
         
-        
+        # Fallback: should not reach here, but just in case
         return {
             "success": True,
             "timestamp": datetime.now().isoformat(),
-            "message": "No analysis has been run yet. Please trigger an analysis first.",
-            "analysis": "The AI agent hasn't analyzed any trends yet. Click 'Run AI Analysis' to start.",
+            "message": "No analysis results available",
+            "analysis": "Unable to retrieve or generate analysis results. Please try triggering an analysis manually.",
             "using_enhanced_analysis": True
         }
+        
     except Exception as e:
         logger.error(f"Error getting agent results: {e}")
         logger.error(traceback.format_exc())

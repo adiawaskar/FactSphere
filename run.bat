@@ -1,6 +1,5 @@
 IF NOT EXIST venv (
     python -m venv venv
-    REM On Windows
     call venv\Scripts\activate
     pip install -r requirements.txt
 ) ELSE (
