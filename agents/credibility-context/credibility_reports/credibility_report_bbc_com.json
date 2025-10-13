@@ -1,0 +1,84 @@
+{
+  "input": "https://www.bbc.com/news",
+  "parsed_domain_or_name": "bbc.com",
+  "timestamp": "2025-09-06T16:12:50.450467+00:00",
+  "checks": {
+    "known_unreliable": false,
+    "unreliable_list_size": 7,
+    "unreliable_sample": [
+      "rt.com",
+      "sputniknews.com",
+      "infowars.com",
+      "thegatewaypundit.com",
+      "naturalnews.com",
+      "newspunch.com",
+      "zerohedge.com"
+    ],
+    "domain_age_days": null,
+    "domain_age_note": "whois error: module 'whois' has no attribute 'whois'",
+    "registrant_privacy": null,
+    "registrant_privacy_note": "whois error: module 'whois' has no attribute 'whois'",
+    "https": true,
+    "https_note": "HTTPS reachable (HEAD 200)",
+    "dns_resolves": true,
+    "dns_info": "151.101.64.81",
+    "email_auth": {
+      "has_mx": null,
+      "has_spf": null,
+      "has_dmarc": null,
+      "notes": [
+        "dnspython not installed"
+      ]
+    },
+    "wayback": {
+      "available": true,
+      "timestamp": "20250906080905",
+      "url": "http://web.archive.org/web/20250906080905/https://www.bbc.com/news",
+      "source": "availability"
+    },
+    "local_factcheck_debunk_count": 0,
+    "local_factcheck_sources": []
+  },
+  "credibility_label": "Moderate Trust",
+  "credibility_score": 10,
+  "credibility_reasons": [],
+  "explain": {
+    "age": {
+      "value": null,
+      "delta": 0,
+      "note": "unknown age"
+    },
+    "https": {
+      "value": true,
+      "delta": 5,
+      "note": "HTTPS reachable"
+    },
+    "wayback": {
+      "value": true,
+      "delta": 5,
+      "note": "Wayback archival evidence"
+    },
+    "known_unreliable": {
+      "value": false,
+      "delta": 0,
+      "note": "Not flagged locally"
+    },
+    "email_auth": {
+      "value": {
+        "mx": null,
+        "spf": null,
+        "dmarc": null
+      },
+      "delta": 0,
+      "note": "email auth present"
+    },
+    "local_debunks": {
+      "value": 0,
+      "delta": 0,
+      "note": "no local fact-checks"
+    }
+  },
+  "credibility_tier": "Moderate Trust",
+  "credibility_confidence": 0.1,
+  "recommended_action": "show_with_warning"
+}

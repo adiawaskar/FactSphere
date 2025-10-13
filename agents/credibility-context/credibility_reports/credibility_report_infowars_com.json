@@ -1,0 +1,85 @@
+{
+  "input": "infowars.com",
+  "parsed_domain_or_name": "infowars.com",
+  "timestamp": "2025-09-06T16:15:28.155823+00:00",
+  "checks": {
+    "known_unreliable": true,
+    "unreliable_list_size": 7,
+    "unreliable_sample": [
+      "thegatewaypundit.com",
+      "infowars.com",
+      "rt.com",
+      "naturalnews.com",
+      "zerohedge.com",
+      "newspunch.com",
+      "sputniknews.com"
+    ],
+    "domain_age_days": null,
+    "domain_age_note": "whois error: module 'whois' has no attribute 'whois'",
+    "registrant_privacy": null,
+    "registrant_privacy_note": "whois error: module 'whois' has no attribute 'whois'",
+    "https": true,
+    "https_note": "HTTPS reachable (HEAD 403)",
+    "dns_resolves": true,
+    "dns_info": "172.66.157.39",
+    "email_auth": {
+      "has_mx": null,
+      "has_spf": null,
+      "has_dmarc": null,
+      "notes": [
+        "dnspython not installed"
+      ]
+    },
+    "wayback": {
+      "available": false,
+      "source": "availability"
+    },
+    "local_factcheck_debunk_count": 0,
+    "local_factcheck_sources": []
+  },
+  "credibility_label": "Very Low / High Risk",
+  "credibility_score": -58,
+  "credibility_reasons": [
+    "wayback: No Wayback evidence",
+    "known_unreliable: Flagged by local unreliable list"
+  ],
+  "explain": {
+    "age": {
+      "value": null,
+      "delta": 0,
+      "note": "unknown age"
+    },
+    "https": {
+      "value": true,
+      "delta": 5,
+      "note": "HTTPS reachable"
+    },
+    "wayback": {
+      "value": false,
+      "delta": -3,
+      "note": "No Wayback evidence"
+    },
+    "known_unreliable": {
+      "value": true,
+      "delta": -60,
+      "note": "Flagged by local unreliable list"
+    },
+    "email_auth": {
+      "value": {
+        "mx": null,
+        "spf": null,
+        "dmarc": null
+      },
+      "delta": 0,
+      "note": "email auth present"
+    },
+    "local_debunks": {
+      "value": 0,
+      "delta": 0,
+      "note": "no local fact-checks"
+    }
+  },
+  "credibility_tier": "Very Low / High Risk",
+  "credibility_confidence": 0.58,
+  "recommended_action": "suppress"
+}

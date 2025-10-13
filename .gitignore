@@ -5,6 +5,7 @@ content.txt
 topic_news.json
 neutral_knowledge_base
 __pycache__/
+<<<<<<< HEAD
 
 # Logs
 logs
@@ -32,3 +33,6 @@ dist-ssr
 *.sw?
 
 agents/credibility-context/credibility_reports/
+=======
+backend/utils/trend_data
+>>>>>>> 5eedd30574a3f96626f63735f5ac1671b298ac95

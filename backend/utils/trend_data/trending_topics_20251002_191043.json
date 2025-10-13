@@ -1,0 +1,30 @@
+[
+    {
+        "topic": "Sydney hospitality figure declares bankruptcy after ATO action",
+        "volume": 1,
+        "articles": [
+            {
+                "title": "Sydney hospitality figure declares bankruptcy after ATO action",
+                "source": "The Sydney Morning Herald",
+                "url": "https://www.smh.com.au/business/companies/sydney-pub-baron-jon-adgemis-seeks-bankruptcy-over-1-8bn-in-debt-20251002-p5mzip.html",
+                "snippet": "The former management consultant came unstuck after rapidly expanding his collection of Sydney pubs.",
+                "published": "2025-10-02T01:37:08Z",
+                "image": "https://static.ffx.io/images/$zoom_0.5295%2C$multiply_0.7554%2C$ratio_1.776846%2C$width_1059%2C$x_0%2C$y_32/t_crop_custom/q_86%2Cf_auto/t_smh_no_label_no_age_social_wm/88d8884ddd2a13c3c62312d4a11d1da30f1f5319"
+            }
+        ]
+    },
+    {
+        "topic": "Game 2 scores, news and highlights",
+        "volume": 1,
+        "articles": [
+            {
+                "title": "Game 2 scores, news and highlights",
+                "source": "New York Post",
+                "url": "https://nypost.com/2025/10/01/sports/yankees-vs-red-sox-live-updates-game-2-scores-news-and-highlights/",
+                "snippet": "Game 2 of the Yankees vs. Red Sox AL wild-card series is set for 6:08 p.m. Follow The Post's live updates for MLB scores, news and highlights.",
+                "published": "2025-10-02T01:37:00Z",
+                "image": "https://nypost.com/wp-content/uploads/sites/2/2025/10/newspress-collage-18lkk6sc9-1759368930605.jpg?quality=75&strip=all&1759354572&w=1024"
+            }
+        ]
+    }
+]

@@ -1,0 +1,136 @@
+{
+  "url": "https://www.bbc.com/news/articles/c98dqyj5dpjo",
+  "title": "Vijay rally crush: At least 39 killed at political event in Tamil Nadu",
+  "summary": "At least 40 dead in crush at political rally in India\n\nPictures online showed shoes and water bottles strewn across the road where the crush happened\n\nPolice have filed a case against three senior members of Vijay's TVK party. Potential charges relate to homicide and negligent conduct, they said. Ta",
+  "key_info": {
+    "claims": [
+      "Vijay rally crush: At least 39 killed at political event in Tamil Nadu.",
+      "At least 40 dead in crush at political rally in India\n\nPictures online showed shoes and water bottles strewn across the road where the crush happened\n\nPolice have filed a case against three senior members of Vijay's TVK party.",
+      "Tamil Nadu Chief Minister MK Stalin told reporters that the victims included nine children, at least 17 women, and 13 men.",
+      "Tens of thousands of people had gathered on Saturday at a campaign event for actor-turned-politician Vijay, in the southern Karur district.",
+      "Vijay was addressing the rally in Karur district when the crowd surged suddenly, forcing him to halt his speech.",
+      "Images broadcast on television showed people fainting in the packed crowds."
+    ],
+    "facts": [
+      "Potential charges relate to homicide and negligent conduct, they said.",
+      "A further 51 people are receiving treatment in hospital, he said.",
+      "At least 40 people have died in a crush at a political rally in the southern Indian state of Tamil Nadu, officials say.",
+      "\"TVK originally sought permission for a gathering of 10,000 people, but the actual crowd was more than double,\" senior police official V Selvaraj told Reuters news agency.",
+      "It was delayed by several hours, local media reported."
+    ],
+    "key_entities": [
+      "Vijay",
+      "India\n\nPictures",
+      "Vijay",
+      "TVK",
+      "Tamil Nadu",
+      "MK Stalin",
+      "Tamil Nadu",
+      "TVK",
+      "V Selvaraj",
+      "Reuters",
+      "Vijay",
+      "Karur"
+    ]
+  },
+  "queries": [
+    {
+      "query": "Vijay rally crush: At least 39 killed at political event in Tamil Nadu",
+      "description": "Title-based"
+    },
+    {
+      "query": "Vijay India\n\nPictures Vijay",
+      "description": "Entities"
+    },
+    {
+      "query": "vijay people rally crush least said",
+      "description": "Keyword-based"
+    },
+    {
+      "query": "Vijay rally crush: At news",
+      "description": "Short-title with news"
+    }
+  ],
+  "related_articles": [
+    {
+      "title": "Vijay rally crush: At least 39 killed at political event in Tamil Nadu",
+      "content": "Vijay rally crush: At least 39 killed at political event in Tamil Nadu",
+      "url": "https://www.bbc.com/news/articles/c98dqyj5dpjo",
+      "source": "www.bbc.com",
+      "publishedAt": "",
+      "similarity": 0.6780639290809631
+    },
+    {
+      "title": "Vijay: The Indian superstar at the centre of crush deaths row",
+      "content": "Vijay: The Indian superstar at the centre of crush deaths row",
+      "url": "https://www.bbc.com/news/articles/c62lj9x5y60o",
+      "source": "www.bbc.com",
+      "publishedAt": "",
+      "similarity": 0.562662661075592
+    },
+    {
+      "title": "At least 29 dead, 50 injured at Indian actor-politician Vijay's rally ...",
+      "content": "At least 29 dead, 50 injured at Indian actor-politician Vijay's rally ...",
+      "url": "https://www.cnn.com/2025/09/27/india/india-actor-politician-vijay-rally-intl",
+      "source": "www.cnn.com",
+      "publishedAt": "",
+      "similarity": 0.5355650186538696
+    },
+    {
+      "title": "At least 10 dead, 30 injured at actor-politician Vijay's rally, the ...",
+      "content": "At least 10 dead, 30 injured at actor-politician Vijay's rally, the ...",
+      "url": "https://www.reuters.com/world/india/least-10-dead-30-injured-actor-politician-vijays-rally-times-india-reports-2025-09-27/",
+      "source": "www.reuters.com",
+      "publishedAt": "",
+      "similarity": 0.5187339782714844
+    },
+    {
+      "title": "Relatives grieve victims of deadly crowd crush | CNN",
+      "content": "Relatives grieve victims of deadly crowd crush | CNN",
+      "url": "https://edition.cnn.com/2025/09/28/world/video/india-crowd-crush-tamil-vijay-grieving-family-vrtc",
+      "source": "edition.cnn.com",
+      "publishedAt": "",
+      "similarity": 0.5144558548927307
+    },
+    {
+      "title": "India crowd crush turns deadly at political rally | CNN",
+      "content": "India crowd crush turns deadly at political rally | CNN",
+      "url": "https://www.cnn.com/2025/09/28/world/video/india-crowd-crush-vijay-tamil-nadu-vrtc",
+      "source": "www.cnn.com",
+      "publishedAt": "",
+      "similarity": 0.49672651290893555
+    },
+    {
+      "title": "Death toll climbs to 40 after stampede at political rally for popular ...",
+      "content": "Death toll climbs to 40 after stampede at political rally for popular ...",
+      "url": "https://apnews.com/article/india-tamil-nadu-rally-stampede-vijay-5176f836cb6e9277c7570fdd4e9ba060",
+      "source": "apnews.com",
+      "publishedAt": "",
+      "similarity": 0.4947189688682556
+    },
+    {
+      "title": "'நூலிழையில் உயிர் தப்பினேன்' - கரூர் கூட்ட நெரிசலில் உயிர் தப்பிய ...",
+      "content": "'நூலிழையில் உயிர் தப்பினேன்' - கரூர் கூட்ட நெரிசலில் உயிர் தப்பிய ...",
+      "url": "https://www.bbc.com/tamil/articles/c701n1r4729o",
+      "source": "www.bbc.com",
+      "publishedAt": "",
+      "similarity": 0.17178213596343994
+    },
+    {
+      "title": "கரூர்: விஜய் பரப்புரை கூட்ட நெரிசலில் உயிரிழந்தவர்கள் யார்யார் ...",
+      "content": "கரூர்: விஜய் பரப்புரை கூட்ட நெரிசலில் உயிரிழந்தவர்கள் யார்யார் ...",
+      "url": "https://www.bbc.com/tamil/articles/c5yj40lvvego",
+      "source": "www.bbc.com",
+      "publishedAt": "",
+      "similarity": 0.1524243801832199
+    },
+    {
+      "title": "விஜய் கைது செய்யப்படுவாரா? கரூர் கூட்ட நெரிசல் தொடர்பாக 4 பேர் மீது ...",
+      "content": "விஜய் கைது செய்யப்படுவாரா? கரூர் கூட்ட நெரிசல் தொடர்பாக 4 பேர் மீது ...",
+      "url": "https://www.bbc.com/tamil/articles/c8jmxm1mdxvo",
+      "source": "www.bbc.com",
+      "publishedAt": "",
+      "similarity": 0.048688992857933044
+    }
+  ]
+}

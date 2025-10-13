@@ -1,0 +1,19 @@
+[
+    {
+        "title": "India imposes curfew in Ladakh after statehood protests turn violent",
+        "source": "https://www.bbc.com/news/articles/cr5qzp7mq7qo",
+        "label": "REAL",
+        "confidence": 0.8189,
+        "explanation": "Top evidence from BBC News (https://www.bbc.com/news/articles/cr5qzp7mq7qo). Combined: 0.739, boost: 0.080, final: 0.819. (entail 0.006, bi_sim 0.885, cross_raw 0.911)",
+        "evidence": {
+            "evidence_sentence": "India imposes curfew in Ladakh after statehood protests turn violent\n\nA mountainous desert with a Muslim-Buddhist population, Ladakh lost its semi-autonomy in 2019 when the BJP government split it from the former Indian-administered state of Jammu and Kashmir, imposing direct rule on both.",
+            "evidence_url": "https://www.bbc.com/news/articles/cr5qzp7mq7qo",
+            "evidence_source": "BBC News",
+            "combined": 0.7389,
+            "bi_sim": 0.8846,
+            "cross_score": 0.9105,
+            "entail_score": 0.0063,
+            "final_with_boost": 0.8189
+        }
+    }
+]

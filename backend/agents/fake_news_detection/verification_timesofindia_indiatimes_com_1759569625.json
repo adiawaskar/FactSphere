@@ -1,0 +1,40 @@
+{
+    "url": "https://timesofindia.indiatimes.com/sports/cricket/india-vs-west-indies/a-sons-salute-dhruv-jurels-ton-echoes-beyond-the-boundary/articleshow/124294651.cms",
+    "timestamp": "2025-10-04T14:50:25.822664",
+    "article": {
+        "title": "A son's salute: Dhruv Jurel's ton echoes beyond the boundary",
+        "source": "timesofindia.indiatimes.com",
+        "extraction_method": "newspaper3k"
+    },
+    "verification": {
+        "verdict": "LIKELY_CREDIBLE",
+        "confidence": 0.695,
+        "credibility_score": 0.695
+    },
+    "consensus_analysis": {
+        "consensus_score": 0.15,
+        "source_diversity": 0.2,
+        "credible_sources_count": 0,
+        "total_sources": 1,
+        "unique_sources": 1,
+        "confirmations": [],
+        "contradictions": [],
+        "analysis": "INSUFFICIENT_CONSENSUS"
+    },
+    "similar_articles": [
+        {
+            "title": "India unearth a 'gem' in Jurel to fill keeping void | Reuters",
+            "source": "duckduckgo.com",
+            "similarity": 0.347,
+            "url": "//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.reuters.com%2Fsports%2Fcricket%2Findia%2Dunearth%2Dgem%2Djurel%2Dfill%2Dkeeping%2Dvoid%2D2024%2D02%2D27%2F&rut=46ce527cfa32f9466c40f56db24c75ca49a4197d698136743a0f070cd94dc4a3"
+        }
+    ],
+    "content_analysis": {
+        "entities_count": 38,
+        "sentiment": "LABEL_2",
+        "source_credibility": {
+            "is_trusted": true,
+            "is_high_credibility": false
+        }
+    }
+}

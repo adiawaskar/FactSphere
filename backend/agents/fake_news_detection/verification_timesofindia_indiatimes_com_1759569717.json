@@ -1,0 +1,33 @@
+{
+    "url": "https://timesofindia.indiatimes.com/technology/tech-news/why-amazon-founder-jeff-bezos-says-data-centre-in-space-will-be-better-than-those-on-earth/articleshow/124304252.cms",
+    "timestamp": "2025-10-04T14:51:57.928295",
+    "article": {
+        "title": "Why Amazon founder Jeff Bezos says data centre in space will be ‘better’ than those on Earth",
+        "source": "timesofindia.indiatimes.com",
+        "extraction_method": "newspaper3k"
+    },
+    "verification": {
+        "verdict": "LIKELY_CREDIBLE",
+        "confidence": 0.68,
+        "credibility_score": 0.68
+    },
+    "consensus_analysis": {
+        "consensus_score": 0.1,
+        "source_diversity": 0,
+        "credible_sources_count": 0,
+        "total_sources": 0,
+        "unique_sources": 0,
+        "contradictions": [],
+        "confirmations": [],
+        "analysis": "INSUFFICIENT_SOURCES"
+    },
+    "similar_articles": [],
+    "content_analysis": {
+        "entities_count": 9,
+        "sentiment": "LABEL_2",
+        "source_credibility": {
+            "is_trusted": true,
+            "is_high_credibility": false
+        }
+    }
+}

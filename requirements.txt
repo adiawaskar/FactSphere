@@ -34,10 +34,3 @@ langchain
 sentence-transformers
 cross-encoder
 langdetect
-
-# Generative AI and API clients
-groq
-google-generativeai
-
-# Utilities and formatting
-rich

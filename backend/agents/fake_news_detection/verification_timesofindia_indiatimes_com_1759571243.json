@@ -1,0 +1,119 @@
+{
+    "url": "https://timesofindia.indiatimes.com/city/bhopal/cough-syrup-tragedy-tests-confirm-presence-of-poisonous-chemical-madhya-pradesh-bans-sale-of-coldrif/articleshow/124304040.cms",
+    "timestamp": "2025-10-04T15:17:23.482549",
+    "article": {
+        "title": "Cough syrup row: Tests confirm presence of poisonous chemical; Madhya Pradesh bans sale of 'Coldrif'",
+        "source": "timesofindia.indiatimes.com",
+        "extraction_method": "newspaper3k"
+    },
+    "verification": {
+        "verdict": "HIGHLY_CREDIBLE",
+        "confidence": 0.92,
+        "credibility_score": 0.92
+    },
+    "consensus_analysis": {
+        "consensus_score": 0.9,
+        "source_diversity": 1.0,
+        "credible_sources_count": 2,
+        "total_sources": 13,
+        "unique_sources": 9,
+        "confirmations": [
+            {
+                "source": "www.news18.com",
+                "similarity": 0.8379846249307905,
+                "confirmation_strength": 0.7886649370193481,
+                "title": "Tamil Nadu Bans Coldrif Cough Syrup After Child Deaths In Madhya Pradesh, Rajasthan"
+            },
+            {
+                "source": "www.devdiscourse.com",
+                "similarity": 0.825176899773734,
+                "confirmation_strength": 0.7594771087169647,
+                "title": "Tamil Nadu bans 'Coldrif' cough syrup after child deaths in MP, Rajasthan"
+            },
+            {
+                "source": "www.devdiscourse.com",
+                "similarity": 0.825176899773734,
+                "confirmation_strength": 0.7594771087169647,
+                "title": "Tamil Nadu bans 'Coldrif' cough syrup after child deaths in MP, Rajasthan"
+            },
+            {
+                "source": "www.ndtv.com",
+                "similarity": 0.8214439630508423,
+                "confirmation_strength": 0.7847200930118561,
+                "title": "Tamil Nadu Bans 'Coldrif' Cough Syrup After Child Deaths In Madhya Pradesh, Rajasthan"
+            }
+        ],
+        "contradictions": [],
+        "analysis": "STRONG_CONSENSUS"
+    },
+    "similar_articles": [
+        {
+            "title": "Tamil Nadu Bans Coldrif Cough Syrup After Child Deaths In Madhya Pradesh, Rajasthan",
+            "source": "www.news18.com",
+            "similarity": 0.838,
+            "url": "https://www.news18.com/cities/chennai-news/tamil-nadu-bans-coldrif-cough-syrup-after-child-deaths-in-madhya-pradesh-rajasthan-ws-ekl-9611410.html"
+        },
+        {
+            "title": "linked deaths in Madhya Pradesh and Rajasthan: How to identify fake medicines",
+            "source": "timesofindia.indiatimes.com",
+            "similarity": 0.837,
+            "url": "https://timesofindia.indiatimes.com/technology/tech-news/11-children-dead-in-cough-syrup-linked-deaths-in-madhya-pradesh-and-rajasthan-how-to-identify-fake-medicines/articleshow/124289321.cms"
+        },
+        {
+            "title": "Tamil Nadu bans 'Coldrif' cough syrup after child deaths in MP, Rajasthan",
+            "source": "www.devdiscourse.com",
+            "similarity": 0.825,
+            "url": "https://www.devdiscourse.com/article/health/3651805-tamil-nadu-bans-coldrif-cough-syrup-after-child-deaths-in-mp-rajasthan"
+        },
+        {
+            "title": "Tamil Nadu bans 'Coldrif' cough syrup after child deaths in MP, Rajasthan",
+            "source": "www.devdiscourse.com",
+            "similarity": 0.825,
+            "url": "https://www.devdiscourse.com/article/health/3651768-tamil-nadu-bans-coldrif-cough-syrup-after-child-deaths-in-mp-rajasthan"
+        },
+        {
+            "title": "Tamil Nadu Bans 'Coldrif' Cough Syrup After Child Deaths In Madhya Pradesh, Rajasthan",
+            "source": "www.ndtv.com",
+            "similarity": 0.821,
+            "url": "https://www.ndtv.com/india-news/tamil-nadu-bans-coldrif-cough-syrup-after-child-deaths-in-madhya-pradesh-rajasthan-9392340"
+        },
+        {
+            "title": "11 children dead in cough syrup-linked deaths in Madhya Pradesh and Rajasthan; samples sent for test",
+            "source": "timesofindia.indiatimes.com",
+            "similarity": 0.762,
+            "url": "https://timesofindia.indiatimes.com/city/bhopal/cough-syrup-linked-deaths-rise-to-11-children-samples-sent-for-testing/articleshow/124287468.cms"
+        },
+        {
+            "title": "India's cough syrup habit: A hidden risk to child health?",
+            "source": "www.indiatoday.in",
+            "similarity": 0.676,
+            "url": "https://www.indiatoday.in/health/story/do-children-even-need-cough-syrup-rajasthan-deaths-revive-the-debate-2796153-2025-10-01"
+        },
+        {
+            "title": "Probe on TN pharma firm as eight kids die in Madhya Pradesh, Rajasthan",
+            "source": "www.newindianexpress.com",
+            "similarity": 0.668,
+            "url": "https://www.newindianexpress.com/states/tamil-nadu/2025/Oct/03/probe-on-tn-pharma-firm-as-eight-kids-die-in-madhya-pradesh-rajasthan"
+        },
+        {
+            "title": "Another Cough Syrup Death In Rajasthan? Samples Sent For Testing",
+            "source": "www.ndtv.com",
+            "similarity": 0.645,
+            "url": "https://www.ndtv.com/india-news/rajasthan-cough-syrup-deaths-another-cough-syrup-death-in-rajasthan-samples-sent-for-testing-9384367"
+        },
+        {
+            "title": "Tamil Nadu Halts Production Of Coldrif Syrup After Child Deaths In MP & Rajasthan",
+            "source": "www.freepressjournal.in",
+            "similarity": 0.6,
+            "url": "https://www.freepressjournal.in/india/tamil-nadu-halts-production-of-coldrif-syrup-after-child-deaths-in-mp-rajasthan"
+        }
+    ],
+    "content_analysis": {
+        "entities_count": 32,
+        "sentiment": "LABEL_0",
+        "source_credibility": {
+            "is_trusted": true,
+            "is_high_credibility": false
+        }
+    }
+}

@@ -1,110 +1,12 @@
-# import json
-# from transformers import pipeline
-
-# # Initialize the model
-# MODEL = "jy46604790/Fake-News-Bert-Detect"
-# classifier = pipeline("text-classification", model=MODEL, tokenizer=MODEL)
-
-# # Mapping model labels to human-readable labels
-# label_mapping = {
-#     "LABEL_0": "REAL",
-#     "LABEL_1": "FAKE"
-# }
-
-# # Load input news
-# with open("input_news.json", "r", encoding="utf-8") as f:
-#     news_list = json.load(f)
-
-# results = []
-
-# for news in news_list:
-#     title = news.get("title", "")
-#     source = news.get("source", "")
-    
-#     prediction = classifier(title)[0]  # returns {'label': 'LABEL_0' or 'LABEL_1', 'score': float}
-#     human_label = label_mapping.get(prediction['label'], prediction['label'])
-
-#     result = {
-#         "title": title,
-#         "source": source,
-#         "label": human_label,
-#         "confidence": prediction['score'],
-#         "explanation": f"Predicted as {human_label} with confidence {prediction['score']:.2f}."
-#     }
-#     results.append(result)
-
-# # Save results
-# with open("output_result.json", "w", encoding="utf-8") as f:
-#     json.dump(results, f, indent=4)
-
-# print("Detection complete! Check output_result.json")
-
-# main.py
-# import json
-# from transformers import pipeline
-
-# # Initialize NLI model for fact-checking
-# nli_model = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
-
-# # Trusted labels
-# labels = ["REAL", "FAKE"]
-
-# # Load input news
-# with open("input_news.json", "r", encoding="utf-8") as f:
-#     news_list = json.load(f)
-
-# results = []
-
-# # Optionally, add a small set of trusted summaries for reference (offline)
-# trusted_sources = {
-#     "NASA": "NASA provides reliable space and science news and research.",
-#     "WHO": "World Health Organization provides factual updates on health and vaccines.",
-#     "DHS": "Department of Homeland Security provides verified news on security issues."
-# }
-
-# for news in news_list:
-#     title = news.get("title", "")
-#     content = news.get("content", "")
-#     combined_text = f"{title}. {content}"
-
-#     # Include context from trusted sources if possible
-#     context_text = " ".join(trusted_sources.values())
-
-#     # Use zero-shot classification for verification
-#     prediction = nli_model(combined_text, candidate_labels=labels, hypothesis_template="This claim is {}.")
-
-#     # Pick the label with highest score
-#     label = prediction['labels'][0]
-#     confidence = prediction['scores'][0]
-
-#     result = {
-#         "title": title,
-#         "source": news.get("source", ""),
-#         "label": label,
-#         "confidence": confidence,
-#         "explanation": f"Predicted as {label} with confidence {confidence:.2f}. Claim checked against trusted knowledge."
-#     }
-#     results.append(result)
-
-# # Save results
-# with open("output_result.json", "w", encoding="utf-8") as f:
-#     json.dump(results, f, indent=4)
-
-# print("Detection complete! Check output_result.json")
-
-
-# -------------------- main.py --------------------
-# -------------------- main.py --------------------
-
-# agents/fake-news-detection/main.py
 import json
 import os
 import sys
 from urllib.parse import urlparse
 
 from news_fetcher import fetch_news_for_claim
-from text_utils import preprocess_text, extract_keywords
+from text_utils import preprocess_text, extract_keywords, extract_claim_features, extract_contextual_keywords
 from similarity_checker import best_evidence_for_claim
+from evidence_evaluator import EvidenceEvaluator, decide_label_with_confidence
 
 # ensure nltk punkt download if missing (silent)
 try:
@@ -185,47 +87,84 @@ def main():
     with open(INPUT_FILE, "r", encoding="utf-8") as f:
         claims = json.load(f)
 
+    evaluator = EvidenceEvaluator()
     results = []
+    
     for claim in claims:
         title = (claim.get("title") or "").strip()
         source = (claim.get("source") or "").strip()
         content = (claim.get("content") or "").strip()
-        raw_claim = (title + " " + content).strip()
-        if not raw_claim:
+        full_claim = f"{title}. {content}".strip()
+        
+        if not full_claim:
             continue
 
         print(f"\n[CLAIM] {title}")
-        keywords = extract_keywords(preprocess_text(raw_claim))
-        print(f"[DEBUG] keywords: {keywords}")
+        
+        # Enhanced feature extraction
+        claim_features = extract_claim_features(full_claim)
+        keywords = extract_contextual_keywords(full_claim)
+        print(f"[DEBUG] Extracted entities: {[e['text'] for e in claim_features['entities'][:5]]}")
+        print(f"[DEBUG] Keywords: {keywords[:5]}")
 
-        articles = fetch_news_for_claim(keywords, title=title, max_results=25)
-        print(f"[DEBUG] fetched {len(articles)} articles")
+        # Fetch contextually relevant articles
+        articles = fetch_news_for_claim(keywords, title=title, max_results=20, claim_text=content)
+        print(f"[DEBUG] Fetched {len(articles)} contextually relevant articles")
 
         if not articles:
-            label, confidence, explanation, evidence = "UNVERIFIED", 0.0, "No articles found.", None
+            label, confidence, explanation, evidence = "UNVERIFIED", 0.0, "No relevant articles found.", None
         else:
-            evidences = best_evidence_for_claim(raw_claim, articles, per_article_topk=2, global_topk=6)
-            print(f"[DEBUG] evidences: {len(evidences)}")
-            label, confidence, explanation, evidence = decide_label_from_evidence(evidences)
+            # Evaluate each evidence piece
+            evidence_evaluations = []
+            for article in articles[:10]:  # Limit to top 10 most relevant
+                # Split article into sentences for granular analysis
+                sentences = article['content'].split('. ')[:5]  # Top 5 sentences
+                
+                for sentence in sentences:
+                    if len(sentence.strip()) > 50:  # Skip short sentences
+                        eval_result = evaluator.evaluate_claim_evidence_pair(
+                            full_claim, sentence, article['url'], article['source']
+                        )
+                        evidence_evaluations.append(eval_result)
+            
+            label, confidence, explanation, evidence = decide_label_with_confidence(
+                full_claim, evidence_evaluations
+            )
 
-        out = {
+        result = {
             "title": title,
             "source": source,
             "label": label,
             "confidence": round(float(confidence), 4),
-            "explanation": explanation
+            "explanation": explanation,
+            "claim_features": {
+                "entities": claim_features["entities"][:3],
+                "sentiment": claim_features["sentiment"]["label"],
+                "readability": claim_features["readability"]
+            }
         }
+        
         if evidence:
-            out["evidence"] = evidence
+            result["evidence"] = {
+                "sentence": evidence["evidence_sentence"][:200] + "...",
+                "source": evidence["evidence_source"],
+                "url": evidence["evidence_url"],
+                "confidence_breakdown": {
+                    "semantic_similarity": round(evidence["semantic_similarity"], 3),
+                    "factual_consistency": round(evidence["factual_consistency"], 3),
+                    "entity_overlap": round(evidence["entity_overlap"], 3),
+                    "credibility_boost": round(evidence["credibility_boost"], 3)
+                }
+            }
 
-        results.append(out)
-        print(f"[RESULT] {label} (conf {confidence:.3f})")
-        if evidence:
-            print(f"[EVID] {evidence['evidence_source']} - {evidence['evidence_sentence'][:160]}...")
+        results.append(result)
+        print(f"[RESULT] {label} (confidence: {confidence:.3f})")
 
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=4, ensure_ascii=False)
-    print("\nDone. Output ->", OUTPUT_FILE)
+    
+    print(f"\nAnalysis complete! Results saved to {OUTPUT_FILE}")
+    print(f"Processed {len(results)} claims")
 
 if __name__ == "__main__":
     main()
