@@ -14,8 +14,8 @@ GNEWS_API_KEY = os.getenv("GNEWS_API_KEY")
 
 # --- LLM Models ---
 # Updated model names for Google Gemini
-LLM_FAST_MODEL = 'gemini-1.5-flash-latest' # <-- Updated
-LLM_SMART_MODEL = 'gemini-1.5-flash-latest' # <-- Updated
+LLM_FAST_MODEL = 'gemini-2.5-flash' # <-- Updated
+LLM_SMART_MODEL = 'gemini-2.5-flash' # <-- Updated
 # LLM_SMART_MODEL = 'gemini-1.5-pro-latest'   # <-- Updated
 
 # --- Knowledge Base Settings ---
