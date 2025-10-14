@@ -615,16 +615,16 @@ app.add_middleware(
 )
 
 # === NOW INCLUDE ROUTERS - AFTER APP IS DEFINED ===
-try:
-    from backend.api.trend_routes import router as trends_router
-    from backend.api import analyze
-    
-    app.include_router(trends_router)
-    app.include_router(analyze.router, prefix="/api")
-    logger.info("Successfully included additional routers")
-except ImportError as e:
-    logger.warning(f"Could not import additional routers: {e}")
-    logger.info("Running with core functionality only")
+    # go one directory up to import from api
+    # cd .. in python
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+print(os.getcwd())
+from backend.api.trend_routes import router as trends_router
+from backend.api import analyze
+app.include_router(trends_router)
+app.include_router(analyze.router, prefix="/api")
+logger.info("Successfully included additional routers")
+
 
 # === ERROR HANDLER - AFTER APP IS DEFINED ===
 @app.exception_handler(Exception)
