@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: factsphere-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.direct_api:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: PORT
+        value: 10000
+    healthCheckPath: /
+    autoDeploy: true
