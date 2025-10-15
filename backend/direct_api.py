@@ -1137,4 +1137,6 @@ if os.path.exists(static_dir):
 
 if __name__ == "__main__":
     logger.info("Starting the FastAPI server")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import os
+    port = int(os.environ.get("PORT") or os.environ.get("RENDER_PORT") or 8000)
+    uvicorn.run(app, host="0.0.0.0", port=port)
