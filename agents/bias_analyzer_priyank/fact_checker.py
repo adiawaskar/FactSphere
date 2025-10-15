@@ -77,6 +77,7 @@ def generate_fact_check_report(misconception: str, neutral_chunks: List[str], so
         CONSOLE.print(f"[bold]Balanced Summary:[/bold] {report.get('balanced_summary', 'N/A')}\n")
         CONSOLE.print("[bold blue]Evidence Source:[/bold blue] Neutral Knowledge Base")
         CONSOLE.print("="*50 + "\n")
-
+        return report
     except (google_exceptions.GoogleAPICallError, json.JSONDecodeError, KeyError, ValueError) as e:
         CONSOLE.print(f"[bold red]Error generating fact-check report: {e}[/bold red]")
+        return None

@@ -94,15 +94,22 @@ def run_topic_analysis_background(job_id: str, topic: str):
                 misconceptions = generate_misconceptions(article["content"])
                 for misconception in misconceptions:
                     relevant_chunks = kb.query(misconception)
-                    # Note: generate_fact_check_report prints to console. 
-                    # For an API, this should be refactored to return JSON.
-                    # For now, we'll just log it.
-                    logger.info(f"Fact-checking misconception: '{misconception}'")
-                    fact_checks.append({
-                        "misconception": misconception,
-                        "source": article["url"],
-                        "evidence_chunks": relevant_chunks
-                    })
+                    # # Note: generate_fact_check_report prints to console. 
+                    # # For an API, this should be refactored to return JSON.
+                    # # For now, we'll just log it.
+                    # logger.info(f"Fact-checking misconception: '{misconception}'")
+                    # fact_checks.append({
+                    #     "misconception": misconception,
+                    #     "source": article["url"],
+                    #     "evidence_chunks": relevant_chunks
+                    # })
+                    report = generate_fact_check_report(misconception, relevant_chunks, article["url"])
+
+                    # If a report was successfully generated, save it
+                    if report:
+                        report['misconception'] = misconception
+                        report['biased_source'] = article["url"]
+                        fact_checks.append(report)
         
         # Store final results
         job_results[job_id]["status"] = "complete"
