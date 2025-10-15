@@ -1,6 +1,6 @@
 # agents/bias_analyzer_priyank/content_extractor.py
 import trafilatura
-from config import CONSOLE
+from .config import CONSOLE
 
 # The get_google_urls function has been removed from this file.
 

@@ -1,12 +1,12 @@
 # agents/bias_analyzer_priyank/main.py
 import google.generativeai as genai
-from config import CONSOLE, NEUTRAL_BIAS_THRESHOLD, GEMINI_API_KEY
-from query_enhancer import enhance_query
-from news_fetcher import get_urls_from_google_search, get_urls_from_gnews
-from content_extractor import extract_content_from_url
-from bias_analyzer import BiasAnalysisAgent
-from knowledge_base import KnowledgeBase
-from fact_checker import generate_misconceptions, generate_fact_check_report
+from .config import CONSOLE, NEUTRAL_BIAS_THRESHOLD, GEMINI_API_KEY
+from .query_enhancer import enhance_query
+from .news_fetcher import get_urls_from_google_search, get_urls_from_gnews
+from .content_extractor import extract_content_from_url
+from .bias_analyzer import BiasAnalysisAgent
+from .knowledge_base import KnowledgeBase
+from .fact_checker import generate_misconceptions, generate_fact_check_report
 
 def main():
     """Main function to run the entire workflow."""

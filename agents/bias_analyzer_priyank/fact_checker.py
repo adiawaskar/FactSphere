@@ -3,7 +3,7 @@ import json
 from typing import List
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
-from config import CONSOLE, LLM_FAST_MODEL, LLM_SMART_MODEL
+from .config import CONSOLE, LLM_FAST_MODEL, LLM_SMART_MODEL
 
 def generate_misconceptions(biased_content: str) -> List[str]:
     """Uses an LLM to generate leading questions from biased content."""
