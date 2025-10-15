@@ -1,12 +1,15 @@
 IF NOT EXIST venv (
     python -m venv venv
-    REM On Windows
     call venv\Scripts\activate
     pip install -r requirements.txt
 ) ELSE (
     REM On Windows
     call venv\Scripts\activate
+    
 )
+
+
+python -m spacy download en_core_web_sm
 
 IF NOT EXIST .env (
     echo WARNING: .env file is missing. Please create it before proceeding.
