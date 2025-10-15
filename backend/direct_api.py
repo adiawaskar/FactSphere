@@ -1136,5 +1136,7 @@ if os.path.exists(static_dir):
     logger.info(f"Static files mounted from {static_dir}")
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
+    logger.info("Starting the FastAPI server")
+    import os
+    port = int(os.environ.get("PORT") or os.environ.get("RENDER_PORT") or 8000)
     uvicorn.run(app, host="0.0.0.0", port=port)
