@@ -2,7 +2,7 @@
 from typing import List
 import requests
 from googlesearch import search
-from config import CONSOLE, GNEWS_API_KEY
+from .config import CONSOLE, GNEWS_API_KEY
 
 # --- Engine 1: Python Google Search Library ---
 

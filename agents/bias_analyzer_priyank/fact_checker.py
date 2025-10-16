@@ -3,7 +3,7 @@ import json
 from typing import List
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
-from config import CONSOLE, LLM_FAST_MODEL, LLM_SMART_MODEL
+from .config import CONSOLE, LLM_FAST_MODEL, LLM_SMART_MODEL
 
 def generate_misconceptions(biased_content: str) -> List[str]:
     """Uses an LLM to generate leading questions from biased content."""
@@ -77,6 +77,7 @@ def generate_fact_check_report(misconception: str, neutral_chunks: List[str], so
         CONSOLE.print(f"[bold]Balanced Summary:[/bold] {report.get('balanced_summary', 'N/A')}\n")
         CONSOLE.print("[bold blue]Evidence Source:[/bold blue] Neutral Knowledge Base")
         CONSOLE.print("="*50 + "\n")
-
+        return report
     except (google_exceptions.GoogleAPICallError, json.JSONDecodeError, KeyError, ValueError) as e:
         CONSOLE.print(f"[bold red]Error generating fact-check report: {e}[/bold red]")
+        return None

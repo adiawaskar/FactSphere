@@ -1,0 +1,23 @@
+Requirement already satisfied: fastapi in c:\users\priyank jhaveri\downloads\factsphere\venv\lib\site-packages (0.117.1)
+Requirement already satisfied: uvicorn in c:\users\priyank jhaveri\downloads\factsphere\venv\lib\site-packages (0.37.0)
+Requirement already satisfied: requests in c:\users\priyank jhaveri\downloads\factsphere\venv\lib\site-packages (2.32.5)
+Collecting beautifulsoup4==4.12.2
+  Using cached beautifulsoup4-4.12.2-py3-none-any.whl.metadata (3.6 kB)
+Collecting scikit-learn
+  Using cached scikit_learn-1.7.2-cp312-cp312-win_amd64.whl.metadata (11 kB)
+Collecting nltk==3.8.1
+  Using cached nltk-3.8.1-py3-none-any.whl.metadata (2.8 kB)
+Collecting transformers
+  Using cached transformers-4.56.2-py3-none-any.whl.metadata (40 kB)
+Collecting torch
+  Using cached torch-2.8.0-cp312-cp312-win_amd64.whl.metadata (30 kB)
+Collecting pandas==2.1.0
+  Using cached pandas-2.1.0.tar.gz (4.3 MB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Installing backend dependencies: started
+  Installing backend dependencies: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'error'

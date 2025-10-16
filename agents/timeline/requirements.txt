@@ -1,0 +1,12 @@
+# agents/timeline/requirements.txt
+python-dotenv
+rich
+requests
+trafilatura
+chromadb
+sentence-transformers
+langchain
+numpy
+google-generativeai
+neo4j
+dateparser

@@ -559,34 +559,37 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 
 
+
+
+
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, PROJECT_ROOT)
+
+from backend.utils.trends import get_trending_topics # Corrected path
+from backend.agents.misinformation_agent_lite import agent_service # Corrected path
+from backend.api.trend_routes import router as trends_router
+from backend.api import analyze
+from backend.api.bias_routes import router as bias_router
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger("trends-api")
-
-
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-
-from utils.trends import get_trending_topics
-
-
 try:
-    from agents.misinformation_agent_lite import agent_service
+    # This 'try' block should now only check for the agent's features, not handle import errors
     HAS_AGENT = True
-    logger.info("Successfully imported enhanced lightweight agent_service")
-    
-    
+    logger.info("Successfully imported lightweight agent_service")
+
     HAS_GEMINI = hasattr(agent_service, '_analyze_with_gemini') and agent_service._analyze_with_gemini({}) != {}
     if HAS_GEMINI:
         logger.info("Gemini API integration is available")
     else:
         logger.info("Gemini API integration is not available - using basic analysis only")
-        
-except ImportError as e:
-    logger.error(f"Failed to import lightweight agent: {str(e)}")
-    logger.error("To fix dependency issues, run 'python install_dependencies.py'")
+
+except Exception as e:
+    # This block now handles errors during agent initialization, not import
+    logger.error(f"Failed to initialize the lightweight agent: {str(e)}")
     HAS_AGENT = False
     HAS_GEMINI = False
 
@@ -621,9 +624,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 print(os.getcwd())
 from backend.api.trend_routes import router as trends_router
 from backend.api import analyze
+from backend.api.bias_routes import router as bias_router 
 app.include_router(trends_router)
 app.include_router(analyze.router, prefix="/api")
-logger.info("Successfully included additional routers")
+app.include_router(bias_router, prefix="/api") 
+logger.info("Successfully included additional routers including bias_router")
 
 
 # === ERROR HANDLER - AFTER APP IS DEFINED ===

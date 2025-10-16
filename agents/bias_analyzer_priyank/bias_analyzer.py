@@ -10,7 +10,7 @@ from google.api_core import exceptions as google_exceptions
 from rich.table import Table
 
 # Use the central configuration from the project
-from config import CONSOLE, GEMINI_API_KEY, LLM_FAST_MODEL
+from .config import CONSOLE, GEMINI_API_KEY, LLM_FAST_MODEL
 
 # Configure logging for the module
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -187,3 +187,33 @@ class BiasAnalysisAgent:
         self._display_results(analysis_data, final_score, judgment)
 
         return final_score, judgment
+ 
+    def run_for_api(self) -> Dict[str, Any] | None:
+        """
+        Orchestrates the analysis and returns the results as a dictionary for API use.
+        """
+        if not self.content or not self.content.strip():
+            logging.warning(f"Content for {self.source_url} is empty. Skipping.")
+            return None
+
+        # NOTE: We are replacing CONSOLE.print with standard logging for the API context.
+        logging.info(f"Analyzing for bias: {self.source_url}...")
+        prompt = self._generate_prompt()
+        llm_response_str = self._call_llm(prompt)
+        if not llm_response_str:
+            return None
+
+        analysis_data = self._parse_llm_response(llm_response_str)
+        if not analysis_data:
+            return None
+
+        final_score = self._calculate_bias_score(analysis_data)
+        judgment = self._interpret_final_score(final_score)
+        
+        # Instead of calling _display_results, we return a dictionary.
+        return {
+            "source_url": self.source_url,
+            "final_score": round(final_score, 3),
+            "judgment": judgment,
+            "detailed_analysis": analysis_data
+        }

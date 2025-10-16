@@ -2,7 +2,7 @@
 import json
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
-from config import CONSOLE, LLM_FAST_MODEL
+from .config import CONSOLE, LLM_FAST_MODEL
 
 def enhance_query(topic: str) -> str:
     """

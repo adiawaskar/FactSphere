@@ -4,7 +4,7 @@ from typing import List
 import chromadb
 from sentence_transformers import SentenceTransformer
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from config import CONSOLE, CHROMA_DB_PATH, COLLECTION_NAME, EMBEDDING_MODEL_NAME
+from .config import CONSOLE, CHROMA_DB_PATH, COLLECTION_NAME, EMBEDDING_MODEL_NAME
 
 class KnowledgeBase:
     """Manages the ChromaDB vector store for neutral articles."""
