@@ -2,7 +2,7 @@
 from neo4j import GraphDatabase
 import dateparser
 from typing import Dict, List
-from config import NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD, CONSOLE
+from .config import NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD, CONSOLE
 
 class Neo4jGraph:
     def __init__(self):

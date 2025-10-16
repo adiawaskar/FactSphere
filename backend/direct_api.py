@@ -570,7 +570,7 @@ from backend.agents.misinformation_agent_lite import agent_service # Corrected p
 from backend.api.trend_routes import router as trends_router
 from backend.api import analyze
 from backend.api.bias_routes import router as bias_router
-
+from backend.api.timeline_routes import router as timeline_router
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -628,7 +628,8 @@ from backend.api.bias_routes import router as bias_router
 app.include_router(trends_router)
 app.include_router(analyze.router, prefix="/api")
 app.include_router(bias_router, prefix="/api") 
-logger.info("Successfully included additional routers including bias_router")
+app.include_router(timeline_router, prefix="/api")
+logger.info("Successfully included additional routers including bias and timeline routes")
 
 
 # === ERROR HANDLER - AFTER APP IS DEFINED ===

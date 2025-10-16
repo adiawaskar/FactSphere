@@ -34,3 +34,4 @@ dist-ssr
 agents/credibility-context/credibility_reports/
 
 backend/__pycache__
+chroma_db
