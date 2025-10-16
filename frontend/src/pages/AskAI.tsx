@@ -32,6 +32,9 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import ReactMarkdown from 'react-markdown'; // <-- ADD
+import remarkGfm from 'remark-gfm'; // <-- ADD
+import { DetailedAnalysis } from '@/components/chat/DetailedAnalysis'; // <-- ADD
 
 // ... keep existing code (interfaces and components like TypingEffect, FloatingCard, StatCard)
 const API_BASE_URL = 'http://localhost:8000';
@@ -83,6 +86,7 @@ interface Message {
   }>;
   confidence?: number;
   processingTime?: number;
+  analyses?: ApiAnalysisResult[]; // <-- ADD
 }
 
 const TypingEffect = ({ text, speed = 30 }: { text: string; speed?: number }) => {
@@ -172,6 +176,49 @@ useEffect(() => {
     };
   }, []);
 
+  // const formatApiResponse = (data: ApiResponseData): Omit<Message, 'id' | 'type' | 'timestamp'> => {
+  //   if (!data.results) {
+  //     return { content: "I'm sorry, but I couldn't retrieve any results for that topic." };
+  //   }
+
+  //   const { summary, analyses, fact_checks } = data.results;
+
+  //   let content = `I've completed my analysis on "${data.topic}". Here's a summary:\n\n`;
+  //   content += `• **Articles Analyzed:** ${summary.total_articles_analyzed}\n`;
+  //   content += `• **Neutral Sources Found:** ${summary.neutral_articles_found} (used for fact-checking)\n`;
+  //   content += `• **Biased Sources Found:** ${summary.biased_articles_found}\n\n`;
+    
+  //   if (fact_checks.length > 0) {
+  //     content += `--- \n\n**Fact-Checks & Corrections:**\n\n`;
+  //     fact_checks.forEach((fc, index) => {
+  //       content += `**${index + 1}. Correction for a common misconception:** *"${fc.misconception}"*\n`;
+  //       content += `**Correction:** ${fc.correction}\n\n`;
+  //     });
+  //   } else if (summary.biased_articles_found === 0) {
+  //     content += "I found no significantly biased articles, which is a good sign of balanced reporting on this topic.\n";
+  //   }
+
+  //   const sources = analyses.map(analysis => {
+  //     const url = new URL(analysis.source_url);
+  //     return {
+  //       title: url.hostname.replace('www.', ''),
+  //       url: analysis.source_url,
+  //       snippet: `Bias Assessment: ${analysis.judgment}. This article was included in the overall topic analysis.`,
+  //       // Convert bias score (-1 to 1) to a credibility score (0 to 100)
+  //       credibility: Math.round((1 - Math.abs(analysis.final_score)) * 100),
+  //       domain: url.hostname,
+  //       publishDate: 'N/A', // The backend doesn't provide this, so we use a placeholder
+  //     };
+  //   });
+
+  //   const averageCredibility = sources.reduce((acc, src) => acc + src.credibility, 0) / (sources.length || 1);
+
+  //   return {
+  //     content,
+  //     sources,
+  //     confidence: Math.round(averageCredibility),
+  //   };
+  // };
   const formatApiResponse = (data: ApiResponseData): Omit<Message, 'id' | 'type' | 'timestamp'> => {
     if (!data.results) {
       return { content: "I'm sorry, but I couldn't retrieve any results for that topic." };
@@ -179,15 +226,16 @@ useEffect(() => {
 
     const { summary, analyses, fact_checks } = data.results;
 
-    let content = `I've completed my analysis on "${data.topic}". Here's a summary:\n\n`;
-    content += `• **Articles Analyzed:** ${summary.total_articles_analyzed}\n`;
-    content += `• **Neutral Sources Found:** ${summary.neutral_articles_found} (used for fact-checking)\n`;
-    content += `• **Biased Sources Found:** ${summary.biased_articles_found}\n\n`;
+    // Use Markdown formatting (e.g., **, \n\n for paragraphs, - for lists)
+    let content = `I've completed my analysis on **"${data.topic}"**. Here's a summary:\n\n`;
+    content += `- **Articles Analyzed:** ${summary.total_articles_analyzed}\n`;
+    content += `- **Neutral Sources Found:** ${summary.neutral_articles_found} (used for fact-checking)\n`;
+    content += `- **Biased Sources Found:** ${summary.biased_articles_found}\n\n`;
     
     if (fact_checks.length > 0) {
-      content += `--- \n\n**Fact-Checks & Corrections:**\n\n`;
+      content += `---\n\n### Fact-Checks & Corrections\n\n`;
       fact_checks.forEach((fc, index) => {
-        content += `**${index + 1}. Correction for a common misconception:** *"${fc.misconception}"*\n`;
+        content += `**${index + 1}. Correction for a common misconception:** *"${fc.misconception}"*\n\n`;
         content += `**Correction:** ${fc.correction}\n\n`;
       });
     } else if (summary.biased_articles_found === 0) {
@@ -200,10 +248,9 @@ useEffect(() => {
         title: url.hostname.replace('www.', ''),
         url: analysis.source_url,
         snippet: `Bias Assessment: ${analysis.judgment}. This article was included in the overall topic analysis.`,
-        // Convert bias score (-1 to 1) to a credibility score (0 to 100)
         credibility: Math.round((1 - Math.abs(analysis.final_score)) * 100),
         domain: url.hostname,
-        publishDate: 'N/A', // The backend doesn't provide this, so we use a placeholder
+        publishDate: 'N/A',
       };
     });
 
@@ -212,6 +259,7 @@ useEffect(() => {
     return {
       content,
       sources,
+      analyses, // <-- PASS THE FULL ANALYSIS DATA THROUGH
       confidence: Math.round(averageCredibility),
     };
   };
@@ -637,7 +685,13 @@ useEffect(() => {
                             ? 'bg-gradient-to-r from-primary to-secondary text-white ml-auto' 
                             : 'bg-muted/70 border border-border/50'
                         }`}>
-                          <div className="whitespace-pre-wrap text-sm sm:text-base">{message.content}</div>
+                          {/* <div className="whitespace-pre-wrap text-sm sm:text-base">{message.content}</div> */}
+                          {/* MODIFIED: Use ReactMarkdown to render content */}
+              <div className="prose prose-sm sm:prose-base dark:prose-invert prose-p:my-2 prose-headings:my-3 max-w-none">
+  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+    {message.content}
+  </ReactMarkdown>
+</div>
                           
                           {/* Confidence and Processing Time */}
                           {message.type === 'bot' && message.confidence && (
@@ -716,7 +770,10 @@ useEffect(() => {
                             </div>
                           )}
                         </div>
-                        
+                         {/* NEW: Render the DetailedAnalysis component */}
+              {message.type === 'bot' && message.analyses && message.analyses.length > 0 && (
+                <DetailedAnalysis analyses={message.analyses} />
+              )}
                         <div className="flex items-center gap-2 mt-2 px-2 text-xs text-muted-foreground">
                           <span>{message.timestamp.toLocaleTimeString()}</span>
                           {message.type === 'bot' && (
