@@ -1,35 +1,4 @@
-# # 01_retrieval.py
-# import requests
-# import trafilatura
-# from typing import List, Dict, Optional
-# from config import GNEWS_API_KEY, CONSOLE
-# import dateparser
-
-# def get_urls_from_gnews(topic: str, max_results: int = 10) -> List[Dict[str, str]]:
-#     """Fetches news articles (URL and published date) from the GNews.io API."""
-#     CONSOLE.print(f"\n[yellow]🔍 Searching GNews.io for:[/yellow] '{topic}'")
-#     if not GNEWS_API_KEY:
-#         CONSOLE.print("[bold red]GNEWS_API_KEY not found.[/bold red]")
-#         return []
-
-#     url = f"https://gnews.io/api/v4/search?lang=en&max={max_results}&q=\"{topic}\"&token={GNEWS_API_KEY}"
-
-#     try:
-#         response = requests.get(url)
-#         response.raise_for_status()
-#         data = response.json()
-#         articles = data.get("articles", [])
-#         if not articles:
-#             CONSOLE.print("[yellow]GNews API returned no articles.[/yellow]")
-#             return []
-            
-#         # Return a list of dictionaries with url and publishedAt
-#         return [{"url": article['url'], "published_at": article['publishedAt']} for article in articles]
-#     except requests.exceptions.RequestException as e:
-#         CONSOLE.print(f"[bold red]Failed to fetch news from GNews API: {e}[/bold red]")
-#         return []
-
-# o1_retrieval.py
+# agents/timeline/o1_retrieval.py
 import requests
 import trafilatura
 from typing import List, Dict, Optional

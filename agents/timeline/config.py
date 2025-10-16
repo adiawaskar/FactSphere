@@ -1,4 +1,4 @@
-# config.py
+#agents/timeline/config.py
 import os
 from dotenv import load_dotenv
 from rich.console import Console

@@ -1,4 +1,4 @@
-# 05_narrative_generator.py
+# agents/timeline/05_narrative_generator.py
 import json
 import google.generativeai as genai
 from typing import List, Dict

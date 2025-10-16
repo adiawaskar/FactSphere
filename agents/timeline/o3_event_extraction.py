@@ -1,4 +1,4 @@
-# 03_event_extraction.py
+# agents/timeline/03_event_extraction.py
 import json
 import google.generativeai as genai
 from typing import List, Dict, Optional
