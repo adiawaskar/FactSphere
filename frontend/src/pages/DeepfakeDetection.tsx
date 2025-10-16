@@ -293,7 +293,7 @@
 import React, { useState, useRef } from 'react';
 import { BarChart3 } from "lucide-react";
 import { PageLayout } from '@/components/layout/PageLayout';
-import { GoogleGenAI, Type } from "https://aistudiocdn.com/@google/genai@^1.16.0";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // --- ICONS (from components/icons/index.tsx) ---
 const AlertTriangleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -383,71 +383,7 @@ const fileToBase64 = (file: File): Promise<{ base64: string, mimeType: string }>
 
 
 // --- SERVICE (from services/geminiService.ts) ---
-const analysisSchema = {
-  type: Type.OBJECT,
-  properties: {
-    isAuthentic: {
-      type: Type.BOOLEAN,
-      description: 'True if the image is likely authentic/real, false if it is likely AI-generated or a deepfake.',
-    },
-    confidence: {
-      type: Type.INTEGER,
-      description: 'A confidence score from 0 to 100 regarding the isAuthentic classification.',
-    },
-    analysis: {
-      type: Type.STRING,
-      description: 'A concise, one to two sentence explanation of the reasoning behind the classification.',
-    },
-    potentialArtifacts: {
-      type: Type.ARRAY,
-      description: 'A list of visual artifacts or inconsistencies detected. For each artifact, provide a description and specific details about its location or characteristics.',
-      items: {
-        type: Type.OBJECT,
-        properties: {
-          description: {
-            type: Type.STRING,
-            description: 'A high-level description of the artifact (e.g., "Unnatural skin texture").',
-          },
-          details: {
-            type: Type.STRING,
-            description: 'Specific details about the artifact, such as its location in the image (e.g., "on the subject\'s left cheek") or the visual characteristics that are suspicious (e.g., "appears overly smooth and lacks natural pores").',
-          },
-        },
-        required: ['description', 'details'],
-      },
-    },
-    detectionMetrics: {
-        type: Type.OBJECT,
-        description: 'Scores for specific detection metrics, each on a scale of 0-100 indicating the likelihood of manipulation for that category.',
-        properties: {
-            facialInconsistencies: {
-                type: Type.INTEGER,
-                description: 'Score (0-100) for inconsistencies in facial features, symmetry, and structure.'
-            },
-            lightingAnomalies: {
-                type: Type.INTEGER,
-                description: 'Score (0-100) for unnatural lighting, shadows, or reflections.'
-            },
-            compressionArtifacts: {
-                type: Type.INTEGER,
-                description: 'Score (0-100) for unusual digital compression patterns or artifacts.'
-            },
-            contextualConsistency: {
-                type: Type.INTEGER,
-                description: 'Score (0-100) for how well the subject fits into the background and overall context.'
-            },
-            temporalConsistency: {
-                type: Type.INTEGER,
-                description: 'Score (0-100) for consistency of elements across the image, which might imply temporal manipulation if it were from a video.'
-            }
-        },
-        required: ['facialInconsistencies', 'lightingAnomalies', 'compressionArtifacts', 'contextualConsistency', 'temporalConsistency']
-    }
-  },
-  required: ['isAuthentic', 'confidence', 'analysis', 'potentialArtifacts', 'detectionMetrics'],
-};
-
-const analyzeImage = async (base64Image: string, mimeType: string, ai: GoogleGenAI): Promise<AnalysisResult> => {
+const analyzeImage = async (base64Image: string, mimeType: string, genAI: GoogleGenerativeAI): Promise<AnalysisResult> => {
   const imagePart = {
     inlineData: {
       data: base64Image,
@@ -455,8 +391,7 @@ const analyzeImage = async (base64Image: string, mimeType: string, ai: GoogleGen
     },
   };
 
-  const textPart = {
-    text: `You are a world-class expert in digital forensics, specializing in detecting high-quality, state-of-the-art AI-generated images and deepfakes. Your task is to analyze this image with extreme skepticism.
+  const textPart = `You are a world-class expert in digital forensics, specializing in detecting high-quality, state-of-the-art AI-generated images and deepfakes. Your task is to analyze this image with extreme skepticism.
 
 Analyze this image for any signs of AI generation, deepfaking, or digital manipulation. Pay extremely close attention to subtle, almost imperceptible artifacts that are characteristic of even the most advanced generative models. This includes, but is not limited to:
 - Micro-level inconsistencies in skin texture (e.g., unnatural smoothness, repeating patterns).
@@ -467,20 +402,29 @@ Analyze this image for any signs of AI generation, deepfaking, or digital manipu
 
 Be particularly critical of images that appear to be of famous individuals, as these are common targets for high-quality deepfakes. Do not be fooled by overall coherence.
 
-Based on your forensic analysis, determine if the image is authentic or not, and provide your results in the requested JSON format. This includes a confidence score, a concise analysis summarizing your findings, any specific artifacts you've identified, and scores for the detection metrics.`,
-  };
+Based on your forensic analysis, determine if the image is authentic or not, and provide your results in JSON format with the following fields:
+- isAuthentic (boolean): True if likely authentic/real, false if likely AI-generated
+- confidence (number 0-100): Confidence score
+- analysis (string): Brief explanation of reasoning
+- potentialArtifacts (array): List of detected artifacts with description and details
+- detectionMetrics (object): Scores (0-100) for facialInconsistencies, lightingAnomalies, compressionArtifacts, contextualConsistency, temporalConsistency`;
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: { parts: [imagePart, textPart] },
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: analysisSchema,
-      }
+    const model = genAI.getGenerativeModel({
+      model: "gemini-flash-latest",
     });
 
-    const jsonText = response.text.trim();
+    const result = await model.generateContent([textPart, imagePart]);
+    const response = await result.response;
+    let jsonText = response.text().trim();
+    
+    // Remove markdown code block formatting if present
+    if (jsonText.startsWith('```json')) {
+      jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?$/g, '');
+    } else if (jsonText.startsWith('```')) {
+      jsonText = jsonText.replace(/```\n?/g, '');
+    }
+    
     if (!jsonText) {
       throw new Error("The API returned an empty response. The image might be too complex or unsupported.");
     }
@@ -708,14 +652,22 @@ const DeepfakeDetection: React.FC = () => {
     
     const message = error.message.toLowerCase();
     
-    if (message.includes('process is not defined') || message.includes('api key not valid') || message.includes('api_key environment variable is not set')) {
-        return 'The API key is invalid or missing.';
+    // Check for missing API key
+    if (!import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY === 'your_gemini_api_key_here') {
+        return 'Gemini API key is not configured. Please create a .env.local file with VITE_GEMINI_API_KEY.';
     }
-    if (message.includes('safety settings')) return 'The image was blocked due to content safety policies.';
-    if (message.includes('rate limit')) return 'Too many requests. Please wait a moment and try again.';
-    if (message.includes('empty response')) return 'The AI model could not process this image or returned an empty response.';
     
-    return 'An unexpected error occurred during analysis. Please try a different image.';
+    if (message.includes('process is not defined') || message.includes('api key not valid') || message.includes('api_key') || message.includes('invalid_api_key')) {
+        return 'The API key is invalid. Please check your VITE_GEMINI_API_KEY in .env.local file.';
+    }
+    if (message.includes('safety') || message.includes('blocked')) return 'The image was blocked due to content safety policies.';
+    if (message.includes('rate limit') || message.includes('quota')) return 'Too many requests. Please wait a moment and try again.';
+    if (message.includes('empty response')) return 'The AI model could not process this image or returned an empty response.';
+    if (message.includes('json') || message.includes('parse')) return 'Error parsing AI response. The image may be too complex.';
+    
+    // Show the actual error in development for debugging
+    console.error('Full error details:', error);
+    return `Error: ${error.message}. Please check the console for details.`;
   };
 
   const handleAnalyze = async () => {
@@ -726,12 +678,18 @@ const DeepfakeDetection: React.FC = () => {
     setError(null);
 
     try {
-      // const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY as string });
+      // Check if API key is configured
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string;
+      if (!apiKey || apiKey === 'your_gemini_api_key_here') {
+        throw new Error('Gemini API key is not configured. Please create a .env.local file in the frontend directory with VITE_GEMINI_API_KEY=your_actual_key');
+      }
+
+      const genAI = new GoogleGenerativeAI(apiKey);
       const { base64, mimeType } = await fileToBase64(selectedFile);
-      const analysisResult = await analyzeImage(base64, mimeType, ai);
+      const analysisResult = await analyzeImage(base64, mimeType, genAI);
       setResult(analysisResult);
     } catch (err) {
+      console.error('Analysis error:', err);
       setError(getFriendlyErrorMessage(err));
     } finally {
       setIsLoading(false);
