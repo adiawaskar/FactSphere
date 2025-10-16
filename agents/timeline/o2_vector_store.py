@@ -4,7 +4,7 @@ import numpy as np
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 from typing import List, Dict
-from config import CONSOLE, CHROMA_DB_PATH, COLLECTION_NAME, EMBEDDING_MODEL_NAME, DISTANCE_THRESHOLD
+from .config import CONSOLE, CHROMA_DB_PATH, COLLECTION_NAME, EMBEDDING_MODEL_NAME, DISTANCE_THRESHOLD
 
 # --- MODIFIED SECTION: Lazy Initialization ---
 

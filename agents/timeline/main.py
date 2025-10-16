@@ -2,12 +2,12 @@
 import json
 import os
 import shutil
-from config import CONSOLE, CHROMA_DB_PATH
-from o1_retrieval import get_urls_from_gnews, extract_content_from_url
-from o2_vector_store import chunk_text, add_chunks_to_db, get_all_chunks_from_db
-from o3_event_extraction import extract_events_from_chunk
-from o4_graph_builder import Neo4jGraph
-from o5_narrative_generator import generate_narrative
+from .config import CONSOLE, CHROMA_DB_PATH
+from .o1_retrieval import get_urls_from_gnews, extract_content_from_url
+from .o2_vector_store import chunk_text, add_chunks_to_db, get_all_chunks_from_db
+from .o3_event_extraction import extract_events_from_chunk
+from .o4_graph_builder import Neo4jGraph
+from .o5_narrative_generator import generate_narrative
 
 def main(topic: str, max_articles: int = 5):
     """

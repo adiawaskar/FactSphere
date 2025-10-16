@@ -2,7 +2,7 @@
 import requests
 import trafilatura
 from typing import List, Dict, Optional
-from config import GNEWS_API_KEY, CONSOLE
+from .config import GNEWS_API_KEY, CONSOLE
 import dateparser
 # --- Add this import for URL encoding ---
 from urllib.parse import quote

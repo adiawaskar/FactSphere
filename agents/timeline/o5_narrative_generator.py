@@ -2,7 +2,7 @@
 import json
 import google.generativeai as genai
 from typing import List, Dict
-from config import CONSOLE, LLM_SMART_MODEL
+from .config import CONSOLE, LLM_SMART_MODEL
 
 def generate_narrative(sorted_events: List[Dict]) -> Dict:
     """

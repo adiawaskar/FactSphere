@@ -2,7 +2,7 @@
 import json
 import google.generativeai as genai
 from typing import List, Dict, Optional
-from config import CONSOLE, LLM_SMART_MODEL, GEMINI_API_KEY
+from .config import CONSOLE, LLM_SMART_MODEL, GEMINI_API_KEY
 import time
 
 # Configure the Gemini API client
