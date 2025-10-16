@@ -28,7 +28,7 @@ import {
   Award,
   Lightbulb,
   Target,
-  Filter
+  Filter, FileText, History
 } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
@@ -53,10 +53,26 @@ interface ApiFactCheckResult {
   biased_source: string;
 }
 
-interface ApiResponseData {
+// interface ApiResponseData {
+//   status: 'running' | 'complete' | 'failed';
+//   topic: string;
+//   engine: string;
+//   progress?: string;
+//   results?: {
+//     summary: {
+//       total_articles_analyzed: number;
+//       neutral_articles_found: number;
+//       biased_articles_found: number;
+//       fact_checks_generated: number;
+//     };
+//     analyses: ApiAnalysisResult[];
+//     fact_checks: ApiFactCheckResult[];
+//   };
+//   error?: string;
+// }
+interface ApiBiasJobData {
   status: 'running' | 'complete' | 'failed';
   topic: string;
-  engine: string;
   progress?: string;
   results?: {
     summary: {
@@ -66,10 +82,30 @@ interface ApiResponseData {
       fact_checks_generated: number;
     };
     analyses: ApiAnalysisResult[];
-    fact_checks: ApiFactCheckResult[];
+    fact_checks: any[];
   };
   error?: string;
 }
+interface ApiTimelineEvent {
+    date: string;
+    event: string;
+    details: string;
+}
+
+interface ApiTimelineJobData {
+    status: 'running' | 'complete' | 'failed';
+    topic: string;
+    progress?: string;
+    results?: {
+        background: string;
+        timeline: ApiTimelineEvent[];
+        conclusion: string;
+    };
+    error?: string;
+}
+
+// Generic type for the polling response
+type JobData = ApiBiasJobData | ApiTimelineJobData;
 
 interface Message {
   id: string;
@@ -86,7 +122,9 @@ interface Message {
   }>;
   confidence?: number;
   processingTime?: number;
-  analyses?: ApiAnalysisResult[]; // <-- ADD
+  analyses?: ApiAnalysisResult[];
+  title?: string; 
+  icon?: React.ElementType;
 }
 
 const TypingEffect = ({ text, speed = 30 }: { text: string; speed?: number }) => {
@@ -163,7 +201,6 @@ export default function AskAI() {
   };
 
   useEffect(() => {
-    // Only scroll to bottom if there are messages and not showing welcome screen
     if (messages.length > 0 && !showWelcome) {
       scrollToBottom();
     }
@@ -176,6 +213,26 @@ useEffect(() => {
     };
   }, []);
 
+  const formatTimelineResponse = (data: ApiTimelineJobData): Omit<Message, 'id' | 'type' | 'timestamp'> => {
+    if (!data.results) {
+        return { content: "I'm sorry, but I couldn't generate a timeline for that topic." };
+    }
+    const { background, timeline, conclusion } = data.results;
+
+    let content = `### Background\n${background}\n\n`;
+    content += `---\n\n### Timeline of Events\n\n`;
+    timeline.forEach(item => {
+        content += `- **${item.date}:** ${item.event}\n`;
+    });
+    content += `\n---\n\n### Conclusion\n${conclusion}`;
+
+    return {
+        title: "Historical Timeline",
+        icon: History,
+        content,
+    };
+  };
+
   // const formatApiResponse = (data: ApiResponseData): Omit<Message, 'id' | 'type' | 'timestamp'> => {
   //   if (!data.results) {
   //     return { content: "I'm sorry, but I couldn't retrieve any results for that topic." };
@@ -183,15 +240,15 @@ useEffect(() => {
 
   //   const { summary, analyses, fact_checks } = data.results;
 
-  //   let content = `I've completed my analysis on "${data.topic}". Here's a summary:\n\n`;
-  //   content += `• **Articles Analyzed:** ${summary.total_articles_analyzed}\n`;
-  //   content += `• **Neutral Sources Found:** ${summary.neutral_articles_found} (used for fact-checking)\n`;
-  //   content += `• **Biased Sources Found:** ${summary.biased_articles_found}\n\n`;
+  //   let content = `I've completed my analysis on **"${data.topic}"**. Here's a summary:\n\n`;
+  //   content += `- **Articles Analyzed:** ${summary.total_articles_analyzed}\n`;
+  //   content += `- **Neutral Sources Found:** ${summary.neutral_articles_found} (used for fact-checking)\n`;
+  //   content += `- **Biased Sources Found:** ${summary.biased_articles_found}\n\n`;
     
   //   if (fact_checks.length > 0) {
-  //     content += `--- \n\n**Fact-Checks & Corrections:**\n\n`;
+  //     content += `---\n\n### Fact-Checks & Corrections\n\n`;
   //     fact_checks.forEach((fc, index) => {
-  //       content += `**${index + 1}. Correction for a common misconception:** *"${fc.misconception}"*\n`;
+  //       content += `**${index + 1}. Correction for a common misconception:** *"${fc.misconception}"*\n\n`;
   //       content += `**Correction:** ${fc.correction}\n\n`;
   //     });
   //   } else if (summary.biased_articles_found === 0) {
@@ -204,10 +261,9 @@ useEffect(() => {
   //       title: url.hostname.replace('www.', ''),
   //       url: analysis.source_url,
   //       snippet: `Bias Assessment: ${analysis.judgment}. This article was included in the overall topic analysis.`,
-  //       // Convert bias score (-1 to 1) to a credibility score (0 to 100)
   //       credibility: Math.round((1 - Math.abs(analysis.final_score)) * 100),
   //       domain: url.hostname,
-  //       publishDate: 'N/A', // The backend doesn't provide this, so we use a placeholder
+  //       publishDate: 'N/A',
   //     };
   //   });
 
@@ -216,21 +272,18 @@ useEffect(() => {
   //   return {
   //     content,
   //     sources,
+  //     analyses, 
   //     confidence: Math.round(averageCredibility),
   //   };
   // };
-  const formatApiResponse = (data: ApiResponseData): Omit<Message, 'id' | 'type' | 'timestamp'> => {
-    if (!data.results) {
-      return { content: "I'm sorry, but I couldn't retrieve any results for that topic." };
-    }
 
+ const formatBiasResponse = (data: ApiBiasJobData): Omit<Message, 'id' | 'type' | 'timestamp'> => {
+    if (!data.results) {
+      return { content: "I'm sorry, but I couldn't retrieve any bias analysis results." };
+    }
     const { summary, analyses, fact_checks } = data.results;
 
-    // Use Markdown formatting (e.g., **, \n\n for paragraphs, - for lists)
-    let content = `I've completed my analysis on **"${data.topic}"**. Here's a summary:\n\n`;
-    content += `- **Articles Analyzed:** ${summary.total_articles_analyzed}\n`;
-    content += `- **Neutral Sources Found:** ${summary.neutral_articles_found} (used for fact-checking)\n`;
-    content += `- **Biased Sources Found:** ${summary.biased_articles_found}\n\n`;
+    let content = `### Summary\nI analyzed **${summary.total_articles_analyzed}** articles on this topic. Of those, **${summary.neutral_articles_found}** were neutral and **${summary.biased_articles_found}** showed significant bias.\n\n`;
     
     if (fact_checks.length > 0) {
       content += `---\n\n### Fact-Checks & Corrections\n\n`;
@@ -238,125 +291,70 @@ useEffect(() => {
         content += `**${index + 1}. Correction for a common misconception:** *"${fc.misconception}"*\n\n`;
         content += `**Correction:** ${fc.correction}\n\n`;
       });
-    } else if (summary.biased_articles_found === 0) {
-      content += "I found no significantly biased articles, which is a good sign of balanced reporting on this topic.\n";
     }
 
-    const sources = analyses.map(analysis => {
-      const url = new URL(analysis.source_url);
-      return {
-        title: url.hostname.replace('www.', ''),
-        url: analysis.source_url,
-        snippet: `Bias Assessment: ${analysis.judgment}. This article was included in the overall topic analysis.`,
-        credibility: Math.round((1 - Math.abs(analysis.final_score)) * 100),
-        domain: url.hostname,
-        publishDate: 'N/A',
-      };
-    });
+    const sources = analyses.map(analysis => ({
+      title: new URL(analysis.source_url).hostname.replace('www.', ''),
+      url: analysis.source_url,
+      snippet: `Bias Assessment: ${analysis.judgment}`,
+      credibility: Math.round((1 - Math.abs(analysis.final_score)) * 100),
+      domain: new URL(analysis.source_url).hostname,
+      publishDate: 'N/A',
+    }));
 
     const averageCredibility = sources.reduce((acc, src) => acc + src.credibility, 0) / (sources.length || 1);
 
     return {
+      title: "Bias & Fact-Check Report",
+      icon: FileText,
       content,
       sources,
-      analyses, // <-- PASS THE FULL ANALYSIS DATA THROUGH
+      analyses, 
       confidence: Math.round(averageCredibility),
     };
   };
-
-//   const handleSendMessage = async () => {
-//     if (!inputValue.trim() || isLoading) return;
-
-//     const userMessage: Message = {
-//       id: Date.now().toString(),
-//       type: 'user',
-//       content: inputValue,
-//       timestamp: new Date(),
-//     };
-
-//     setMessages(prev => [...prev, userMessage]);
-//     setInputValue('');
-//     setIsLoading(true);
-//     setShowWelcome(false);
-
-//     // Simulate AI response with realistic processing time
-//     const processingDelay = 2000 + Math.random() * 3000;
+const pollForJobCompletion = async (startUrl: string, resultsUrlBase: string, topic: string, onProgress: (status: string) => void): Promise<JobData> => {
+    const startResponse = await fetch(`${API_BASE_URL}${startUrl}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic }),
+    });
+    if (!startResponse.ok) throw new Error(`Failed to start job at ${startUrl}`);
     
-//     setTimeout(() => {
-//       const botMessage: Message = {
-//         id: (Date.now() + 1).toString(),
-//         type: 'bot',
-//         content: `Based on your inquiry about "${inputValue}", I've conducted a comprehensive analysis across multiple reliable sources. Here's what I found:
+    const { job_id } = await startResponse.json();
 
-// **Key Findings:**
-// • Primary information has been verified through cross-referencing with academic databases and fact-checking organizations
-// • Analysis includes recent developments and historical context to provide complete understanding
-// • Multiple perspectives have been considered to ensure balanced reporting
-// • Statistical data has been validated through official government and research institution sources
+    return new Promise((resolve, reject) => {
+        pollingIntervalRef.current = window.setInterval(async () => {
+            try {
+                const resultsResponse = await fetch(`${API_BASE_URL}${resultsUrlBase}/${job_id}`);
+                if (!resultsResponse.ok) throw new Error(`Failed to fetch results for job ${job_id}`);
+                
+                const responseJson = await resultsResponse.json();
+                const data = responseJson.data;
 
-// **Detailed Analysis:**
-// The research indicates consistent patterns across reputable sources, with high confidence in the accuracy of the information presented. This analysis incorporates both quantitative data and qualitative insights from domain experts.
-
-// **Confidence Assessment:**
-// Based on source reliability, consistency of reporting, and evidence quality, this information carries a high confidence rating with strong evidentiary support.`,
-//         timestamp: new Date(),
-//         confidence: 92 + Math.floor(Math.random() * 7),
-//         processingTime: processingDelay / 1000,
-//         sources: [
-//           {
-//             title: 'Reuters Fact Check Database',
-//             url: 'https://reuters.com/fact-check',
-//             snippet: 'Comprehensive fact-checking with rigorous verification standards and transparent methodology...',
-//             credibility: 96,
-//             domain: 'reuters.com',
-//             publishDate: '2024-01-15'
-//           },
-//           {
-//             title: 'Associated Press News',
-//             url: 'https://apnews.com',
-//             snippet: 'Breaking news coverage with strict editorial standards and global correspondent network...',
-//             credibility: 94,
-//             domain: 'apnews.com',
-//             publishDate: '2024-01-14'
-//           },
-//           {
-//             title: 'Academic Research Portal - Nature',
-//             url: 'https://nature.com',
-//             snippet: 'Peer-reviewed scientific publications with rigorous review process and citation tracking...',
-//             credibility: 98,
-//             domain: 'nature.com',
-//             publishDate: '2024-01-10'
-//           },
-//           {
-//             title: 'Government Statistical Office',
-//             url: 'https://data.gov',
-//             snippet: 'Official government statistics with transparent data collection and regular updates...',
-//             credibility: 95,
-//             domain: 'data.gov',
-//             publishDate: '2024-01-12'
-//           },
-//           {
-//             title: 'World Health Organization',
-//             url: 'https://who.int',
-//             snippet: 'Global health authority providing evidence-based guidelines and policy recommendations...',
-//             credibility: 97,
-//             domain: 'who.int',
-//             publishDate: '2024-01-13'
-//           }
-//         ]
-//       };
-      
-//       setMessages(prev => [...prev, botMessage]);
-//       setIsLoading(false);
-//     }, processingDelay);
-//   };
+                if (data.status === 'running') {
+                    onProgress(data.progress || 'Processing...');
+                } else if (data.status === 'complete') {
+                    clearInterval(pollingIntervalRef.current!);
+                    pollingIntervalRef.current = null;
+                    resolve(data);
+                } else if (data.status === 'failed') {
+                    clearInterval(pollingIntervalRef.current!);
+                    pollingIntervalRef.current = null;
+                    reject(new Error(data.error || 'The analysis job failed.'));
+                }
+            } catch (pollError) {
+                clearInterval(pollingIntervalRef.current!);
+                pollingIntervalRef.current = null;
+                reject(pollError);
+            }
+        }, 3000);
+    });
+  };
     const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
-    // Clear any previous polling interval
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-    }
+    if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -366,74 +364,122 @@ useEffect(() => {
     };
 
     setMessages(prev => [...prev, userMessage]);
-    const topic = inputValue; // Keep the topic for API calls
+    const topic = inputValue; 
     setInputValue('');
     setIsLoading(true);
     setShowWelcome(false);
     setLoadingStatus('Initializing AI analysis engine...');
+    const startTime = Date.now();
+  //   try {
+  //     const startTime = Date.now();
+  //     const startResponse = await fetch(`${API_BASE_URL}/api/bias/analyze-topic`, {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ topic }),
+  //     });
 
-    try {
-      // === STEP 1: START THE ANALYSIS JOB ===
-      const startTime = Date.now();
-      const startResponse = await fetch(`${API_BASE_URL}/api/bias/analyze-topic`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic }),
-      });
+  //     if (!startResponse.ok) {
+  //       throw new Error('Failed to start the analysis job.');
+  //     }
 
-      if (!startResponse.ok) {
-        throw new Error('Failed to start the analysis job.');
-      }
+  //     const { job_id } = await startResponse.json();
 
-      const { job_id } = await startResponse.json();
+  //     setLoadingStatus('Job started. Waiting for initial results...');
 
-      // === STEP 2: POLL FOR RESULTS ===
-      setLoadingStatus('Job started. Waiting for initial results...');
-
-      pollingIntervalRef.current = window.setInterval(async () => {
-        try {
-          const resultsResponse = await fetch(`${API_BASE_URL}/api/bias/results/${job_id}`);
-          if (!resultsResponse.ok) {
-            // If the job is not found or another error occurs, stop polling
-            throw new Error('Failed to fetch results.');
-          }
-          const responseJson = await resultsResponse.json();
-          const data: ApiResponseData = responseJson.data;
+  //     pollingIntervalRef.current = window.setInterval(async () => {
+  //       try {
+  //         const resultsResponse = await fetch(`${API_BASE_URL}/api/bias/results/${job_id}`);
+  //         if (!resultsResponse.ok) {
+  //           throw new Error('Failed to fetch results.');
+  //         }
+  //         const responseJson = await resultsResponse.json();
+  //         const data: ApiResponseData = responseJson.data;
           
           
-          if (data.status === 'running') {
-            setLoadingStatus(data.progress || 'Analyzing sources...');
-          } else if (data.status === 'complete') {
-            clearInterval(pollingIntervalRef.current!);
-            pollingIntervalRef.current = null;
+  //         if (data.status === 'running') {
+  //           setLoadingStatus(data.progress || 'Analyzing sources...');
+  //         } else if (data.status === 'complete') {
+  //           clearInterval(pollingIntervalRef.current!);
+  //           pollingIntervalRef.current = null;
             
-            const formattedResult = formatApiResponse(data);
-            const endTime = Date.now();
+  //           const formattedResult = formatApiResponse(data);
+  //           const endTime = Date.now();
             
-            const botMessage: Message = {
-              id: (Date.now() + 1).toString(),
-              type: 'bot',
-              timestamp: new Date(),
-              processingTime: (endTime - startTime) / 1000,
-              ...formattedResult,
-            };
+  //           const botMessage: Message = {
+  //             id: (Date.now() + 1).toString(),
+  //             type: 'bot',
+  //             timestamp: new Date(),
+  //             processingTime: (endTime - startTime) / 1000,
+  //             ...formattedResult,
+  //           };
 
-            setMessages(prev => [...prev, botMessage]);
-            setIsLoading(false);
+  //           setMessages(prev => [...prev, botMessage]);
+  //           setIsLoading(false);
 
-          } else if (data.status === 'failed') {
-            throw new Error(data.error || 'The analysis job failed.');
-          }
-        } catch (pollError) {
-          console.error('Polling error:', pollError);
-          clearInterval(pollingIntervalRef.current!);
-          pollingIntervalRef.current = null;
-          throw pollError; // Propagate error to the main catch block
-        }
-      }, 3000); // Poll every 3 seconds
+  //         } else if (data.status === 'failed') {
+  //           throw new Error(data.error || 'The analysis job failed.');
+  //         }
+  //       } catch (pollError) {
+  //         console.error('Polling error:', pollError);
+  //         clearInterval(pollingIntervalRef.current!);
+  //         pollingIntervalRef.current = null;
+  //         throw pollError; 
+  //       }
+  //     }, 3000); 
+
+  //   } catch (error) {
+  //     console.error('An error occurred:', error);
+      // const errorMessage: Message = {
+      //   id: (Date.now() + 1).toString(),
+      //   type: 'bot',
+      //   content: `I'm sorry, an error occurred while trying to process your request. Please try again later. \n\n**Details:** ${error instanceof Error ? error.message : 'Unknown error'}`,
+      //   timestamp: new Date(),
+      // };
+  //     setMessages(prev => [...prev, errorMessage]);
+  //     setIsLoading(false);
+  //   }
+  // };
+  try {
+      // --- PHASE 1: TIMELINE GENERATION ---
+      setLoadingStatus("Phase 1/2: Generating historical timeline...");
+      const timelineData = await pollForJobCompletion(
+          "/api/timeline/generate", 
+          "/api/timeline/results", 
+          topic, 
+          (progress) => setLoadingStatus(`Phase 1/2: ${progress}`)
+      ) as ApiTimelineJobData;
+      
+      const formattedTimeline = formatTimelineResponse(timelineData);
+      const timelineBotMessage: Message = {
+        id: `bot-timeline-${Date.now()}`,
+        type: 'bot',
+        timestamp: new Date(),
+        ...formattedTimeline
+      };
+      setMessages(prev => [...prev, timelineBotMessage]);
+
+      // --- PHASE 2: BIAS ANALYSIS ---
+      setLoadingStatus("Phase 2/2: Analyzing articles for bias...");
+      const biasData = await pollForJobCompletion(
+          "/api/bias/analyze-topic", 
+          "/api/bias/results", 
+          topic, 
+          (progress) => setLoadingStatus(`Phase 2/2: ${progress}`)
+      ) as ApiBiasJobData;
+
+      const formattedBias = formatBiasResponse(biasData);
+      const endTime = Date.now();
+      const biasBotMessage: Message = {
+        id: `bot-bias-${Date.now()}`,
+        type: 'bot',
+        timestamp: new Date(),
+        processingTime: (endTime - startTime) / 1000,
+        ...formattedBias
+      };
+      setMessages(prev => [...prev, biasBotMessage]);
 
     } catch (error) {
-      console.error('An error occurred:', error);
+      console.error('An error occurred during the analysis pipeline:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
@@ -441,7 +487,9 @@ useEffect(() => {
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
+      setLoadingStatus('AI is researching your question...');
     }
   };
 
@@ -685,6 +733,13 @@ useEffect(() => {
                             ? 'bg-gradient-to-r from-primary to-secondary text-white ml-auto' 
                             : 'bg-muted/70 border border-border/50'
                         }`}>
+                          {/* NEW: Render title and icon for bot messages */}
+                        {message.type === 'bot' && message.title && (
+                            <div className="flex items-center gap-2 mb-3 border-b border-border/50 pb-2">
+                                {message.icon && <message.icon className="h-4 w-4 text-primary" />}
+                                <h3 className="font-semibold text-sm">{message.title}</h3>
+                            </div>
+                        )}
                           {/* <div className="whitespace-pre-wrap text-sm sm:text-base">{message.content}</div> */}
                           {/* MODIFIED: Use ReactMarkdown to render content */}
               <div className="prose prose-sm sm:prose-base dark:prose-invert prose-p:my-2 prose-headings:my-3 max-w-none">
