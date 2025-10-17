@@ -21,6 +21,8 @@ pip install -r requirements.txt
 
 # Run the backend API
 python backend\direct_api.py
+OR
+uvicorn backend.direct_api:app --reload
 ```
 
 ---
@@ -28,6 +30,7 @@ python backend\direct_api.py
 ## 🌐 Frontend Setup
 
 ```bash
+cd frontend
 npm install
 npm run dev
 ```

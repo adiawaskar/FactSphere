@@ -35,3 +35,5 @@ agents/credibility-context/credibility_reports/
 
 backend/__pycache__
 chroma_db
+
+backend/utils/trend_data
