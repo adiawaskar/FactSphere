@@ -125,7 +125,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <p className="font-medium">Email</p>
-                    <p className="text-muted-foreground">contact@truthguard.ai</p>
+                    <p className="text-muted-foreground">techtactoex@gmail.com</p>
                   </div>
                 </div>
                 

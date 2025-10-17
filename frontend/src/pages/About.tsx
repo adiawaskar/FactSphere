@@ -335,7 +335,7 @@ export default function About() {
             className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full"
           >
             <Shield className="h-5 w-5 text-primary" />
-            <span className="text-primary font-medium">About TruthGuard AI</span>
+            <span className="text-primary font-medium">About FactSphere</span>
           </motion.div>
           
           <motion.h1 
@@ -372,7 +372,7 @@ export default function About() {
               <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 In an era where information travels faster than ever before, the ability to distinguish 
-                fact from fiction has become crucial. TruthGuard AI leverages advanced artificial intelligence 
+                fact from fiction has become crucial. FactSphere leverages advanced artificial intelligence 
                 to provide real-time, accurate analysis of digital content, empowering individuals and 
                 organizations to make informed decisions based on verified information.
               </p>

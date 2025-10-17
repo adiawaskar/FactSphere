@@ -42,8 +42,8 @@ export const Header = () => {
             />
           </div>
           <div className="flex flex-col min-w-0">
-            <h1 className="text-lg lg:text-xl font-bold text-gradient truncate">TruthGuard AI</h1>
-            <p className="text-xs text-muted-foreground hidden sm:block">Advanced Verification</p>
+            <h1 className="text-lg lg:text-xl font-bold text-gradient truncate">FactSphere</h1>
+            <p className="text-xs text-muted-foreground hidden sm:block">Uncovering Reality!</p>
           </div>
         </motion.div>
 
