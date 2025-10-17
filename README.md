@@ -19,7 +19,7 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Fill in the root .env-example and change its name to .env
+# Fill in the root .env-example and rename it to .env
 
 # Run the backend API
 python backend\direct_api.py
@@ -31,7 +31,7 @@ uvicorn backend.direct_api:app --reload
 
 ## 🌐 Frontend Setup
 
-# Fill in the frontend's .env-example and change its name to .env
+# Fill in the frontend's .env-example and rename it to .env
 
 ```bash
 cd frontend
