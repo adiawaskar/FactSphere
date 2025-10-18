@@ -5,12 +5,12 @@ import os
 from typing import Dict, Any
 
 # These imports are for the timeline agent, which is in the root 'agents' folder
-from agents.timeline.o1_retrieval import get_urls_from_gnews, extract_content_from_url
-from agents.timeline.o2_vector_store import chunk_text, add_chunks_to_db, get_all_chunks_from_db
-from agents.timeline.o3_event_extraction import extract_events_from_chunk
-from agents.timeline.o4_graph_builder import Neo4jGraph
-from agents.timeline.o5_narrative_generator import generate_narrative
-from agents.timeline.config import CHROMA_DB_PATH
+from backend.agents.timeline.o1_retrieval import get_urls_from_gnews, extract_content_from_url
+from backend.agents.timeline.o2_vector_store import chunk_text, add_chunks_to_db, get_all_chunks_from_db
+from backend.agents.timeline.o3_event_extraction import extract_events_from_chunk
+from backend.agents.timeline.o4_graph_builder import Neo4jGraph
+from backend.agents.timeline.o5_narrative_generator import generate_narrative
+from backend.agents.timeline.config import CHROMA_DB_PATH
 
 logger = logging.getLogger("timeline_service")
 

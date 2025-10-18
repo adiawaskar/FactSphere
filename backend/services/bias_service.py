@@ -9,12 +9,12 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 # ---
 
-from agents.bias_analyzer_priyank.content_extractor import extract_content_from_url
-from agents.bias_analyzer_priyank.bias_analyzer import BiasAnalysisAgent
-from agents.bias_analyzer_priyank.news_fetcher import get_urls_from_gnews
-from agents.bias_analyzer_priyank.config import NEUTRAL_BIAS_THRESHOLD
-from agents.bias_analyzer_priyank.knowledge_base import KnowledgeBase
-from agents.bias_analyzer_priyank.fact_checker import generate_misconceptions, generate_fact_check_report
+from backend.agents.bias_analyzer_priyank.content_extractor import extract_content_from_url
+from backend.agents.bias_analyzer_priyank.bias_analyzer import BiasAnalysisAgent
+from backend.agents.bias_analyzer_priyank.news_fetcher import get_urls_from_gnews
+from backend.agents.bias_analyzer_priyank.config import NEUTRAL_BIAS_THRESHOLD
+from backend.agents.bias_analyzer_priyank.knowledge_base import KnowledgeBase
+from backend.agents.bias_analyzer_priyank.fact_checker import generate_misconceptions, generate_fact_check_report
 
 # Configure logging
 logger = logging.getLogger("bias_service")
