@@ -2,7 +2,9 @@
 import json
 import google.generativeai as genai
 from typing import List, Dict
-from .config import CONSOLE, LLM_SMART_MODEL
+from .config import CONSOLE, LLM_SMART_MODEL, GEMINI_API_KEY
+
+genai.configure(api_key=GEMINI_API_KEY, transport="rest")
 
 def generate_narrative(sorted_events: List[Dict]) -> Dict:
     """

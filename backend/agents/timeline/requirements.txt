@@ -10,3 +10,4 @@ numpy
 google-generativeai
 neo4j
 dateparser
+duckduckgo-search

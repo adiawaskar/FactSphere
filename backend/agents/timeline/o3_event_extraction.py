@@ -6,7 +6,7 @@ from .config import CONSOLE, LLM_SMART_MODEL, GEMINI_API_KEY
 import time
 
 # Configure the Gemini API client
-genai.configure(api_key=GEMINI_API_KEY)
+genai.configure(api_key=GEMINI_API_KEY, transport="rest")
 
 def extract_events_from_chunk(chunk: Dict) -> Optional[List[Dict]]:
     """

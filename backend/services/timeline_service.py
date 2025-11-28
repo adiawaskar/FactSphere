@@ -5,7 +5,7 @@ import os
 from typing import Dict, Any
 
 # These imports are for the timeline agent, which is in the root 'agents' folder
-from backend.agents.timeline.o1_retrieval import get_urls_from_gnews, extract_content_from_url
+from backend.agents.timeline.o1_retrieval import get_urls_from_duckduckgo, extract_content_from_url
 from backend.agents.timeline.o2_vector_store import chunk_text, add_chunks_to_db, get_all_chunks_from_db
 from backend.agents.timeline.o3_event_extraction import extract_events_from_chunk
 from backend.agents.timeline.o4_graph_builder import Neo4jGraph
@@ -40,7 +40,7 @@ def run_timeline_generation_background(job_id: str, topic: str):
 
         # 1. RETRIEVAL
         timeline_job_results[job_id]["progress"] = "Step 1/5: Retrieving news articles..."
-        article_infos = get_urls_from_gnews(topic, max_results=5)
+        article_infos = get_urls_from_duckduckgo(topic, max_results=5)
         if not article_infos:
             raise ValueError("No articles found from GNews.")
         
