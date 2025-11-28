@@ -6,6 +6,7 @@ from typing import Dict, Any
 
 # These imports are for the timeline agent, which is in the root 'agents' folder
 from backend.agents.timeline.o1_retrieval import get_urls_from_duckduckgo, extract_content_from_url
+from backend.agents.timeline.main import main as run_timeline_pipeline
 from backend.agents.timeline.o2_vector_store import chunk_text, add_chunks_to_db, get_all_chunks_from_db
 from backend.agents.timeline.o3_event_extraction import extract_events_from_chunk
 from backend.agents.timeline.o4_graph_builder import Neo4jGraph
