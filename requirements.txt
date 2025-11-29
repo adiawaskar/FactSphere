@@ -142,3 +142,5 @@ zstandard==0.25.0
 
 googlesearch-python
 neo4j
+beautifulsoup4
+diskcache
